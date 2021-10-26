@@ -17,6 +17,7 @@ public class AuthController {
 
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public void signup(@Valid @RequestBody RegistrationDTO dto) {
-    log.debug("SIGNUP METHOD REACHED");
+
+    log.debug("SIGNUP METHOD REACHED: " + dto);
   }
 }
