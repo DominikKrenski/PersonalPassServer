@@ -1,0 +1,88 @@
+spring:
+  mandatory-file-encoding: UTF-8
+  messages:
+    always-use-message-format: false
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    use-code-as-default-message: false
+  jackson:
+    date-format: "dd/MM/yyyy'T'HH:mm:ss.SSSZ"
+    default-property-inclusion: NON_EMPTY
+    deserialization:
+      use-big-decimal-for-floats: false
+      use-big-integer-for-ints: false
+      use-long-for-ints: false
+      use-java-array-for-json-array: false
+      fail-on-unknown-properties: true
+      fail-on-null-for-primitives: true
+      fail-on-numbers-for-enums: true
+      fail-on-invalid-subtype: true
+      fail-on-reading-dup-tree-key: true
+      fail-on-ignored-properties: true
+      fail-on-unresolved-object-ids: true
+      fail-on-missing-creator-properties: true
+      fail-on-null-creator-properties: true
+      fail-on-missing-external-type-id-property: true
+      fail-on-trailing-tokens: true
+      wrap-exceptions: true
+      accept-single-value-as-array: false
+      unwrap-single-value-arrays: false
+      unwrap-root-value: false
+      accept-empty-string-as-null-object: false
+      accept-empty-array-as-null-object: false
+      accept-float-as-int: false
+      read-enums-using-to-string: false
+      read-unknown-enum-values-as-null: false
+      read-unknown-enum-values-using-default-value: true
+      read-date-timestamps-as-nanoseconds: false
+      adjust-dates-to-context-time-zone: false
+      eager-deserializer-fetch: true
+    locale: pl
+    property-naming-strategy: LOWER_CAMEL_CASE
+    serialization:
+      wrap-root-value: false
+      indent-output: false
+      fail-on-empty-beans: true
+      fail-on-self-references: true
+      wrap-exceptions: true
+      fail-on-unwrapped-type-identifiers: true
+      write-self-references-as-null: false
+      close-closeable: false
+      flush-after-write-value: true
+      write-dates-as-timestamps: false
+      write-date-keys-as-timestamps: false
+      write-dates-with-zone-id: false
+      write-durations-as-timestamps: false
+      write-char-arrays-as-json-arrays: true
+      write-enums-using-to-string: false
+      write-enums-using-index: false
+      write-enum-keys-using-index: false
+      write-single-elem-arrays-unwrapped: false
+      write-date-timestamps-as-nanoseconds: false
+      order-map-entries-by-keys: true
+      eager-serializer-fetch: true
+      use-equality-for-object-id: false
+    time-zone: UTC
+    visibility:
+      creator: PUBLIC_ONLY
+      field: NONE
+      getter: PUBLIC_ONLY
+      setter: PUBLIC_ONLY
+      is-getter: PUBLIC_ONLY
+  mvc:
+    converters:
+      preferred-json-mapper: jackson
+    format:
+      date: dd/MM/yyyy
+      date-time: dd/MM/yyyy HH:mm:ss
+      time: HH:mm:ss
+    log-request-details: false
+    log-resolved-exception: false
+    servlet:
+      load-on-startup: -1
+      path: /
+    throw-exception-if-no-handler-found: true
+  servlet:
+    multipart:
+      enabled: false
