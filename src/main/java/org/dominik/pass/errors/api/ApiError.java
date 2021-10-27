@@ -35,11 +35,6 @@ public final class ApiError {
 
     private ErrorBuilder() {}
 
-    public ErrorBuilder status(@NonNull String status) {
-      this.status = status;
-      return this;
-    }
-
     public ErrorBuilder status(@NonNull HttpStatus status) {
       this.status = status.getReasonPhrase();
       return this;
