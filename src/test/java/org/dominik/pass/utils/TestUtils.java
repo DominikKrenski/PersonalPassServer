@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.Serial;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class TestUtils {
   public static Properties readPropertiesFile(String filename) {
@@ -128,5 +130,19 @@ public final class TestUtils {
     mapper.configure(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID, false);
 
     return mapper;
+  }
+
+  public static String getSubErrorsString(String json) {
+    String regex = "(.*)(\"errors\":\\[.*]}])(.*)";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(json);
+
+    String substring = null;
+
+    if (matcher.matches()) {
+      substring = matcher.group(2).substring(9);
+    }
+
+    return substring;
   }
 }
