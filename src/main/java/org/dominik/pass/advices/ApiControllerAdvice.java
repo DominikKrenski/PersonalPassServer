@@ -79,6 +79,8 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
+
+
   @Override
   protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE MEDIA TYPE NOT SUPPORTED: " + Arrays.toString(ex.getStackTrace()));
@@ -86,7 +88,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
         .builder()
         .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
         .timestamp(Instant.now())
-        .message("Media Type Not Supported")
+        .message("MediaType Not Supported")
         .build();
 
     return new ResponseEntity<>(apiError, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
