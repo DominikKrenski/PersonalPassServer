@@ -151,7 +151,7 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     contexts: dev
     default-schema: development
-    enabled: false
+    enabled: true
     liquibase-schema: development
     password: H7BFiLRfW060oiHd
     url: jdbc:postgresql://localhost:5432/personal_pass
