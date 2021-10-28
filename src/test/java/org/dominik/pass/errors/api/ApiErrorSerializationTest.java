@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.dominik.pass.utils.TestUtils.*;
@@ -104,20 +103,6 @@ public class ApiErrorSerializationTest {
     private Object rejectedValue;
     private List<String> validationMessages;
   }
-
-  /*private String getSubErrorsString(String json) {
-    String regex = "(.*)(\"errors\":\\[.*]}])(.*)";
-    Pattern pattern = Pattern.compile(regex);
-    Matcher matcher = pattern.matcher(json);
-
-    String substring = null;
-
-    if (matcher.matches()) {
-      substring = matcher.group(2).substring(9);
-    }
-
-    return substring;
-  }*/
 
   private Map<String, TestValidationError> convertErrorListToMap(List<TestValidationError> validationErrors) {
     Map<String, TestValidationError> map = new HashMap<>();
