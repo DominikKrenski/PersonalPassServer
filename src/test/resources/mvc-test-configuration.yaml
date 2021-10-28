@@ -83,6 +83,9 @@ spring:
       load-on-startup: -1
       path: /
     throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   servlet:
     multipart:
       enabled: false

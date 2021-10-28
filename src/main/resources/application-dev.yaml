@@ -172,6 +172,9 @@ spring:
   servlet:
     multipart:
       enabled: false
+  web:
+    resources:
+      add-mappings: false
 
 server:
   address: personal-pass.dev
