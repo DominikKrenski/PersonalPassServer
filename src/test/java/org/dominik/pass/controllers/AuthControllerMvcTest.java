@@ -109,6 +109,7 @@ public class AuthControllerMvcTest {
   }
 
   @Test
+  @DisplayName("should return validation error")
   void shouldReturnErrorResponseIfValidationFailed() throws Exception {
     RegistrationDTO registrationDTO = createRegistrationDtoInstance("dominik.yahoo", "a8r", "qwerty", null);
 
