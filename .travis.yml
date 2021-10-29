@@ -3,6 +3,9 @@ dist: focal
 arch: amd64
 language: java
 jdk: openjdk17
+cache:
+  directories:
+    - $HOME/.m2
 #branches:
 #  only:
 #    - master
