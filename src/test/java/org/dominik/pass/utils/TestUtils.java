@@ -10,18 +10,140 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.dominik.pass.data.dto.RegistrationDTO;
+import org.dominik.pass.data.enums.Role;
+import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.utils.serializers.ApiInstantSerializer;
 
 import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serial;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class TestUtils {
+  public static Account createAccountInstance(
+      Long id,
+      UUID publicId,
+      String email,
+      String password,
+      String salt,
+      String reminder,
+      Role role,
+      boolean accountNonExpired,
+      boolean accountNonLocked,
+      boolean credentialsNonExpired,
+      boolean enabled,
+      Instant createdAt,
+      Instant updatedAt,
+      short version) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = Account.class;
+    Class<?> superClazz = clazz.getSuperclass();
+
+    // get class default constructor
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+
+    // set constructor accessible
+    constructor.setAccessible(true);
+
+    // create account instance
+    Account account = (Account) constructor.newInstance();
+
+    // get all class fields
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+    // set all fields accessible
+    fields.forEach(field -> field.setAccessible(true));
+
+    // get all super class fields
+    List<Field> superFields = Arrays.asList(superClazz.getDeclaredFields());
+
+    // set all super class fields accessible
+    superFields.forEach(field -> field.setAccessible(true));
+
+    // set values of super class fields
+    superFields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "createdAt" -> field.set(account, createdAt);
+          case "updatedAt" -> field.set(account, updatedAt);
+          case "version" -> field.set(account, version);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    // set values of class fields
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "id" -> field.set(account, id);
+          case "publicId" -> field.set(account, publicId);
+          case "email" -> field.set(account, email);
+          case "password" -> field.set(account, password);
+          case "salt" -> field.set(account, salt);
+          case "reminder" -> field.set(account, reminder);
+          case "role" -> field.set(account, role);
+          case "accountNonExpired" -> field.set(account, accountNonExpired);
+          case "accountNonLocked" -> field.set(account, accountNonLocked);
+          case "credentialsNonExpired" -> field.set(account, credentialsNonExpired);
+          case "enabled" -> field.set(account, enabled);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return account;
+  }
+
+  public static RegistrationDTO createRegistrationDtoInstance(String email, String password, String salt, String reminder) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = RegistrationDTO.class;
+
+    // get class constructor
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+
+    // set constructor accessible
+    constructor.setAccessible(true);
+
+    // create RegistrationDTO instance
+    RegistrationDTO dto = (RegistrationDTO) constructor.newInstance();
+
+    // get all class fields
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+    // set all fields accessible
+    fields.forEach(field -> field.setAccessible(true));
+
+    // set all fields's values
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "email" -> field.set(dto, email);
+          case "password" -> field.set(dto, password);
+          case "salt" -> field.set(dto, salt);
+          case "reminder" -> field.set(dto, reminder);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return dto;
+  }
+
   public static Properties readPropertiesFile(String filename) {
     Properties props = new Properties();
 
