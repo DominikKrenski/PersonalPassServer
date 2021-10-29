@@ -72,7 +72,6 @@ public class AuthDtoSerializationTest {
         .build();
 
     String json = mapper.writeValueAsString(dto);
-    System.out.println(json);
 
     ReadContext ctx = JsonPath.parse(json);
 
