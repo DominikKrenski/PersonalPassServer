@@ -1,0 +1,12 @@
+os: linux
+dist: focal
+arch: amd64
+language: java
+jdk: openjdk17
+#branches:
+#  only:
+#    - master
+#    - development
+
+after_success:
+  - ./mvnw clean test jacoco:report coveralls:report
