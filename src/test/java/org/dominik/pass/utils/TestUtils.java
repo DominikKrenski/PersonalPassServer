@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.Getter;
+import lombok.ToString;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
@@ -267,4 +269,21 @@ public final class TestUtils {
 
     return substring;
   }
+
+  public static Map<String, TestValidationError> convertErrorListToMap(List<TestValidationError> validationErrors) {
+    Map<String, TestValidationError> map = new HashMap<>();
+    validationErrors.forEach(error -> map.put(error.getField(), error));
+
+    return map;
+  }
+
+  @Getter
+  @ToString
+  public static final class TestValidationError {
+    private String field;
+    private Object rejectedValue;
+    private List<String> validationMessages;
+  }
+
+
 }
