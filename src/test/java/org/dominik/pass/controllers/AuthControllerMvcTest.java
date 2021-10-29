@@ -118,18 +118,14 @@ public class AuthControllerMvcTest {
     // prepare individual salt messages
     String saltLengthMessage = props.getProperty("salt.length.message").replace("{max}", "32");
 
-    List<String> emailMessages = new LinkedList<>();
-    List<String> passwordMessages = new LinkedList<>();
-    List<String> saltMessages = new LinkedList<>();
+    List<String> emailMessages = new LinkedList<>(List.of(props.getProperty("email.format.message")));
 
-    emailMessages.addAll(List.of(props.getProperty("email.format.message")));
-
-    passwordMessages.addAll(List.of(
+    List<String> passwordMessages = new LinkedList<>(List.of(
         props.getProperty("password.hex.message"),
         passwordLengthMessage
     ));
 
-    saltMessages.addAll(List.of(
+    List<String> saltMessages = new LinkedList<>(List.of(
         props.getProperty("salt.hex.message"),
         saltLengthMessage
     ));
