@@ -9,6 +9,7 @@ import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
+import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.dominik.pass.utils.TestUtils.*;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -162,5 +164,25 @@ public class AuthControllerMvcTest {
           assertEquals("qwerty", map.get("salt").getRejectedValue());
           assertTrue(map.get("salt").getValidationMessages().containsAll(saltMessages));
         });
+  }
+
+  @Test
+  @DisplayName("should return conflict response")
+  void shouldReturnConflictResponse() throws Exception {
+    RegistrationDTO registrationDTO = createRegistrationDtoInstance(EMAIL, PASSWORD, SALT, REMINDER);
+
+    when(accountService.register(any(RegistrationDTO.class))).thenThrow(new ConflictException("Conflict with other record"));
+
+    mvc
+        .perform(
+            post(URL)
+                .content(mapper.writeValueAsString(registrationDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+        .andExpect(jsonPath("$.message").value("Conflict with other record"));
   }
 }
