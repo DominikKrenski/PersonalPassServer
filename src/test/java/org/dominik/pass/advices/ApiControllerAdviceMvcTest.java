@@ -1,7 +1,11 @@
 package org.dominik.pass.advices;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
 import org.dominik.pass.controllers.AuthController;
+import org.dominik.pass.data.dto.RegistrationDTO;
+import org.dominik.pass.errors.exceptions.ConflictException;
+import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.dominik.pass.utils.TestUtils.createRegistrationDtoInstance;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,10 +34,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @Import(AuthControllerMvcTestConfig.class)
 public class ApiControllerAdviceMvcTest {
+  private static final String EMAIL ="dominik.krenski@gmail.com";
+  private static final String PASSWORD = "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c";
+  private static final String SALT = "711882a4dc3dcb437eb6151c09025594";
   private static final String URL = "/auth/signup";
   private static final String TIMESTAMP_PATTERN="\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
 
   @Autowired MockMvc mvc;
+  @Autowired ObjectMapper mapper;
+  @Autowired AccountService accountService;
 
   @Test
   @DisplayName("should return message not readable if request body is missing")
@@ -88,5 +100,26 @@ public class ApiControllerAdviceMvcTest {
         .andExpect(jsonPath("$.status").value(HttpStatus.UNSUPPORTED_MEDIA_TYPE.getReasonPhrase()))
         .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
         .andExpect(jsonPath("$.message").value("MediaType Not Supported"));
+  }
+
+  @Test
+  @DisplayName("should return conflict message")
+  void shouldReturnConflictMessage() throws Exception {
+    when(accountService.register(any(RegistrationDTO.class))).thenThrow(new ConflictException("Email with given email already exists"));
+
+    RegistrationDTO dto = createRegistrationDtoInstance(EMAIL, PASSWORD, SALT, null);
+    String data = mapper.writeValueAsString(dto);
+
+    mvc
+        .perform(
+            post(URL)
+                .content(data)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+        .andExpect(jsonPath("$.message").value("Email with given email already exists"));
   }
 }
