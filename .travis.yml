@@ -9,4 +9,4 @@ jdk: openjdk17
 #    - development
 
 after_success:
-  - ./mvnw clean test jacoco:report coveralls:report
+  - ./mvnw jacoco:report coveralls:report
