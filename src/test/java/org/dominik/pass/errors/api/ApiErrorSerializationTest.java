@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
-import lombok.Getter;
-import lombok.ToString;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -94,20 +92,5 @@ public class ApiErrorSerializationTest {
     assertEquals("bbb", map.get("salt").getRejectedValue());
     assertTrue(map.get("salt").getValidationMessages().containsAll(saltMessages));
 
-  }
-
-  @Getter
-  @ToString
-  private static final class TestValidationError {
-    private String field;
-    private Object rejectedValue;
-    private List<String> validationMessages;
-  }
-
-  private Map<String, TestValidationError> convertErrorListToMap(List<TestValidationError> validationErrors) {
-    Map<String, TestValidationError> map = new HashMap<>();
-    validationErrors.forEach(error -> map.put(error.getField(), error));
-
-    return map;
   }
 }
