@@ -1,0 +1,1 @@
+[![Coverage Status](https://coveralls.io/repos/github/DominikKrenski/PersonalPassServer/badge.svg?branch=registration-travis)](https://coveralls.io/github/DominikKrenski/PersonalPassServer?branch=registration-travis)
