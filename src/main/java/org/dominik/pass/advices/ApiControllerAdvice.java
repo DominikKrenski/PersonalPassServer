@@ -3,6 +3,7 @@ package org.dominik.pass.advices;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.errors.api.ApiError;
 import org.dominik.pass.errors.api.ValidationError;
+import org.dominik.pass.errors.exceptions.BaseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -92,6 +94,19 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
         .build();
 
     return new ResponseEntity<>(apiError, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+  }
+
+  @ExceptionHandler(BaseException.class)
+  public ResponseEntity<Object> handleBaseException(BaseException ex) {
+    log.error("HANDLE BASE EXCEPTION:" + Arrays.toString(ex.getStackTrace()));
+    ApiError apiError = ApiError
+        .builder()
+        .status(ex.getStatus())
+        .timestamp(ex.getTimestamp())
+        .message(ex.getMessage())
+        .build();
+
+    return new ResponseEntity<>(apiError, ex.getStatus());
   }
 
   private List<ValidationError> prepareValidationErrors(List<FieldError> fieldErrors) {
