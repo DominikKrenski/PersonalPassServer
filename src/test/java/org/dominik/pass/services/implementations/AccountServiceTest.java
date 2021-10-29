@@ -5,6 +5,7 @@ import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.repositories.AccountRepository;
+import org.dominik.pass.errors.exceptions.ConflictException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +77,7 @@ public class AccountServiceTest {
 
     when(passwordEncoder.encode(any(String.class))).thenReturn("encoded" + PASSWORD);
     when(accountRepository.save(any(Account.class))).thenReturn(account);
+    when(accountRepository.existsByEmail(any(String.class))).thenReturn(false);
 
     AccountDTO dto = accountService.register(registrationDTO);
 
@@ -124,6 +126,7 @@ public class AccountServiceTest {
 
     when(passwordEncoder.encode(any(String.class))).thenReturn("encoded" + PASSWORD);
     when(accountRepository.save(any(Account.class))).thenReturn(account);
+    when(accountRepository.existsByEmail(any(String.class))).thenReturn(false);
 
     AccountDTO dto = accountService.register(registrationDTO);
 
@@ -141,5 +144,21 @@ public class AccountServiceTest {
     assertEquals(CREATED_AT, dto.getCreatedAt());
     assertEquals(UPDATED_AT, dto.getUpdatedAt());
     assertEquals(VERSION, dto.getVersion());
+  }
+
+  @Test
+  @DisplayName("should throw conflict exception if account with given email already exists")
+  void shouldThrowConflictExceptionIfAccountWithGivenEmailAlreadyExists() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    RegistrationDTO registrationDTO = createRegistrationDtoInstance(
+        EMAIL,
+        PASSWORD,
+        SALT,
+        null
+    );
+
+    when(accountRepository.existsByEmail(EMAIL)).thenReturn(true);
+
+    assertThrows(ConflictException.class, () -> accountService.register(registrationDTO));
+
   }
 }
