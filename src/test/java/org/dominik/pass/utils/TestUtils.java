@@ -3,6 +3,7 @@ package org.dominik.pass.utils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -11,18 +12,24 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.utils.serializers.ApiInstantSerializer;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -277,6 +284,39 @@ public final class TestUtils {
     return map;
   }
 
+  public static byte[] hmacSHA512(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
+    Mac hmacSHA512 = Mac.getInstance("HmacSHA512");
+    SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
+    hmacSHA512.init(keySpec);
+
+    return hmacSHA512.doFinal(data.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public static String base64UrlEncode(String data) {
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(data.getBytes(StandardCharsets.UTF_8));
+  }
+
+  public static String base64UrlEncode(byte[] data) {
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(data);
+  }
+
+  public static String base64UrlDecode(String data) {
+    return new String(Base64.getUrlDecoder().decode(data));
+  }
+
+  public static String generateJwtToken(String issuer, String subject, long issuedAt, String audience, long expiration, String key) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException {
+    ObjectMapper mapper = createObjectMapperInstance();
+
+    JwtHeader jwtHeader = new JwtHeader();
+    JwtPayload jwtPayload = new JwtPayload(issuer, subject, issuedAt, audience, expiration);
+
+    String header = base64UrlEncode(mapper.writeValueAsString(jwtHeader));
+    String payload = base64UrlEncode(mapper.writeValueAsString(jwtPayload));
+    String signature = base64UrlEncode(hmacSHA512(header + "." + payload, key));
+
+    return header + "." + payload + "." + signature;
+  }
+
   @Getter
   @ToString
   public static final class TestValidationError {
@@ -285,5 +325,20 @@ public final class TestUtils {
     private List<String> validationMessages;
   }
 
+  @Getter
+  @ToString
+  public static final class JwtHeader {
+    private final String alg = "HS512";
+  }
 
+  @RequiredArgsConstructor
+  @Getter
+  @ToString
+  public static final class JwtPayload {
+    private final String iss;
+    private final String sub;
+    private final long iat;
+    private final String aud;
+    private final long exp;
+  }
 }
