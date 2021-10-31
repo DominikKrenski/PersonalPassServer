@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @TestConfiguration
 @ConfigurationProperties
-@PropertySource(value = "classpath:jwt-dev.yaml", factory = YamlPropertySourceFactory.class)
+@PropertySource(value = "classpath:jwt-${spring.profiles.active:dev}.yaml", factory = YamlPropertySourceFactory.class)
 @Getter
 @Setter
 public class JwtTestConfig {
