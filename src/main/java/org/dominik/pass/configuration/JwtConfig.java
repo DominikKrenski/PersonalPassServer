@@ -4,16 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.dominik.pass.utils.factories.YamlPropertySourceFactory;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-import java.util.Map;
-
 @Configuration
-@PropertySource(value = "classpath:jwt-dev.yaml", factory = YamlPropertySourceFactory.class)
-@Profile("dev")
+@PropertySource(value = "classpath:jwt-${spring.profiles.active:dev}.yaml", factory = YamlPropertySourceFactory.class)
 @Getter
-public class JwtConfigDev {
+public class JwtConfig {
   private String issuer;
   private String key;
   private Token accessToken = new Token();
