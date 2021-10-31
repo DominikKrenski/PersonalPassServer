@@ -1,23 +1,27 @@
 package org.dominik.pass.security;
 
 import org.dominik.pass.configuration.JwtTestConfig;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class})
 @Import(JwtTestConfig.class)
-@EnableConfigurationProperties(JwtTestConfig.class)
-@ActiveProfiles("dev")
+@EnableConfigurationProperties({JwtTestConfig.class})
 public class JwtPropsLoadTest {
   @Autowired JwtTestConfig jwtConfig;
+
+  @BeforeAll
+  static void setUp() {
+    System.setProperty("spring.profiles.active", "test");
+  }
 
   @Test
   @DisplayName("should load properties")
