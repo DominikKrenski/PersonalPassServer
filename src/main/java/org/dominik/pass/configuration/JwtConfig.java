@@ -12,12 +12,12 @@ import org.springframework.context.annotation.PropertySource;
 public class JwtConfig {
   private String issuer;
   private String key;
-  private Token accessToken = new Token();
-  private Token refreshToken = new Token();
+  private JwtToken accessToken = new JwtToken();
+  private JwtToken refreshToken = new JwtToken();
 
   @Getter
   @Setter
-  public static final class Token {
+  public static final class JwtToken {
     private String audience;
     private int expiration;
   }
