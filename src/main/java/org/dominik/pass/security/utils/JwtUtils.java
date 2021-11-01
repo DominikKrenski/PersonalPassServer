@@ -1,7 +1,6 @@
 package org.dominik.pass.security.utils;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.NonNull;
 import org.dominik.pass.configuration.JwtConfig;
@@ -12,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.function.Function;
 
 @Component
 public final class JwtUtils {
@@ -50,5 +50,40 @@ public final class JwtUtils {
     }
 
     return builder.signWith(secretKey).compact();
+  }
+
+  public String readSubject(@NonNull String token, TokenType tokenType) {
+    return readClaim(token, tokenType, Claims::getSubject);
+  }
+
+  public String readAudience(@NonNull String token, TokenType tokenType) {
+    return readClaim(token, tokenType, Claims::getAudience);
+  }
+
+  private Claims readAllClaims(@NonNull String token, @NonNull TokenType tokenType) {
+    SecretKey secretKey = Keys.hmacShaKeyFor(jwtConfig.getKey().getBytes(StandardCharsets.UTF_8));
+    JwtParserBuilder builder = Jwts.parserBuilder();
+
+    builder.setSigningKey(secretKey);
+    builder.requireIssuer(jwtConfig.getIssuer());
+
+    switch (tokenType) {
+      case ACCESS_TOKEN -> builder.requireAudience(jwtConfig.getAccessToken().getAudience());
+      case REFRESH_TOKEN -> builder.requireAudience(jwtConfig.getRefreshToken().getAudience());
+    }
+
+    return builder.build().parseClaimsJws(token).getBody();
+  }
+
+  private <T> T readClaim(@NonNull String token, TokenType tokenType, Function<Claims, T> getClaim) {
+    Claims claims = readAllClaims(token, tokenType);
+    return getClaim.apply(claims);
+
+    // MissingClaimException -> parsed JWT did not have field
+    // IncorrectClaimException -> parsed JWT had a field, but its value was incorrect
+    // ExpiredJwtException -> token is expired
+    // SignatureException -> signature is not valid
+    // MalformedJwtException -> ???
+    // UnsupportedJwtException -> ???
   }
 }
