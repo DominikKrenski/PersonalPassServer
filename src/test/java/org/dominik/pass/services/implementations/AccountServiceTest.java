@@ -6,6 +6,7 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.repositories.AccountRepository;
 import org.dominik.pass.errors.exceptions.ConflictException;
+import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
@@ -159,6 +161,53 @@ public class AccountServiceTest {
     when(accountRepository.existsByEmail(EMAIL)).thenReturn(true);
 
     assertThrows(ConflictException.class, () -> accountService.register(registrationDTO));
+  }
 
+  @Test
+  @DisplayName("should return AccountDTO instance if account with given email exists")
+  void shouldReturnAccountDtoInstanceIfAccountWithGivenEmailExists() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    Account account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        PASSWORD,
+        SALT,
+        REMINDER,
+        ROLE,
+        true,
+        true,
+        false,
+        false,
+        CREATED_AT,
+        UPDATED_AT,
+        (short) 0
+    );
+
+    when(accountRepository.findByEmail(any(String.class))).thenReturn(Optional.of(account));
+
+    AccountDTO accountDTO = accountService.findByEmail(EMAIL);
+
+    assertEquals(account.getId(), accountDTO.getId());
+    assertEquals(account.getPublicId().toString(), accountDTO.getPublicId().toString());
+    assertEquals(account.getEmail(), accountDTO.getEmail());
+    assertEquals(account.getPassword(), accountDTO.getPassword());
+    assertEquals(account.getSalt(), accountDTO.getSalt());
+    assertEquals(account.getReminder(), accountDTO.getReminder());
+    assertEquals(account.getRole().toString(), accountDTO.getRole().toString());
+    assertTrue(accountDTO.isAccountNonExpired());
+    assertTrue(accountDTO.isAccountNonLocked());
+    assertFalse(accountDTO.isCredentialsNonExpired());
+    assertFalse(accountDTO.isEnabled());
+    assertEquals(account.getCreatedAt(), accountDTO.getCreatedAt());
+    assertEquals(account.getUpdatedAt(), accountDTO.getUpdatedAt());
+    assertEquals(account.getVersion(), accountDTO.getVersion());
+  }
+
+  @Test
+  @DisplayName("should throw NotFoundException if account with given email does not exist")
+  void shouldThrowNotFoundExceptionIfAccountWithGivenEmailDoesNotExist() {
+    when(accountRepository.findByEmail(any(String.class))).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> accountService.findByEmail(EMAIL));
   }
 }
