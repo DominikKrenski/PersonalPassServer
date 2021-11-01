@@ -5,13 +5,11 @@ import org.dominik.pass.data.dto.AccountDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Component
 public final class AccountDetails implements UserDetails {
   private final String username;
   private final UUID publicId;
