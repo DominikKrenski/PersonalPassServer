@@ -1,5 +1,9 @@
 package org.dominik.pass.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dominik.pass.security.entries.AuthEntryPoint;
+import org.dominik.pass.security.filters.LoginFilter;
+import org.dominik.pass.security.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
@@ -25,11 +30,15 @@ import java.util.List;
 public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService detailsService;
+  private final ObjectMapper mapper;
+  private final JwtUtils jwtUtils;
 
   @Autowired
-  public SecurityConfigDev(PasswordEncoder passwordEncoder, UserDetailsService detailsService) {
+  public SecurityConfigDev(PasswordEncoder passwordEncoder, UserDetailsService detailsService, ObjectMapper mapper, JwtUtils jwtUtils) {
     this.passwordEncoder = passwordEncoder;
     this.detailsService = detailsService;
+    this.mapper = mapper;
+    this.jwtUtils = jwtUtils;
   }
 
   @Override
@@ -37,11 +46,13 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
     http
         .cors(customizer -> customizer.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(AbstractHttpConfigurer::disable)
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeRequests(authorizeRequest -> authorizeRequest
             .antMatchers("/auth/signup", "/auth/signin").permitAll()
             .anyRequest().authenticated()
-        );
+        )
+        .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
+        .addFilter(new LoginFilter(authenticationManager(),mapper, jwtUtils));
   }
 
   @Override
