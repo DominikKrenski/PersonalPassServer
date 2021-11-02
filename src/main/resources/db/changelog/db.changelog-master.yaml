@@ -2,3 +2,6 @@ databaseChangeLog:
   - include:
       file: 01.create-accounts-table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 02.create-refresh-tokens-table.yaml
+      relativeToChangelogFile: true

@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-refresh-tokens-table
+      author: Dominik Kreński
+      context: dev
+      changes:
+        - createSequence:
+            dataType: BIGINT
+            incrementBy: 1
+            sequenceName: refresh_tokens_id_seq
+            startValue: 1
+        - createTable:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  defaultValueComputed: nextval('refresh_tokens_id_seq')
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: refresh_tokens_pk
+              - column:
+                  name: token
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: refresh_tokens_token_unq
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: account_id
+            baseTableName: refresh_tokens
+            constraintName: refresh_tokens_accounts_fk
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: accounts
+            validate: true
