@@ -17,6 +17,7 @@ import lombok.ToString;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
+import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.utils.serializers.ApiInstantSerializer;
 
 import javax.crypto.Mac;
@@ -114,6 +115,71 @@ public final class TestUtils {
     });
 
     return account;
+  }
+
+  public static RefreshToken createRefreshTokenInstance(
+      Long id,
+      String token,
+      Account account,
+      Instant createdAt,
+      Instant updatedAt,
+      short version
+  ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = RefreshToken.class;
+    Class<?> superClazz = clazz.getSuperclass();
+
+    // get class default constructor
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+
+    // set constructor accessible
+    constructor.setAccessible(true);
+
+    // create RefreshToken instance
+    RefreshToken refreshToken = (RefreshToken) constructor.newInstance();
+
+    // get all class fields
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+    // set all fields accessible
+    fields.forEach(field -> field.setAccessible(true));
+
+    // get all super class fields
+    List<Field> superFields = Arrays.asList(superClazz.getDeclaredFields());
+
+    // set all super class fields accessible
+    superFields.forEach(field -> field.setAccessible(true));
+
+    // set values of super class fields
+    superFields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "createdAt" -> field.set(refreshToken, createdAt);
+          case "updatedAt" -> field.set(refreshToken, updatedAt);
+          case "version" -> field.set(refreshToken, version);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    // set values of class fields
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "id" -> field.set(refreshToken, id);
+          case "token" -> field.set(refreshToken, token);
+          case "account" -> field.set(refreshToken, account);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return refreshToken;
   }
 
   public static RegistrationDTO createRegistrationDtoInstance(String email, String password, String salt, String reminder) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
