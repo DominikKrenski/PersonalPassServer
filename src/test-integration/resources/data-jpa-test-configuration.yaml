@@ -1,0 +1,46 @@
+spring:
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: default
+        enabled: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    generate-unique-name: false
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+    name: hikari-test-datasource
+    password: PhhxMVloMYIpAMXL
+    url: jdbc:postgresql://localhost:5432/personal_pass?currentSchema=test
+    username: pass_user
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+      use-new-id-generator-mappings: true
+    open-in-view: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        show_sql: true
+        format_sql: true
+        generate_statistics: true
+        use_sql_comments: true
+  jta:
+    enabled: true
+    transaction-manager-id: test-transaction-manager
+    rollback-on-commit-failure: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    contexts: test
+    default-schema: test
+    enabled: true
+    liquibase-schema: test
+    password: H7BFiLRfW060oiHd
+    url: jdbc:postgresql://localhost:5432/personal_pass
+    user: pass_owner
