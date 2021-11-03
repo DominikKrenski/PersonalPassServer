@@ -1,11 +1,13 @@
 package org.dominik.pass.db.entities;
 
 import lombok.*;
+import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.enums.Role;
 
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -62,17 +64,24 @@ public final class Account extends BaseEntity implements Serializable {
   private boolean enabled;
 
   private Account(
-      @NonNull UUID publicId,
-      @NonNull String email,
-      @NonNull String password,
-      @NonNull String salt,
+      Long id,
+      UUID publicId,
+      String email,
+      String password,
+      String salt,
       String reminder,
-      @NonNull Role role,
+      Role role,
       boolean accountNonExpired,
       boolean accountNonLocked,
       boolean credentialsNonExpired,
-      boolean enabled
+      boolean enabled,
+      Instant createdAt,
+      Instant updatedAt,
+      short version
   ) {
+    super(createdAt, updatedAt, version);
+
+    this.id = id;
     this.publicId = publicId;
     this.email = email;
     this.password = password;
@@ -85,100 +94,41 @@ public final class Account extends BaseEntity implements Serializable {
     this.enabled = enabled;
   }
 
-  public static AccountBuilder builder() {
-    return new AccountBuilder();
+  public Account(@NonNull String email, @NonNull String password, @NonNull String salt, String reminder) {
+    this(
+        null,
+        UUID.randomUUID(),
+        email,
+        password,
+        salt,
+        reminder,
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        null,
+        null,
+        (short) 0
+    );
   }
 
-  public static final class AccountBuilder {
-    private UUID publicId;
-    private String email;
-    private String password;
-    private String salt;
-    private String reminder;
-    private Role role;
-    private boolean accountNonExpired = true;
-    private boolean accountNonLocked = true;
-    private boolean credentialsNonExpired = true;
-    private boolean enabled = true;
-
-    public AccountBuilder publicId(@NonNull UUID publicId) {
-      this.publicId = publicId;
-      return this;
-    }
-
-    public AccountBuilder email(@NonNull String email) {
-      this.email = email;
-      return this;
-    }
-
-    public AccountBuilder password(@NonNull String password) {
-      this.password = password;
-      return this;
-    }
-
-    public AccountBuilder salt(@NonNull String salt) {
-      this.salt = salt;
-      return this;
-    }
-
-    public AccountBuilder reminder(@NonNull String reminder) {
-      this.reminder = reminder;
-      return this;
-    }
-
-    public AccountBuilder role(@NonNull Role role) {
-      this.role = role;
-      return this;
-    }
-
-    public AccountBuilder accountNonExpired(boolean accountNonExpired) {
-      this.accountNonExpired = accountNonExpired;
-      return this;
-    }
-
-    public AccountBuilder accountNonLocked(boolean accountNonLocked) {
-      this.accountNonLocked = accountNonLocked;
-      return this;
-    }
-
-    public AccountBuilder credentialsNonExpired(boolean credentialsNonExpired) {
-      this.credentialsNonExpired = credentialsNonExpired;
-      return this;
-    }
-
-    public AccountBuilder enabled(boolean enabled) {
-      this.enabled = enabled;
-      return this;
-    }
-
-    public Account build() {
-      if (publicId == null)
-        publicId = UUID.randomUUID();
-
-      if (email == null)
-        throw new IllegalStateException("Email must not be null");
-
-      if (password == null)
-        throw new IllegalStateException("Password must not be null");
-
-      if (salt == null)
-        throw new IllegalStateException("Salt must not be null");
-
-      if (role == null)
-        role = Role.ROLE_USER;
-
-      return new Account(
-          publicId,
-          email,
-          password,
-          salt,
-          reminder,
-          role,
-          accountNonExpired,
-          accountNonLocked,
-          credentialsNonExpired,
-          enabled
-      );
-    }
+  public static Account fromDTO(AccountDTO dto) {
+    return new Account(
+        dto.getId(),
+        dto.getPublicId(),
+        dto.getEmail(),
+        dto.getPassword(),
+        dto.getSalt(),
+        dto.getReminder(),
+        dto.getRole(),
+        dto.isAccountNonExpired(),
+        dto.isAccountNonLocked(),
+        dto.isCredentialsNonExpired(),
+        dto.isEnabled(),
+        dto.getCreatedAt(),
+        dto.getUpdatedAt(),
+        dto.getVersion()
+    );
   }
 }
