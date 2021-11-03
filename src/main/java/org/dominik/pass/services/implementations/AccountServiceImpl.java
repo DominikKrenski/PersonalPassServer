@@ -30,16 +30,14 @@ public class AccountServiceImpl implements AccountService {
     if (existsByEmail(dto.getEmail()))
       throw new ConflictException("Email with given email already exists");
 
-    Account.AccountBuilder builder = Account
-        .builder()
-        .email(dto.getEmail())
-        .password(passwordEncoder.encode(dto.getPassword()))
-        .salt(dto.getSalt());
+    Account account = new Account(
+        dto.getEmail(),
+        passwordEncoder.encode(dto.getPassword()),
+        dto.getSalt(),
+        dto.getReminder()
+    );
 
-    if (dto.getReminder() != null)
-      builder.reminder(dto.getReminder());
-
-    return AccountDTO.fromAccount(accountRepository.save(builder.build()));
+    return AccountDTO.fromAccount(accountRepository.save(account));
   }
 
   @Override
