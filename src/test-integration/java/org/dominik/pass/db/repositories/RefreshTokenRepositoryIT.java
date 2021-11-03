@@ -4,6 +4,7 @@ import org.dominik.pass.configuration.DataJpaTestConfiguration;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.RefreshToken;
+import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 })
 @Import(DataJpaTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql("classpath:sql/01.token-repository-test.sql")
 public class RefreshTokenRepositoryIT {
   private static final String EMAIL = "dominik.krenski@gmail.com";
   private static final String PASSWORD = "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c";
@@ -30,21 +36,16 @@ public class RefreshTokenRepositoryIT {
 
   @Autowired private TestEntityManager em;
   @Autowired RefreshTokenRepository tokenRepository;
+  @Autowired AccountRepository accountRepository;
 
   @Test
   @DisplayName("should save refresh token")
   void shouldSaveRefreshToken() {
-    Account account = Account
-        .builder()
-        .email(EMAIL)
-        .password(PASSWORD)
-        .salt(SALT)
-        .reminder(REMINDER)
-        .build();
+    Account account = accountRepository
+        .findByEmail("dominik.krenski@gmail.com")
+        .orElseThrow(() -> new NotFoundException("Account not found"));
 
-    Account savedAccount = em.persistAndFlush(account);
-
-    RefreshToken savedToken = tokenRepository.save(new RefreshToken("refresh_token", savedAccount));
+    RefreshToken savedToken = tokenRepository.save(new RefreshToken("refresh_token", account));
     em.flush();
 
     assertNotNull(savedToken.getId());
@@ -55,4 +56,27 @@ public class RefreshTokenRepositoryIT {
     assertEquals(0, savedToken.getVersion());
   }
 
+  @Test
+  @DisplayName("should delete all tokens based on account's public id")
+  void shouldDeleteAllTokensBasedOnAccountPublicId() {
+    Account account = accountRepository
+        .findByEmail("dominik.krenski@gmail.com")
+        .orElseThrow(() -> new NotFoundException("Account not found"));
+
+    int deleted = tokenRepository.deleteAllAccountTokens(account.getPublicId());
+
+    assertEquals(3, deleted);
+  }
+
+  @Test
+  @DisplayName("should find all tokens based on account's public id (lazy)")
+  void shouldFindAllTokensBasedOnAccountPublicIdLazy() {
+    Account account = accountRepository
+        .findByEmail("dominik.krenski@gmail.com")
+        .orElseThrow(() -> new NotFoundException("Account not found"));
+
+    List<RefreshToken> tokens = tokenRepository.findByAccountPublicId(account.getPublicId());
+
+    assertEquals(3, tokens.size());
+  }
 }
