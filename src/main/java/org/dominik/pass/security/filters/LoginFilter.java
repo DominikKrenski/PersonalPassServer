@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.JwtUtils;
+import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,11 +25,18 @@ import java.io.IOException;
 public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authManager;
   private final ObjectMapper mapper;
+  private final RefreshTokenService tokenService;
   private final JwtUtils jwtUtils;
 
-  public LoginFilter(AuthenticationManager authManager, ObjectMapper mapper, JwtUtils jwtUtils) {
+  public LoginFilter(
+      AuthenticationManager authManager,
+      ObjectMapper mapper,
+      RefreshTokenService tokenService,
+      JwtUtils jwtUtils
+  ) {
     this.authManager = authManager;
     this.mapper = mapper;
+    this.tokenService = tokenService;
     this.jwtUtils = jwtUtils;
 
     AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/auth/signin", "POST");
@@ -54,6 +62,9 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     String accessToken = jwtUtils.createToken(details.getPublicId().toString(), JwtUtils.TokenType.ACCESS_TOKEN);
     String refreshToken = jwtUtils.createToken(details.getPublicId().toString(), JwtUtils.TokenType.REFRESH_TOKEN);
+
+    // save new refresh token in database
+    tokenService.login(refreshToken, details.getUsername());
 
     AuthDTO authDTO = AuthDTO
         .builder()
