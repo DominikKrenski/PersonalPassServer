@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dominik.pass.security.entries.AuthEntryPoint;
 import org.dominik.pass.security.filters.LoginFilter;
 import org.dominik.pass.security.utils.JwtUtils;
+import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +32,21 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService detailsService;
   private final ObjectMapper mapper;
+  private final RefreshTokenService tokenService;
   private final JwtUtils jwtUtils;
 
   @Autowired
-  public SecurityConfigDev(PasswordEncoder passwordEncoder, UserDetailsService detailsService, ObjectMapper mapper, JwtUtils jwtUtils) {
+  public SecurityConfigDev(
+      PasswordEncoder passwordEncoder,
+      UserDetailsService detailsService,
+      ObjectMapper mapper,
+      RefreshTokenService tokenService,
+      JwtUtils jwtUtils
+  ) {
     this.passwordEncoder = passwordEncoder;
     this.detailsService = detailsService;
     this.mapper = mapper;
+    this.tokenService = tokenService;
     this.jwtUtils = jwtUtils;
   }
 
@@ -52,7 +61,7 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             .anyRequest().authenticated()
         )
         .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
-        .addFilter(new LoginFilter(authenticationManager(),mapper, jwtUtils));
+        .addFilter(new LoginFilter(authenticationManager(),mapper, tokenService, jwtUtils));
   }
 
   @Override
