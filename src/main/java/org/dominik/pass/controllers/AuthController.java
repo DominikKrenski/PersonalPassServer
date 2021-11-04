@@ -1,18 +1,19 @@
 package org.dominik.pass.controllers;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.utils.validators.EmailAddress;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 @Slf4j
 @RestController
@@ -32,5 +33,22 @@ public class AuthController {
         .builder()
         .publicId(accountDTO.getPublicId())
         .build();
+  }
+
+  @GetMapping(value = "/salt", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public AuthDTO salt(@Valid @RequestBody Data data) {
+    AccountDTO accountDTO = accountService.findByEmail(data.getEmail());
+    return AuthDTO
+        .builder()
+        .salt(accountDTO.getSalt())
+        .build();
+  }
+
+  @Getter
+  private static final class Data {
+    @NotBlank(message = "{email.blank.message}")
+    @Length(max = 360, message = "{email.length.message}")
+    @EmailAddress(message = "{email.format.message}")
+    private String email;
   }
 }
