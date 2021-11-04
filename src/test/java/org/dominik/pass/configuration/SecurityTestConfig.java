@@ -54,7 +54,7 @@ public class SecurityTestConfig extends WebSecurityConfigurerAdapter {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(AbstractHttpConfigurer::disable)
         .authorizeRequests(authorizeRequest -> authorizeRequest
-            .antMatchers("/auth/signup", "/auth/signin", "/dummy-url").permitAll()
+            .antMatchers("/auth/signup", "/auth/signin", "/auth/salt").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
