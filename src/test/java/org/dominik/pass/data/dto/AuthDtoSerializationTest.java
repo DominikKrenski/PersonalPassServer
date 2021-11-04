@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AuthDtoSerializationTest {
   private static final UUID PUBLIC_ID = UUID.randomUUID();
+  private static final String SALT = "711882a4dc3dcb437eb6151c09025594";
   private static final String ACCESS_TOKEN = "access_token";
   private static final String REFRESH_TOKEN = "refresh_token";
 
@@ -113,5 +114,23 @@ public class AuthDtoSerializationTest {
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.publicId"));
     assertEquals(ACCESS_TOKEN, ctx.read("$.accessToken"));
     assertEquals(REFRESH_TOKEN, ctx.read("$.refreshToken"));
+  }
+
+  @Test
+  @DisplayName("should serialize only salt field")
+  void shouldSerializeOnlySaltField() throws JsonProcessingException {
+    AuthDTO dto = AuthDTO
+        .builder()
+        .salt(SALT)
+        .build();
+
+    String json = mapper.writeValueAsString(dto);
+
+    ReadContext ctx = JsonPath.parse(json);
+
+    assertThrows(PathNotFoundException.class, () -> ctx.read("$.publicId"));
+    assertThrows(PathNotFoundException.class, () -> ctx.read("$.accessToken"));
+    assertThrows(PathNotFoundException.class, () -> ctx.read("$.refreshToken"));
+    assertEquals(SALT, ctx.read("$.salt"));
   }
 }
