@@ -57,7 +57,7 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeRequests(authorizeRequest -> authorizeRequest
-            .antMatchers("/auth/signup", "/auth/signin").permitAll()
+            .antMatchers("/auth/signup", "/auth/signin", "/auth/salt").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
