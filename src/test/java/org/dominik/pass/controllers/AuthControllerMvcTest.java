@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.errors.exceptions.ConflictException;
+import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +34,11 @@ import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,6 +61,7 @@ public class AuthControllerMvcTest {
   private static final Instant UPDATED_AT = CREATED_AT.plusSeconds(1000);
   private static final short VERSION = 1;
   private static final String URL = "/auth/signup";
+  private static final String SALT_URL = "/auth/salt";
   private static final String TIMESTAMP_PATTERN="\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
 
   private static Properties props;
@@ -184,5 +191,102 @@ public class AuthControllerMvcTest {
         .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
         .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
         .andExpect(jsonPath("$.message").value("Conflict with other record"));
+  }
+
+  @Test
+  @DisplayName("should return salt")
+  void shouldReturnSalt() throws Exception {
+    Data data = new Data(EMAIL);
+
+    Account account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        PASSWORD,
+        SALT,
+        REMINDER,
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        CREATED_AT,
+        UPDATED_AT,
+        VERSION
+    );
+
+    when(accountService.findByEmail(anyString())).thenReturn(AccountDTO.fromAccount(account));
+
+    mvc
+        .perform(
+            get(SALT_URL)
+                .content(mapper.writeValueAsString(data))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.salt").value(SALT));
+  }
+
+  @Test
+  @DisplayName("should return validation error if email consists of one space")
+  void shouldReturnValidationErrorIfEmailConsistsOfOneSpace() throws Exception {
+    List<String> emailMessages = new LinkedList<>(
+        List.of(props.getProperty("email.blank.message"), props.getProperty("email.format.message"))
+    );
+
+    Data data = new Data(" ");
+
+    mvc
+        .perform(
+            get(SALT_URL)
+                .content(mapper.writeValueAsString(data))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnprocessableEntity())
+        .andDo(res -> {
+          String body = res.getResponse().getContentAsString();
+          ReadContext ctx = JsonPath.parse(body);
+
+          String errors = getSubErrorsString(body);
+
+          Map<String, TestValidationError> map = convertErrorListToMap(mapper.readValue(errors, new TypeReference<>(){}));
+
+          assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
+          assertEquals("Validation Error", ctx.read("$.message"));
+          assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
+
+          assertEquals("email", map.get("email").getField());
+          assertEquals(" ", map.get("email").getRejectedValue());
+          assertTrue(map.get("email").getValidationMessages().containsAll(emailMessages));
+        });
+  }
+
+  @Test
+  @DisplayName("should return NotFoundException if account with given email does not exist")
+  void shouldReturnNotFoundIfAccountWithGivenEmailCannotBeFound() throws Exception {
+    Data data = new Data(EMAIL);
+
+    when(accountService.findByEmail(anyString())).thenThrow(new NotFoundException("Account does not exist"));
+
+    mvc
+        .perform(
+            get(SALT_URL)
+                .content(mapper.writeValueAsString(data))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Account does not exist"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+
+  }
+
+  @AllArgsConstructor
+  @Getter
+  private final static class Data {
+    private String email;
   }
 }
