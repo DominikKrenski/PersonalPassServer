@@ -120,7 +120,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
             List<String> messages = new LinkedList<>();
             messages.add(fieldError.getDefaultMessage());
             map.put(fieldError.getField(),
-                new ValidationError(fieldError.getField(), Objects.requireNonNull(fieldError.getRejectedValue()), messages));
+                new ValidationError(fieldError.getField(), fieldError.getRejectedValue(), messages));
           }
         });
 
