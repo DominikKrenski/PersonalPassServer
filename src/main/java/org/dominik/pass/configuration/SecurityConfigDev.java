@@ -27,7 +27,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Profile("dev")
+@Profile(value = {"dev", "test", "integration"})
 public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService detailsService;
@@ -57,7 +57,7 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeRequests(authorizeRequest -> authorizeRequest
-            .antMatchers("/auth/signup", "/auth/signin", "/auth/salt").permitAll()
+            .antMatchers("/auth/signup", "/auth/signin", "/auth/salt", "/dummy-url").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
