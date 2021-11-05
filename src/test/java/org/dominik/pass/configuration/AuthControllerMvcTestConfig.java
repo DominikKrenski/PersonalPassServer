@@ -11,7 +11,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @TestConfiguration
-@Import({SecurityTestConfig.class, JacksonTestConfig.class, PasswordEncoderTestConfig.class})
+@Import({SecurityConfigDev.class, JacksonConfig.class, PasswordEncoderConfig.class})
 @PropertySource(value = "classpath:mvc-test-configuration.yaml", factory = YamlPropertySourceFactory.class)
 public class AuthControllerMvcTestConfig {
 
