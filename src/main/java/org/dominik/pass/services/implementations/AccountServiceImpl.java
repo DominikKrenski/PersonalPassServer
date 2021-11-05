@@ -43,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
   @Override
   public AccountDTO findByEmail(@NonNull String email) {
     Optional<Account> account = accountRepository.findByEmail(email);
-    return account.map(AccountDTO::fromAccount).orElseThrow(() -> new NotFoundException("Account does not exists"));
+    return account.map(AccountDTO::fromAccount).orElseThrow(() -> new NotFoundException("Account does not exist"));
   }
 
   @Override
