@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: create-accounts-table
       author: Dominik Kreński
-      context: dev, test
+      context: dev, integration
       changes:
         - createSequence:
             dataType: BIGINT
