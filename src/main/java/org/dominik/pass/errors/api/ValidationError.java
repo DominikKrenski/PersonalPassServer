@@ -1,5 +1,6 @@
 package org.dominik.pass.errors.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,6 @@ import java.util.List;
 @ToString
 public final class ValidationError extends SubError {
   @NonNull private final String field;
-  @NonNull private final Object rejectedValue;
+  @JsonInclude private final Object rejectedValue;
   private final List<String> validationMessages;
 }
