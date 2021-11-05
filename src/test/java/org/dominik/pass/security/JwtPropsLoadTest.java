@@ -1,6 +1,6 @@
 package org.dominik.pass.security;
 
-import org.dominik.pass.configuration.JwtTestConfig;
+import org.dominik.pass.configuration.JwtConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,10 +13,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith({SpringExtension.class})
-@Import(JwtTestConfig.class)
-@EnableConfigurationProperties({JwtTestConfig.class})
+@Import(JwtConfig.class)
+@EnableConfigurationProperties({JwtConfig.class})
 public class JwtPropsLoadTest {
-  @Autowired JwtTestConfig jwtConfig;
+  @Autowired JwtConfig jwtConfig;
 
   @BeforeAll
   static void setUp() {
