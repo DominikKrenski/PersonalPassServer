@@ -387,7 +387,7 @@ public final class TestUtils {
   @ToString
   public static final class TestValidationError {
     private String field;
-    private Object rejectedValue;
+    @JsonInclude private Object rejectedValue;
     private List<String> validationMessages;
   }
 
