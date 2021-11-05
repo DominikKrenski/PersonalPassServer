@@ -28,7 +28,7 @@ public class AccountServiceImpl implements AccountService {
   @Override
   public AccountDTO register(RegistrationDTO dto) {
     if (existsByEmail(dto.getEmail()))
-      throw new ConflictException("Email with given email already exists");
+      throw new ConflictException("Account with given email already exists");
 
     Account account = new Account(
         dto.getEmail(),
