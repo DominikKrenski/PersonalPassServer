@@ -39,9 +39,9 @@ jobs:
     - stage: Unit Tests
       script: ./mvnw test -B -Dmaven.javadoc.skip=true
     - stage: Integration Tests
-      script: ./mvnv verify -B -Dmaven.javadoc.skip=true
+      script: ./mvnw verify -B -Dmaven.javadoc.skip=true
       after_success:
-        - ./mvnv jacoco:report coveralls:report
+        - ./mvnw jacoco:report coveralls:report
 
     #after_success:
 #  - ./mvnw jacoco:report coveralls:report
