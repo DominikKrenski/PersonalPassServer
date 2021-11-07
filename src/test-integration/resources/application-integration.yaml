@@ -1,25 +1,7 @@
-#debug: true
-
 logging:
   charset:
     console: UTF-8
   config: classpath:logback-integration.xml
-#    file: UTF-8
-#  file:
-#    name: app-integration.log
-  level:
-    org.dominik.pass: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.hibernate.stat: DEBUG
-    org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
-    org.springframework.security.web.FilterChainProxy: DEBUG
-    web: DEBUG
-#  logback:
-#    rollingpolicy:
-#      clean-history-on-start: true
-#      max-file-size: 1MB
-#      max-history: 2
 
 spring:
   application:
