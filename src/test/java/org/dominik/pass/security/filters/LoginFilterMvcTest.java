@@ -1,8 +1,6 @@
 package org.dominik.pass.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
 import org.dominik.pass.controllers.AuthController;
 import org.dominik.pass.data.dto.AccountDTO;
@@ -17,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,6 +27,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,8 +64,188 @@ public class LoginFilterMvcTest {
   @Autowired JwtUtils jwtUtils;
 
   @Test
-  @DisplayName("should authenticate user")
-  void shouldAuthenticateUser() throws Exception {
+  @DisplayName("should return Authentication Exception if method is GET")
+  void shouldReturnAuthenticationExceptionIfMethodIsGet() throws Exception {
+    String body = """
+        {
+          "email": "dominik.krenski@gmail.com",
+          "password": "Dominik1984"
+        }
+        """;
+    mvc
+        .perform(
+            get(URL)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Authentication method not supported"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if body is empty")
+  void shouldReturnAuthenticationExceptionIfBodyIsEmpty() throws Exception {
+    mvc
+        .perform(
+            post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("There is a problem with request data"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if body has no closing bracket")
+  void shouldReturnAuthenticationExceptionIfBodyHasNoEnclosingBracket() throws Exception {
+    String body = """
+        {
+          "email": "dominik.krenski@gmail.com",
+          "password: "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        """;
+
+    mvc
+        .perform(
+            post(URL)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("There is a problem with request data"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if body contains plain text")
+  void shouldReturnAuthenticationExceptionIfBodyContainsPlainText() throws Exception {
+    String body = """
+        "email": "dominik.krenski@gmail.com",
+        "password": "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        """;
+
+    mvc
+        .perform(
+            post(URL)
+                .content(body)
+                .contentType(MediaType.TEXT_PLAIN)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Content-Type not supported"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if email is an empty string")
+  void shouldReturnAuthenticationExceptionIfEmailIsAnEmptyString() throws Exception {
+    String body = """
+        {
+          "email": "",
+          "password": "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        }
+        """;
+
+    when(detailsService.loadUserByUsername(anyString())).thenThrow(new UsernameNotFoundException("Account with given email does not exist"));
+
+    mvc
+        .perform(
+            post(URL)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Email or password invalid"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if email is not found")
+  void shouldReturnAuthenticationExceptionIfEmailIsNotFound() throws Exception {
+    String body = """
+        {
+          "email": "dominik.krenski@yahoo.com",
+          "password": "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        }
+        """;
+
+    when(detailsService.loadUserByUsername(anyString())).thenThrow(new UsernameNotFoundException("Account with given email does not exist"));
+
+    mvc
+        .perform(
+            post(URL)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Email or password invalid"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return Authentication Exception if password is not valid")
+  void shouldReturnAuthenticationExceptionIfPasswordIsNotValid() throws Exception {
+    String body = """
+        {
+          "email": "dominik.krenski@gmail.com",
+          "password": "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        }
+        """;
+
+    Account account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        encoder.encode("Dominik1984"),
+        SALT,
+        REMINDER,
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        CREATED_AT,
+        UPDATED_AT,
+        VERSION
+    );
+
+    AccountDTO accountDTO = AccountDTO.fromAccount(account);
+    when(detailsService.loadUserByUsername(anyString())).thenReturn(AccountDetails.fromDTO(accountDTO));
+
+    mvc
+        .perform(
+            post(URL)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Email or password invalid"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return successful response")
+  void shouldReturnSuccessfulResponse() throws Exception {
+    String body = """
+        {
+          "email": "dominik.krenski@gmail.com",
+          "password": "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c"
+        }
+        """;
+
     Account account = createAccountInstance(
         ID,
         PUBLIC_ID,
@@ -84,7 +264,6 @@ public class LoginFilterMvcTest {
     );
 
     AccountDTO accountDTO = AccountDTO.fromAccount(account);
-    Credentials creds = new Credentials(EMAIL, PASSWORD);
 
     when(detailsService.loadUserByUsername(anyString())).thenReturn(AccountDetails.fromDTO(accountDTO));
     when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
@@ -94,98 +273,12 @@ public class LoginFilterMvcTest {
     mvc
         .perform(
             post(URL)
-                .content(mapper.writeValueAsString(creds))
+                .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").value("access_token"))
         .andExpect(jsonPath("$.refreshToken").value("refresh_token"));
-  }
-
-  @Test
-  @DisplayName("should return authentication exception if email is not valid")
-  void shouldReturnAuthenticationExceptionIfEmailIsNotValid() throws Exception {
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        encoder.encode(PASSWORD),
-        SALT,
-        REMINDER,
-        Role.ROLE_USER,
-        true,
-        true,
-        true,
-        true,
-        CREATED_AT,
-        UPDATED_AT,
-        VERSION
-    );
-
-    Credentials creds = new Credentials(EMAIL, PASSWORD);
-
-    when(detailsService.loadUserByUsername(anyString())).thenThrow(new UsernameNotFoundException("User not found"));
-
-    mvc
-        .perform(
-            post(URL)
-                .content(mapper.writeValueAsString(creds))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Test
-  @DisplayName("should return authentication exception if password is not valid")
-  void shouldReturnAuthenticationExceptionIfPasswordIsNotValid() throws Exception {
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        encoder.encode("Dominik1984!"),
-        SALT,
-        REMINDER,
-        Role.ROLE_USER,
-        true,
-        true,
-        true,
-        true,
-        CREATED_AT,
-        UPDATED_AT,
-        VERSION
-    );
-
-    AccountDTO accountDTO = AccountDTO.fromAccount(account);
-    Credentials creds = new Credentials(EMAIL, PASSWORD);
-
-    when(detailsService.loadUserByUsername(anyString())).thenReturn(AccountDetails.fromDTO(accountDTO));
-
-    mvc
-        .perform(
-            post(URL)
-                .content(mapper.writeValueAsString(creds))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Test
-  @DisplayName("should return authentication exception if method is GET")
-  void shouldReturnAuthenticationExceptionIfMethodIsGet() throws Exception {
-    mvc
-        .perform(
-            get(URL)
-        )
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Getter
-  @AllArgsConstructor
-  private final static class Credentials {
-    private String email;
-    private String password;
   }
 }
