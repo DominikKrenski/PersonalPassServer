@@ -6,7 +6,6 @@ target/
 
 application.yaml
 app-dev.log*
-certs/
 
 ### STS ###
 .apt_generated

@@ -10,6 +10,10 @@ cache:
 services:
   - postgresql
 
+addons:
+  hosts:
+    - personal-pass.dev
+
 
 env:
   global:
@@ -36,12 +40,9 @@ before_script:
 
 jobs:
   include:
-    - stage: Unit Tests
-      script: ./mvnw test -B -Dmaven.javadoc.skip=true
+    #- stage: Unit Tests
+    #  script: ./mvnw test -B -Dmaven.javadoc.skip=true
     - stage: Integration Tests
       script: ./mvnw verify -B -Dmaven.javadoc.skip=true
       after_success:
         - ./mvnw jacoco:report coveralls:report
-
-    #after_success:
-#  - ./mvnw jacoco:report coveralls:report
