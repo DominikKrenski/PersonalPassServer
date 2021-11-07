@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.utils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
