@@ -37,6 +37,6 @@ before_install:
   - sudo /etc/init.d/postgresql start 14.0
 
 before_script:
-  - psql --filename travis-database.sql
+  - psql --file travis-database.sql
 after_success:
   - ./mvnw jacoco:report coveralls:report
