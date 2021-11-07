@@ -50,3 +50,4 @@ jobs:
       script: ./mvnw verify -B -Dmaven.javadoc.skip=true
       after_success:
         - ./mvnw jacoco:report coveralls:report sonar:sonar -Dsonar.projectKey=personal_pass_project
+        - bash <(curl -s https://codecov.io/bash)
