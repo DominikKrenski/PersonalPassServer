@@ -13,6 +13,10 @@ services:
 addons:
   hosts:
     - personal-pass.dev
+  sonarcloud:
+    organization: "ya84p9jfkc2z4jv3hzcbdrmg2ffmjgw8"
+#    token:
+#      secure: "$SONAR_TOKEN"
 
 
 env:
@@ -45,4 +49,4 @@ jobs:
     - stage: Integration Tests
       script: ./mvnw verify -B -Dmaven.javadoc.skip=true
       after_success:
-        - ./mvnw jacoco:report coveralls:report
+        - ./mvnw jacoco:report coveralls:report sonar:sonar -Dsonar.projectKey=personal_pass_project
