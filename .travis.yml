@@ -10,12 +10,6 @@ cache:
 services:
   - postgresql
 
-#addons:
-#  postgresql: "14.0"
-#  apt:
-#    packages:
-#      - postgresql-14
-#      - postgresql-client-14
 
 env:
   global:
@@ -39,5 +33,15 @@ before_install:
 
 before_script:
   - psql --file travis-database.sql
-after_success:
-  - ./mvnw jacoco:report coveralls:report
+
+jobs:
+  include:
+    - stage: Unit Tests
+      script: ./mvnw test -B -Dmaven.javadoc.skip=true
+    - stage: Integration Tests
+      script: ./mvnv verify -B -Dmaven.javadoc.skip=true
+      after_success:
+        - ./mvnv jacoco:report coveralls:report
+
+    #after_success:
+#  - ./mvnw jacoco:report coveralls:report
