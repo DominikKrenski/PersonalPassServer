@@ -3,18 +3,17 @@ package org.dominik.pass.security.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.services.definitions.RefreshTokenService;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -38,18 +37,23 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
     this.mapper = mapper;
     this.tokenService = tokenService;
     this.jwtUtils = jwtUtils;
-
-    AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/auth/signin", "POST");
-    setFilterProcessesUrl(requestMatcher.getPattern());
   }
 
-  @SneakyThrows
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-    if (!request.getMethod().equals("POST"))
+    if (!request.getMethod().equalsIgnoreCase("POST"))
       throw new AuthenticationServiceException("Authentication method not supported");
 
-    Credentials creds = mapper.readValue(request.getInputStream(), Credentials.class);
+    if (!request.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE))
+      throw new AuthenticationServiceException("Content-Type not supported");
+
+    Credentials creds;
+
+    try {
+      creds = mapper.readValue(request.getInputStream(), Credentials.class);
+    } catch (IOException ex) {
+      throw new AuthenticationServiceException("There is a problem with request data");
+    }
 
     return authManager.authenticate(
         new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getPassword())
