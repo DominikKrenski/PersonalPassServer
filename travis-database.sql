@@ -5,7 +5,7 @@ CREATE ROLE pass_owner INHERIT LOGIN ENCRYPTED PASSWORD 'H7BFiLRfW060oiHd';
 CREATE ROLE pass_user INHERIT LOGIN ENCRYPTED PASSWORD 'PhhxMVloMYIpAMXL';
 
 -- create database personal_pass
-CREATE DATABASE personal_pass WITH OWNER pass_owner ENCODING 'UTF8' LC_COLLATE 'pl_PL.UTF-8' LC_CTYPE 'pl_PL.UTF-8';
+CREATE DATABASE personal_pass WITH OWNER pass_owner ENCODING 'UTF8' LC_COLLATE 'pl_PL.UTF-8' LC_CTYPE 'pl_PL.UTF-8' TEMPLATE 'template0';
 
 -- switch to personal_pass database
 \c personal_pass postgres
