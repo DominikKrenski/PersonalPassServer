@@ -7,10 +7,29 @@ cache:
   directories:
     - $HOME/.m2
 
-branches:
-  only:
-    - master
-    - development
+services:
+  - postgresql
 
+addons:
+  postgresql: "14.0"
+  apt:
+    packages:
+      - postgresql-14
+      - postgresql-client-14
+
+env:
+  global:
+    - PGPORT=5432
+    - PGUSER=postgres
+    - PGDATABASE=postgres
+    - PGPASSWORD=Dominik1984
+
+#branches:
+#  only:
+#    - master
+#    - development
+
+before_script:
+  - psql --filename travis-database.sql
 after_success:
   - ./mvnw jacoco:report coveralls:report
