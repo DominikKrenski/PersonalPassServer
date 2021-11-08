@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public final class ValidationError extends SubError {
+public final class ValidationError implements SubError {
   @NonNull private final String field;
   @JsonInclude private final Object rejectedValue;
   private final List<String> validationMessages;
