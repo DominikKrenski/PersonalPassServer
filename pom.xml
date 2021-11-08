@@ -169,6 +169,7 @@
 					<excludes>
 						<exclude>org/dominik/pass/configuration/*</exclude>
 						<exclude>org/dominik/pass/db/repositories/*</exclude>
+						<exclude>org/dominik/pass/PersonalPassApplication*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
