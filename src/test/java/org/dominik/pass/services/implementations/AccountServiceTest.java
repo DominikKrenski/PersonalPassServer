@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceTest {
+class AccountServiceTest {
   private static final Long ID = 1L;
   private static final UUID PUBLIC_ID = UUID.randomUUID();
   private static final String EMAIL = "dominik.krenski@gmail.com";

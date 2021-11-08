@@ -68,7 +68,6 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             .antMatchers("/auth/signup", "/auth/signin", "/auth/salt", "/dummy-url").permitAll()
             .anyRequest().authenticated()
         )
-        //.exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthEntryPoint(mapper)))
         .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPoint()))
         .addFilter(createLoginFilter(
             authenticationManager(),
@@ -77,7 +76,6 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             jwtUtils,
             authFailureHandler()
         ));
-        //.addFilter(new LoginFilter(authenticationManager(),mapper, tokenService, jwtUtils));
   }
 
   @Override

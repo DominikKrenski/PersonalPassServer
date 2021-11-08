@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import static org.dominik.pass.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ApiErrorSerializationTest {
+class ApiErrorSerializationTest {
   private static final String TIMESTAMP_PATTERN="\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
   private static Properties props;
   private static ObjectMapper mapper;

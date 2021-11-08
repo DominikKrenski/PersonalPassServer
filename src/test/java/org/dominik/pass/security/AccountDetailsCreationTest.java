@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AccountDetailsCreationTest {
+class AccountDetailsCreationTest {
 
   @Test
   @DisplayName("should create AccountDetails instance")

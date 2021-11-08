@@ -12,8 +12,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "accounts")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Setter(AccessLevel.PRIVATE)
 @ToString(callSuper = true)
 public final class Account extends BaseEntity implements Serializable {
   @Serial
@@ -63,72 +64,36 @@ public final class Account extends BaseEntity implements Serializable {
   @Column(name = "enabled", columnDefinition = "BOOLEAN NOT NULL DEFAULT true")
   private boolean enabled;
 
-  private Account(
-      Long id,
-      UUID publicId,
-      String email,
-      String password,
-      String salt,
-      String reminder,
-      Role role,
-      boolean accountNonExpired,
-      boolean accountNonLocked,
-      boolean credentialsNonExpired,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt,
-      short version
-  ) {
-    super(createdAt, updatedAt, version);
-
-    this.id = id;
-    this.publicId = publicId;
+  public Account(@NonNull String email, @NonNull String password, @NonNull String salt, String reminder) {
     this.email = email;
     this.password = password;
     this.salt = salt;
     this.reminder = reminder;
-    this.role = role;
-    this.accountNonExpired = accountNonExpired;
-    this.accountNonLocked = accountNonLocked;
-    this.credentialsNonExpired = credentialsNonExpired;
-    this.enabled = enabled;
-  }
-
-  public Account(@NonNull String email, @NonNull String password, @NonNull String salt, String reminder) {
-    this(
-        null,
-        UUID.randomUUID(),
-        email,
-        password,
-        salt,
-        reminder,
-        Role.ROLE_USER,
-        true,
-        true,
-        true,
-        true,
-        null,
-        null,
-        (short) 0
-    );
+    this.publicId = UUID.randomUUID();
+    this.role = Role.ROLE_USER;
+    this.accountNonExpired = true;
+    this.accountNonLocked = true;
+    this.credentialsNonExpired = true;
+    this.enabled = true;
   }
 
   public static Account fromDTO(AccountDTO dto) {
-    return new Account(
-        dto.getId(),
-        dto.getPublicId(),
-        dto.getEmail(),
-        dto.getPassword(),
-        dto.getSalt(),
-        dto.getReminder(),
-        dto.getRole(),
-        dto.isAccountNonExpired(),
-        dto.isAccountNonLocked(),
-        dto.isCredentialsNonExpired(),
-        dto.isEnabled(),
-        dto.getCreatedAt(),
-        dto.getUpdatedAt(),
-        dto.getVersion()
-    );
+    Account account = new Account();
+    account.setId(dto.getId());
+    account.setPublicId(dto.getPublicId());
+    account.setEmail(dto.getEmail());
+    account.setPassword(dto.getPassword());
+    account.setSalt(dto.getSalt());
+    account.setReminder(dto.getReminder());
+    account.setRole(dto.getRole());
+    account.setAccountNonExpired(dto.isAccountNonExpired());
+    account.setAccountNonLocked(dto.isAccountNonLocked());
+    account.setCredentialsNonExpired(dto.isCredentialsNonExpired());
+    account.setEnabled(dto.isEnabled());
+    account.setCreatedAt(dto.getCreatedAt());
+    account.setUpdatedAt(dto.getUpdatedAt());
+    account.setVersion(dto.getVersion());
+
+    return account;
   }
 }

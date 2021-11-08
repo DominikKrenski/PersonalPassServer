@@ -12,7 +12,7 @@ import java.util.UUID;
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AccountCreationTest {
+class AccountCreationTest {
   private static final String EMAIL = "dominik.krenski@gmail.com";
   private static final String PASSWORD = "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c";
   private static final String SALT = "711882a4dc3dcb437eb6151c09025594";

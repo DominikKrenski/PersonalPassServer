@@ -11,7 +11,7 @@ import java.util.UUID;
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RefreshTokenCreationTest {
+class RefreshTokenCreationTest {
   private static final Long ID = 1L;
   private static final UUID PUBLIC_ID = UUID.randomUUID();
   private static final String EMAIL = "dominik.krenski@gmail.com";

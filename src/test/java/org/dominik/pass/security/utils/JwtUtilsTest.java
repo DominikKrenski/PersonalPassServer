@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtUtilsTest {
+class JwtUtilsTest {
   private static final String ISSUER = "personal-pass.dev";
   private static final String SUBJECT = UUID.randomUUID().toString();
   private static final String KEY = "gUkXn2r5u8x/A?D(G+KbPeShVmYq3s6v9y$B&E)H@McQfTjWnZr4u7w!z%C*F-Ja";

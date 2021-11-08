@@ -38,15 +38,12 @@ public final class JwtUtils {
         .setSubject(subject)
         .setIssuedAt(Date.from(now));
 
-    switch (tokenType) {
-      case ACCESS_TOKEN -> {
-        builder.setAudience(jwtConfig.getAccessToken().getAudience());
-        builder.setExpiration(Date.from(now.plusSeconds(jwtConfig.getAccessToken().getExpiration())));
-      }
-      case REFRESH_TOKEN -> {
-        builder.setAudience(jwtConfig.getRefreshToken().getAudience());
-        builder.setExpiration(Date.from(now.plusSeconds(jwtConfig.getRefreshToken().getExpiration())));
-      }
+    if (tokenType == TokenType.ACCESS_TOKEN) {
+      builder.setAudience(jwtConfig.getAccessToken().getAudience());
+      builder.setExpiration(Date.from(now.plusSeconds(jwtConfig.getAccessToken().getExpiration())));
+    } else {
+      builder.setAudience(jwtConfig.getRefreshToken().getAudience());
+      builder.setExpiration(Date.from(now.plusSeconds(jwtConfig.getRefreshToken().getExpiration())));
     }
 
     return builder.signWith(secretKey).compact();
@@ -67,10 +64,10 @@ public final class JwtUtils {
     builder.setSigningKey(secretKey);
     builder.requireIssuer(jwtConfig.getIssuer());
 
-    switch (tokenType) {
-      case ACCESS_TOKEN -> builder.requireAudience(jwtConfig.getAccessToken().getAudience());
-      case REFRESH_TOKEN -> builder.requireAudience(jwtConfig.getRefreshToken().getAudience());
-    }
+    if (tokenType == TokenType.ACCESS_TOKEN)
+      builder.requireAudience(jwtConfig.getAccessToken().getAudience());
+    else
+      builder.requireAudience(jwtConfig.getRefreshToken().getAudience());
 
     return builder.build().parseClaimsJws(token).getBody();
   }

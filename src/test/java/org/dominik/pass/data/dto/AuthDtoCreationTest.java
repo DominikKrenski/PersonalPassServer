@@ -8,7 +8,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class AuthDtoCreationTest {
+class AuthDtoCreationTest {
   private static final UUID PUBLIC_ID = UUID.randomUUID();
   private static final String SALT = "711882a4dc3dcb437eb6151c09025594";
   private static final String ACCESS_TOKEN = "access_token";

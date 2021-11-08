@@ -11,81 +11,49 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ApiErrorCreationTest {
+class ApiErrorCreationTest {
 
   @Test
   @DisplayName("should throw null pointer if status is null")
   void shouldThrowNullPointerIfStatusIsNull() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .status(null)
-          .timestamp(Instant.now())
-          .message("Validation Error")
-          .build();
-    });
+    assertThrows(NullPointerException.class, () ->  ApiError.builder().status(null));
   }
 
   @Test
   @DisplayName("should throw null pointer if timestamp is null")
   void shouldThrowNullPointerIfTimestampIsNull() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .status(HttpStatus.BAD_GATEWAY)
-          .timestamp(null)
-          .message("Dummy message")
-          .build();
-    });
+    assertThrows(NullPointerException.class, () -> ApiError.builder().timestamp(null));
   }
 
   @Test
   @DisplayName("should throw null pointer if message is null")
   void shouldThrowNullPointerIfMessageIsNull() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .status(HttpStatus.BAD_GATEWAY)
-          .timestamp(Instant.now())
-          .message(null)
-          .build();
-    });
+    assertThrows(NullPointerException.class, () -> ApiError.builder().message(null));
   }
 
   @Test
   @DisplayName("should throw null pointer if status is not invoked")
   void shouldThrowNullPointerIfStatusNotInvoked() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .timestamp(Instant.now())
-          .message("Dummy message")
-          .build();
-    });
+    ApiError.ErrorBuilder builder = ApiError.builder().timestamp(Instant.now()).message("Dummy message");
+
+    assertThrows(NullPointerException.class, builder::build);
+
   }
 
   @Test
   @DisplayName("should throw null pointer if timestamp is not invoked")
   void shouldThrowNullPointerIfTimestampNotInvoked() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .status(HttpStatus.UNPROCESSABLE_ENTITY)
-          .message("Dummy message")
-          .build();
-    });
+    ApiError.ErrorBuilder builder = ApiError.builder().status(HttpStatus.UNPROCESSABLE_ENTITY).message("Dummy message");
+
+    assertThrows(NullPointerException.class, builder::build);
   }
 
   @Test
   @DisplayName("should throw null pointer if message not invoked")
   void shouldThrowNullPointerIfMessageNotInvoked() {
-    assertThrows(NullPointerException.class, () -> {
-      ApiError apiError = ApiError
-          .builder()
-          .status(HttpStatus.MULTI_STATUS)
-          .timestamp(Instant.now())
-          .build();
-    });
+    ApiError.ErrorBuilder builder = ApiError.builder().status(HttpStatus.MULTI_STATUS).timestamp(Instant.now());
+
+    assertThrows(NullPointerException.class, builder::build);
   }
 
   @Test

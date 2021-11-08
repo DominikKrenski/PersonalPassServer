@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @Sql("classpath:/sql/02.auth-controller-test.sql")
 @ActiveProfiles("integration")
-public class AuthControllerRegistrationBootTestIT {
+class AuthControllerRegistrationBootTestIT {
   private static final String URL = "/auth/signup";
   private static final String EMAIL = "dominik.krenski@gmail.com";
   private static final String PASSWORD = "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c";

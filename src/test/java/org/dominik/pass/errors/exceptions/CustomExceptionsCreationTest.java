@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class CustomExceptionsCreationTest {
+class CustomExceptionsCreationTest {
   @Test
   @DisplayName("should create ConflictException successfully")
   void shouldCreateConflictExceptionInstance() {

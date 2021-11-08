@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RefreshTokenServiceTest {
+class RefreshTokenServiceTest {
   private static final Long ID = 2L;
   private static final UUID PUBLIC_ID = UUID.randomUUID();
   private static final String EMAIL = "dominik.krenski@gmail.com";

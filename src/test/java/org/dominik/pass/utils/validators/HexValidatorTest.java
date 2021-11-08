@@ -5,6 +5,9 @@ import lombok.Getter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,7 +23,7 @@ import static org.dominik.pass.utils.TestUtils.readPropertiesFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HexValidatorTest {
+class HexValidatorTest {
   private static Validator validator;
   private static Properties props;
 
@@ -51,54 +54,16 @@ public class HexValidatorTest {
     assertEquals(0, violations.size());
   }
 
-  @Test
-  @DisplayName("should fail if string has odd number of characters")
-  void shouldFailIfStringHasOddNumberOfCharacters() {
-    Data data = new Data("711882A4dc3dcB437Eb6151c0902559");
-
-    Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
-
-    assertEquals(1, errors.size());
-    assertTrue(errors.get("entry").contains(props.getProperty("salt.hex.message")));
-  }
-
-  @Test
-  @DisplayName("should fail if string contains invalid character")
-  void shouldFailIfStringContainsInvalidCharacter() {
-    Data data = new Data("7118g2A4dc3dcB437Eb6151c09025594");
-
-    Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
-
-    assertEquals(1, errors.size());
-    assertTrue(errors.get("entry").contains(props.getProperty("salt.hex.message")));
-  }
-
-  @Test
-  @DisplayName("should fail is string is null")
-  void shouldFailIfStringIsNull() {
-    Data data = new Data(null);
-
-    Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
-
-    assertEquals(1, errors.size());
-    assertTrue(errors.get("entry").contains(props.getProperty("salt.hex.message")));
-  }
-
-  @Test
-  @DisplayName("should fail if string is empty")
-  void shouldFailIfStringIsEmpty() {
-    Data data = new Data("");
-
-    Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
-
-    assertEquals(1, errors.size());
-    assertTrue(errors.get("entry").contains(props.getProperty("salt.hex.message")));
-  }
-
-  @Test
-  @DisplayName("should fail if string consists of 4 spaces")
-  void shouldFilIfStringConsistsOf4Spaces() {
-    Data data = new Data("    ");
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {
+      "711882A4dc3dcB437Eb6151c0902559",
+      "7118g2A4dc3dcB437Eb6151c09025594",
+      "",
+      "    "
+  })
+  void shouldFailIfStringHasOneOfGivenValues(String entry) {
+    Data data = new Data(entry);
 
     Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
 

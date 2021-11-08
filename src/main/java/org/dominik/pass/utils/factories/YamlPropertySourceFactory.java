@@ -19,7 +19,6 @@ public final class YamlPropertySourceFactory implements PropertySourceFactory {
 
     Properties props = factory.getObject();
 
-    return new PropertiesPropertySource(Objects.requireNonNull(resource.getResource().getFilename()), props);
-    //return null;
+    return new PropertiesPropertySource(Objects.requireNonNull(resource.getResource().getFilename()), Objects.requireNonNull(props));
   }
 }

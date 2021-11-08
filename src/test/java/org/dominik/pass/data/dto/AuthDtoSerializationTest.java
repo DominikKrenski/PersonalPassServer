@@ -15,7 +15,7 @@ import static org.dominik.pass.utils.TestUtils.createObjectMapperInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AuthDtoSerializationTest {
+class AuthDtoSerializationTest {
   private static final UUID PUBLIC_ID = UUID.randomUUID();
   private static final String SALT = "711882a4dc3dcb437eb6151c09025594";
   private static final String ACCESS_TOKEN = "access_token";

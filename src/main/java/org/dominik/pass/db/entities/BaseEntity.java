@@ -16,6 +16,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter(AccessLevel.PROTECTED)
 @ToString
 abstract class BaseEntity {
 

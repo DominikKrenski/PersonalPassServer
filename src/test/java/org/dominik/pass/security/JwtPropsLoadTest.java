@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith({SpringExtension.class})
 @Import(JwtConfig.class)
 @EnableConfigurationProperties({JwtConfig.class})
-public class JwtPropsLoadTest {
+class JwtPropsLoadTest {
   @Autowired JwtConfig jwtConfig;
 
   @BeforeAll

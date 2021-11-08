@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @Sql("classpath:sql/02.auth-controller-test.sql")
 @ActiveProfiles("integration")
-public class LoginFilterBootTestIT {
+class LoginFilterBootTestIT {
   private static final String URL = "/auth/signin";
   private static final String TIMESTAMP_PATTERN = "\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
 

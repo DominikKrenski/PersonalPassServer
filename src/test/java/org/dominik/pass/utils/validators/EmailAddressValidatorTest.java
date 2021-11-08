@@ -5,6 +5,9 @@ import lombok.Getter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,7 +23,7 @@ import static org.dominik.pass.utils.TestUtils.readPropertiesFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EmailAddressValidatorTest {
+class EmailAddressValidatorTest {
   private static Validator validator;
   private static Properties props;
 
@@ -31,51 +34,23 @@ public class EmailAddressValidatorTest {
     props = readPropertiesFile("ValidationMessages.properties");
   }
 
-  @Test
-  @DisplayName("should pass if email is dominik.krenski@gmail.com")
-  void shouldPassIfEmailIsMine() {
-    Data data = new Data("dominik.krenski@gmail.com");
+  @ParameterizedTest
+  @ValueSource(strings = {"dominik.krenski@gmail.com", "pass.dominik-krenski@ovh", "dominik@gmail"})
+  @DisplayName("should pass if email has one of the given values")
+  void shouldPassIfEmailsAreValid(String email) {
+    Data data = new Data(email);
 
     Set<ConstraintViolation<Data>> violations = validator.validate(data);
 
     assertEquals(0, violations.size());
   }
 
-  @Test
-  @DisplayName("should pass if email is pass.dominik-krenski.ovh")
-  void shouldPassIfEmailContainsSubdomain() {
-    Data data = new Data("pass.dominik-krenski@ovh");
-
-    Set<ConstraintViolation<Data>> violations = validator.validate(data);
-
-    assertEquals(0, violations.size());
-  }
-
-  @Test
-  @DisplayName("should pass if email is dominik@gmail")
-  void shouldPassIfEmailIsdominikAtGmail() {
-    Data data = new Data("dominik@gmail");
-
-    Set<ConstraintViolation<Data>> violations = validator.validate(data);
-
-    assertEquals(0, violations.size());
-  }
-
-  @Test
-  @DisplayName("should fail is email is null")
-  void shouldFailIfEmailIsNull() {
-    Data data = new Data(null);
-
-    Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
-
-    assertEquals(1, errors.size());
-    assertTrue(errors.get("email").contains(props.getProperty("email.format.message")));
-  }
-
-  @Test
-  @DisplayName("should fail if email is dominik.yahoo")
-  void shouldFailIfEmailIsDominikDotYahoo() {
-    Data data = new Data("dominik.yahoo");
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"dominik.yahoo"})
+  @DisplayName("should fail if email has one of the given values")
+  void shouldFailIfEmailIsOneOfTheFollowing(String email) {
+    Data data = new Data(email);
 
     Map<String, List<String>> errors = convertConstraintViolationsIntoMap(validator.validate(data));
 
