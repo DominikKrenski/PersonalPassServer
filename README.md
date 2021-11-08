@@ -1,8 +1,8 @@
-#Badges
+# Badges
 
 1. Coveralls
 
-    [![Coverage Status](https://coveralls.io/repos/github/DominikKrenski/PersonalPassServer/badge.svg?branch=registration-travis)](https://coveralls.io/github/DominikKrenski/PersonalPassServer?branch=registration-travis)
+   [![Coverage Status](https://coveralls.io/repos/github/DominikKrenski/PersonalPassServer/badge.svg?branch=master)](https://coveralls.io/github/DominikKrenski/PersonalPassServer?branch=master)
 
 2. Codecov
 
