@@ -67,7 +67,7 @@ class AuthControllerSaltBootTestIT {
   void shouldReturnHttpMessageNotReadableResponseIfBodyIsEmpty() throws Exception {
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
@@ -87,7 +87,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            post(URL)
+            get(URL)
                 .content(mapper.writeValueAsString(data))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -124,7 +124,7 @@ class AuthControllerSaltBootTestIT {
         """;
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(body)
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.APPLICATION_JSON)
@@ -149,7 +149,7 @@ class AuthControllerSaltBootTestIT {
         """;
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(content)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -179,7 +179,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(mapper.writeValueAsString(data))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -197,7 +197,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(mapper.writeValueAsString(data))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -213,7 +213,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(mapper.writeValueAsString(data))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -229,7 +229,7 @@ class AuthControllerSaltBootTestIT {
 
     mvc
         .perform(
-            get(URL)
+            post(URL)
                 .content(mapper.writeValueAsString(data))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

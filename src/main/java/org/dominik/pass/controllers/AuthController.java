@@ -35,7 +35,7 @@ public class AuthController {
         .build();
   }
 
-  @GetMapping(value = "/salt", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/salt", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AuthDTO salt(@Valid @RequestBody Data data) {
     AccountDTO accountDTO = accountService.findByEmail(data.getEmail());
     return AuthDTO
