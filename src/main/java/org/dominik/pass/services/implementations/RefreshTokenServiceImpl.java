@@ -69,6 +69,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         .orElseThrow(() -> new NotFoundException("Given token does not exist"));
   }
 
+  @Transactional
   @Override
   public int deleteAllAccountTokens(@NonNull String publicId) {
     return tokenRepository.deleteAllAccountTokens(UUID.fromString(publicId));
