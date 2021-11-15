@@ -30,6 +30,9 @@ public final class RefreshToken extends BaseEntity implements Serializable {
   @Column(name = "token", nullable = false, unique = true, length = 500)
   private String token;
 
+  @Column(name = "used", columnDefinition = "BOOLEAN NOT NULL DEFAULT false")
+  private boolean used;
+
   @ManyToOne(
       fetch = FetchType.LAZY,
       optional = false
@@ -47,6 +50,7 @@ public final class RefreshToken extends BaseEntity implements Serializable {
 
   public RefreshToken(@NonNull String token, @NonNull Account account) {
     this.token = token;
+    this.used = false;
     this.account = account;
   }
 }

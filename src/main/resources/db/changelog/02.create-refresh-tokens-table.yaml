@@ -28,6 +28,12 @@ databaseChangeLog:
                     unique: true
                     uniqueConstraintName: refresh_tokens_token_unq
               - column:
+                  name: used
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
                   name: account_id
                   type: BIGINT
                   constraints:
