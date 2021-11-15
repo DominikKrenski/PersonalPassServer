@@ -12,6 +12,7 @@ import java.time.Instant;
 public final class RefreshTokenDTO {
   private final Long id;
   @EqualsAndHashCode.Include private final String token;
+  private final boolean used;
   private final AccountDTO account;
   private final Instant createdAt;
   private final Instant updatedAt;
@@ -21,6 +22,7 @@ public final class RefreshTokenDTO {
     return new RefreshTokenDTO(
         refreshToken.getId(),
         refreshToken.getToken(),
+        refreshToken.isUsed(),
         null,
         refreshToken.getCreatedAt(),
         refreshToken.getUpdatedAt(),
@@ -32,6 +34,7 @@ public final class RefreshTokenDTO {
     return new RefreshTokenDTO(
         refreshToken.getId(),
         refreshToken.getToken(),
+        refreshToken.isUsed(),
         AccountDTO.fromAccount(refreshToken.getAccount()),
         refreshToken.getCreatedAt(),
         refreshToken.getUpdatedAt(),
