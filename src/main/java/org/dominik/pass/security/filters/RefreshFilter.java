@@ -25,7 +25,7 @@ import java.time.Instant;
 @Slf4j
 @RequiredArgsConstructor
 public final class RefreshFilter extends OncePerRequestFilter {
-  private static final String URL = "/api/auth/refresh";
+  private static final String URL = "/auth/refresh";
   private static final String METHOD = "GET";
   private static final String HEADER = "Authorization";
   private static final String SCHEME = "Bearer ";
@@ -37,8 +37,10 @@ public final class RefreshFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     // check if URL is `/auth/refresh`, if not pass request to the next filter in the chain
-    if (!request.getRequestURI().equals(URL)) {
-      log.debug("Next filter invoked, because URL is: " + request.getRequestURI());
+    String url = request.getRequestURI().substring(request.getContextPath().length());
+
+    if (!url.equals(URL)) {
+      log.debug("Next filter invoked, because URL is: " + url);
       filterChain.doFilter(request, response);
       return;
     }
@@ -64,7 +66,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
     // get token from header, if header is null return FORBIDDEN response
     String token = getToken(header);
 
-    if (token == null) {
+    if (token == null || token.length() == 0) {
       log.error("Schema missing or invalid");
       SecurityContextHolder.clearContext();
       prepareErrorResponse(response, "Scheme missing or invalid");
