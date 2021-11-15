@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,5 +80,22 @@ class RefreshTokenRepositoryIT {
     List<RefreshToken> tokens = tokenRepository.findByAccountPublicId(account.getPublicId());
 
     assertEquals(3, tokens.size());
+  }
+
+  @Test
+  @DisplayName("should find token based on token entry")
+  void shouldFindTokenBasedOnTokenEntry() {
+    Optional<RefreshToken> tokenOptional = tokenRepository.findByToken("refresh_token_2");
+    assertTrue(tokenOptional.isPresent());
+  }
+
+  @Test
+  @DisplayName("should mark token as used if token='refresh_token_1'")
+  void shouldMarkTokenAsUsed() throws Exception {
+    int updatedTokens = tokenRepository.markTokenAsUsed("refresh_token_1");
+    RefreshToken token = tokenRepository.findByToken("refresh_token_1").orElseThrow(() -> new Exception("Token does not exist"));
+
+    assertEquals(1, updatedTokens);
+    assertTrue(token.isUsed());
   }
 }
