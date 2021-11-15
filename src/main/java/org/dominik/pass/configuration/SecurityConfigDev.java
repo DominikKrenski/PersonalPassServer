@@ -3,6 +3,7 @@ package org.dominik.pass.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dominik.pass.errors.api.ApiError;
 import org.dominik.pass.security.filters.LoginFilter;
+import org.dominik.pass.security.filters.RefreshFilter;
 import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,8 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             tokenService,
             jwtUtils,
             authFailureHandler()
-        ));
+        ))
+        .addFilterBefore(new RefreshFilter(mapper, jwtUtils, tokenService), LoginFilter.class);
   }
 
   @Override
