@@ -120,6 +120,7 @@ public final class TestUtils {
   public static RefreshToken createRefreshTokenInstance(
       Long id,
       String token,
+      boolean used,
       Account account,
       Instant createdAt,
       Instant updatedAt,
@@ -171,6 +172,7 @@ public final class TestUtils {
       try {
         switch (fieldname) {
           case "id" -> field.set(refreshToken, id);
+          case "used" -> field.set(refreshToken, used);
           case "token" -> field.set(refreshToken, token);
           case "account" -> field.set(refreshToken, account);
         }

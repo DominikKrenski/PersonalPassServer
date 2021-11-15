@@ -49,6 +49,7 @@ class RefreshTokenDtoCreationTest {
     RefreshToken refreshToken = createRefreshTokenInstance(
         ID,
         "access_token",
+        false,
         account,
         Instant.now().minusSeconds(2000),
         Instant.now().minusSeconds(1800),
@@ -59,6 +60,7 @@ class RefreshTokenDtoCreationTest {
 
     assertEquals(refreshToken.getId(), dto.getId());
     assertEquals(refreshToken.getToken(), dto.getToken());
+    assertEquals(refreshToken.isUsed(), dto.isUsed());
     assertEquals(refreshToken.getCreatedAt(), dto.getCreatedAt());
     assertEquals(refreshToken.getUpdatedAt(), dto.getUpdatedAt());
     assertEquals(refreshToken.getVersion(), dto.getVersion());
@@ -88,6 +90,7 @@ class RefreshTokenDtoCreationTest {
     RefreshToken refreshToken = createRefreshTokenInstance(
         ID,
         "access_token",
+        true,
         account,
         Instant.now().minusSeconds(2000),
         Instant.now().minusSeconds(1800),
@@ -98,6 +101,7 @@ class RefreshTokenDtoCreationTest {
 
     assertEquals(refreshToken.getId(), dto.getId());
     assertEquals(refreshToken.getToken(), dto.getToken());
+    assertEquals(refreshToken.isUsed(), dto.isUsed());
     assertEquals(refreshToken.getCreatedAt(), dto.getCreatedAt());
     assertEquals(refreshToken.getUpdatedAt(), dto.getUpdatedAt());
     assertEquals(refreshToken.getVersion(), dto.getVersion());

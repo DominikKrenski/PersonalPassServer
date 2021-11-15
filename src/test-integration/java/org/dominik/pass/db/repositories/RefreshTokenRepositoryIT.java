@@ -17,8 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = {
     "spring.main.banner-mode=off"
@@ -51,6 +50,7 @@ class RefreshTokenRepositoryIT {
 
     assertNotNull(savedToken.getId());
     assertEquals("refresh_token", savedToken.getToken());
+    assertFalse(savedToken.isUsed());
     assertNotNull(savedToken.getAccount());
     assertNotNull(savedToken.getCreatedAt());
     assertNotNull(savedToken.getUpdatedAt());

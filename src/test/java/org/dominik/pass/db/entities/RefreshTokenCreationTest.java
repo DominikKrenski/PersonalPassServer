@@ -47,6 +47,7 @@ class RefreshTokenCreationTest {
 
     assertNull(refreshToken.getId());
     assertEquals("refresh_token", refreshToken.getToken());
+    assertFalse(refreshToken.isUsed());
     assertNotNull(refreshToken.getAccount());
     assertNull(refreshToken.getCreatedAt());
     assertNull(refreshToken.getUpdatedAt());
