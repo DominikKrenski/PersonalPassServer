@@ -210,4 +210,52 @@ class AccountServiceTest {
 
     assertThrows(NotFoundException.class, () -> accountService.findByEmail(EMAIL));
   }
+
+  @Test
+  @DisplayName("should return AccountDTO instance if account with given public id exists")
+  void shouldReturnAccountDtoInstanceIfAccountWithGivenPublicIdExists() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    Account account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        PASSWORD,
+        SALT,
+        REMINDER,
+        ROLE,
+        true,
+        true,
+        false,
+        false,
+        CREATED_AT,
+        UPDATED_AT,
+        (short) 0
+    );
+
+    when(accountRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.of(account));
+
+    AccountDTO accountDTO = accountService.findByPublicId(PUBLIC_ID);
+
+    assertEquals(account.getId(), accountDTO.getId());
+    assertEquals(account.getPublicId().toString(), accountDTO.getPublicId().toString());
+    assertEquals(account.getEmail(), accountDTO.getEmail());
+    assertEquals(account.getPassword(), accountDTO.getPassword());
+    assertEquals(account.getSalt(), accountDTO.getSalt());
+    assertEquals(account.getReminder(), accountDTO.getReminder());
+    assertEquals(account.getRole().toString(), accountDTO.getRole().toString());
+    assertTrue(accountDTO.isAccountNonExpired());
+    assertTrue(accountDTO.isAccountNonLocked());
+    assertFalse(accountDTO.isCredentialsNonExpired());
+    assertFalse(accountDTO.isEnabled());
+    assertEquals(account.getCreatedAt(), accountDTO.getCreatedAt());
+    assertEquals(account.getUpdatedAt(), accountDTO.getUpdatedAt());
+    assertEquals(account.getVersion(), accountDTO.getVersion());
+  }
+
+  @Test
+  @DisplayName("should throw NotFoundException if account with given publid id does not exist")
+  void shouldThrowNotFoundIfAccountWithGivenPublicIdDoesNotExist() {
+    when(accountRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> accountService.findByPublicId(PUBLIC_ID));
+  }
 }

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -42,8 +43,18 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public AccountDTO findByEmail(@NonNull String email) {
-    Optional<Account> account = accountRepository.findByEmail(email);
-    return account.map(AccountDTO::fromAccount).orElseThrow(() -> new NotFoundException("Account does not exist"));
+    return accountRepository
+        .findByEmail(email)
+        .map(AccountDTO::fromAccount)
+        .orElseThrow(() -> new NotFoundException("Account does not exist"));
+  }
+
+  @Override
+  public AccountDTO findByPublicId(@NonNull UUID publicId) {
+    return accountRepository
+        .findByPublicId(publicId)
+        .map(AccountDTO::fromAccount)
+        .orElseThrow(() -> new NotFoundException("Account does not exist"));
   }
 
   @Override
