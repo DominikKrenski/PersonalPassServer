@@ -107,7 +107,7 @@ class RefreshFilterBootTestIT {
   }
 
   @Test
-  @DisplayName("should return 403 if Autorization header starts with Bearer but substring is an empty string")
+  @DisplayName("should return 403 if Authorization header starts with Bearer but substring is an empty string")
   void shouldReturn403IfAuthHeaderStartsWithBearerButSubstringIsEmpty() throws Exception {
     mvc
         .perform(
@@ -253,7 +253,7 @@ class RefreshFilterBootTestIT {
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.status").value(HttpStatus.FORBIDDEN.getReasonPhrase()))
         .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Given token does not exist"));
+        .andExpect(jsonPath("$.message").value("Token is not valid"));
   }
 
   @Test
