@@ -1,6 +1,7 @@
 package org.dominik.pass.configuration;
 
 import org.dominik.pass.security.utils.JwtUtils;
+import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -16,4 +17,5 @@ public class AuthControllerMvcTestConfig {
   @MockBean AccountService accountService;
   @MockBean RefreshTokenService tokenService;
   @MockBean JwtUtils jwtUtils;
+  @MockBean SecurityUtils securityUtils;
 }
