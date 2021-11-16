@@ -1,17 +1,14 @@
 package org.dominik.pass.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.data.dto.RefreshTokenDTO;
-import org.dominik.pass.errors.api.ApiError;
-import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.security.utils.JwtUtils;
+import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.RefreshTokenService;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.Instant;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +29,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
   @NonNull private final ObjectMapper mapper;
   @NonNull private final JwtUtils jwtUtils;
   @NonNull private final RefreshTokenService refreshTokenService;
+  @NonNull private final SecurityUtils securityUtils;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -49,7 +46,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
     if (!request.getMethod().equalsIgnoreCase(METHOD)) {
       log.error("Request method is invalid: " + request.getMethod());
       SecurityContextHolder.clearContext();
-      prepareErrorResponse(response, "Request method is not supported");
+      securityUtils.prepareForbiddenResponse(response, "Request method is not supported");
       return;
     }
 
@@ -59,17 +56,17 @@ public final class RefreshFilter extends OncePerRequestFilter {
     if (header == null) {
       log.error("Authorization header is missing");
       SecurityContextHolder.clearContext();
-      prepareErrorResponse(response, "Required header is missing");
+      securityUtils.prepareForbiddenResponse(response, "Required header is missing");
       return;
     }
 
     // get token from header, if header is null return FORBIDDEN response
-    String token = getToken(header);
+    String token = securityUtils.getToken(header);
 
     if (token == null || token.length() == 0) {
       log.error("Schema missing or invalid");
       SecurityContextHolder.clearContext();
-      prepareErrorResponse(response, "Scheme missing or invalid");
+      securityUtils.prepareForbiddenResponse(response, "Scheme missing or invalid");
       return;
     }
 
@@ -81,7 +78,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
         // if refresh token has been used for the second time, delete all user tokens and return security message
         refreshTokenService.deleteAllAccountTokens(subject);
         SecurityContextHolder.clearContext();
-        prepareErrorResponse(response, "Security Exception. Server detected that the same token has been used again");
+        securityUtils.prepareForbiddenResponse(response, "Security Exception. Server detected that the same token has been used again");
       } else {
         // generate new pair of tokens
         String accessToken = jwtUtils.createToken(subject, JwtUtils.TokenType.ACCESS_TOKEN);
@@ -97,27 +94,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
         response.getWriter().write(mapper.writeValueAsString(authDTO));
       }
     } catch (Exception ex) {
-      prepareErrorResponse(response, "Token is not valid");
+      securityUtils.prepareForbiddenResponse(response, "Token is not valid");
     }
-  }
-
-  private String getToken(String content) {
-    // check if content starts with `Bearer `, if not return null
-    if (!content.startsWith(SCHEME))
-      return null;
-
-    // get token
-    return content.substring(7);
-  }
-
-  private void prepareErrorResponse(HttpServletResponse response, String message) throws IOException {
-    ApiError apiError = ApiError.builder()
-        .status(HttpStatus.FORBIDDEN)
-        .timestamp(Instant.now())
-        .message(message)
-        .build();
-
-    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    response.getWriter().write(mapper.writeValueAsString(apiError));
   }
 }

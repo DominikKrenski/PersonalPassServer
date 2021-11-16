@@ -86,7 +86,7 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             jwtUtils,
             authFailureHandler()
         ))
-        .addFilterBefore(new RefreshFilter(mapper, jwtUtils, tokenService), LoginFilter.class)
+        .addFilterBefore(new RefreshFilter(mapper, jwtUtils, tokenService, securityUtils), LoginFilter.class)
         .addFilterAfter(new AccessFilter(accountService, jwtUtils, securityUtils), RefreshFilter.class);
   }
 
