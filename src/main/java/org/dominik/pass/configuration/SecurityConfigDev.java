@@ -2,9 +2,12 @@ package org.dominik.pass.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dominik.pass.errors.api.ApiError;
+import org.dominik.pass.security.filters.AccessFilter;
 import org.dominik.pass.security.filters.LoginFilter;
 import org.dominik.pass.security.filters.RefreshFilter;
 import org.dominik.pass.security.utils.JwtUtils;
+import org.dominik.pass.security.utils.SecurityUtils;
+import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +45,8 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
   private final UserDetailsService detailsService;
   private final ObjectMapper mapper;
   private final RefreshTokenService tokenService;
+  private final AccountService accountService;
+  private final SecurityUtils securityUtils;
   private final JwtUtils jwtUtils;
 
   @Autowired
@@ -50,12 +55,16 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
       UserDetailsService detailsService,
       ObjectMapper mapper,
       RefreshTokenService tokenService,
+      AccountService accountService,
+      SecurityUtils securityUtils,
       JwtUtils jwtUtils
   ) {
     this.passwordEncoder = passwordEncoder;
     this.detailsService = detailsService;
     this.mapper = mapper;
     this.tokenService = tokenService;
+    this.accountService = accountService;
+    this.securityUtils = securityUtils;
     this.jwtUtils = jwtUtils;
   }
 
@@ -77,7 +86,8 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             jwtUtils,
             authFailureHandler()
         ))
-        .addFilterBefore(new RefreshFilter(mapper, jwtUtils, tokenService), LoginFilter.class);
+        .addFilterBefore(new RefreshFilter(mapper, jwtUtils, tokenService), LoginFilter.class)
+        .addFilterAfter(new AccessFilter(accountService, jwtUtils, securityUtils), RefreshFilter.class);
   }
 
   @Override
