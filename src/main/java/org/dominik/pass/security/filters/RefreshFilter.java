@@ -96,12 +96,8 @@ public final class RefreshFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(mapper.writeValueAsString(authDTO));
       }
-    } catch (JwtException ex) {
+    } catch (Exception ex) {
       prepareErrorResponse(response, "Token is not valid");
-    } catch (NotFoundException ex) {
-      prepareErrorResponse(response, ex.getMessage());
-    } catch (IllegalArgumentException ex) {
-      prepareErrorResponse(response, "Subject has invalid format");
     }
   }
 
