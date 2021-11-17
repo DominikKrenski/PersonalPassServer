@@ -2,8 +2,11 @@ package org.dominik.pass.security.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dominik.pass.errors.api.ApiError;
+import org.dominik.pass.security.AccountDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
@@ -40,5 +43,10 @@ public class SecurityUtils {
 
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     response.getWriter().write(mapper.writeValueAsString(apiError));
+  }
+
+  public AccountDetails getPrincipal() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return (AccountDetails) authentication.getPrincipal();
   }
 }
