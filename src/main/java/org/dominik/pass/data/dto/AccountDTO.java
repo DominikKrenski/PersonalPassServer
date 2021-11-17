@@ -1,5 +1,6 @@
 package org.dominik.pass.data.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
@@ -13,6 +14,18 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
+@JsonIgnoreProperties({
+    "id",
+    "publicId",
+    "password",
+    "salt",
+    "role",
+    "accountNonExpired",
+    "accountNonLocked",
+    "credentialsNonExpired",
+    "enabled",
+    "version"
+})
 public final class AccountDTO implements Serializable {
   @Serial private static final long serialVersionUID = 4L;
 
