@@ -1,6 +1,7 @@
 package org.dominik.pass.security;
 
 import lombok.NonNull;
+import lombok.ToString;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+@ToString
 public final class AccountDetails implements UserDetails {
   private final String username;
   private final UUID publicId;
