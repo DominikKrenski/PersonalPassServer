@@ -31,4 +31,16 @@ class CustomExceptionsCreationTest {
       assertNotNull(ex.getTimestamp());
     }
   }
+
+  @Test
+  @DisplayName("should create InternalException successfully")
+  void shouldCreateInternalExceptionInstance() {
+    try {
+      throw new InternalException("Internal error");
+    } catch (InternalException ex) {
+      assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatus());
+      assertEquals("Internal error", ex.getMessage());
+      assertNotNull(ex.getTimestamp());
+    }
+  }
 }
