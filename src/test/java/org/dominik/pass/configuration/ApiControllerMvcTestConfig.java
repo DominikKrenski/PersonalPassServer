@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 @TestConfiguration
 @Import({SecurityConfigDev.class, JacksonConfig.class, PasswordEncoderConfig.class})
-public class AuthControllerMvcTestConfig {
+public class ApiControllerMvcTestConfig {
 
   @MockBean UserDetailsService detailsService;
   @MockBean AccountService accountService;

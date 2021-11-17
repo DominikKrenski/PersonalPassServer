@@ -1,7 +1,7 @@
 package org.dominik.pass.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
+import org.dominik.pass.configuration.ApiControllerMvcTestConfig;
 import org.dominik.pass.controllers.AuthController;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.enums.Role;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.main.banner-mode=off"
     }
 )
-@Import(AuthControllerMvcTestConfig.class)
+@Import(ApiControllerMvcTestConfig.class)
 @ActiveProfiles("test")
 class LoginFilterMvcTest {
   private static final String EMAIL ="dominik.krenski@gmail.com";

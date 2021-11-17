@@ -1,7 +1,7 @@
 package org.dominik.pass.advices;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
+import org.dominik.pass.configuration.ApiControllerMvcTestConfig;
 import org.dominik.pass.controllers.AuthController;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.errors.exceptions.ConflictException;
@@ -33,9 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.main.banner-mode=off"
     }
 )
-@Import(AuthControllerMvcTestConfig.class)
+@Import(ApiControllerMvcTestConfig.class)
 @ActiveProfiles("test")
-class ApiControllerAdviceMvcTest {
+class AuthControllerAdviceMvcTest {
   private static final String EMAIL ="dominik.krenski@gmail.com";
   private static final String PASSWORD = "b468879149f241f69ce185ee2cc1764047ece00f7aad0128053a12aee5be320c";
   private static final String SALT = "711882a4dc3dcb437eb6151c09025594";

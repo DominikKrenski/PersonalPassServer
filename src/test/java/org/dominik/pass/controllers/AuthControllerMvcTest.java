@@ -6,7 +6,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.dominik.pass.configuration.AuthControllerMvcTestConfig;
+import org.dominik.pass.configuration.ApiControllerMvcTestConfig;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.data.enums.Role;
@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.main.banner-mode=off"
     }
 )
-@Import(AuthControllerMvcTestConfig.class)
+@Import(ApiControllerMvcTestConfig.class)
 @ActiveProfiles("test")
 class AuthControllerMvcTest {
   private static final String EMAIL ="dominik.krenski@gmail.com";
