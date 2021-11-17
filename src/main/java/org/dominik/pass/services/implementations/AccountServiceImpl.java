@@ -11,8 +11,8 @@ import org.dominik.pass.services.definitions.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,6 +55,18 @@ public class AccountServiceImpl implements AccountService {
         .findByPublicId(publicId)
         .map(AccountDTO::fromAccount)
         .orElseThrow(() -> new NotFoundException("Account does not exist"));
+  }
+
+  @Override
+  @Transactional
+  public int updateEmail(String newEmail, String oldEmail) {
+    return accountRepository.updateEmail(newEmail, oldEmail);
+  }
+
+  @Override
+  @Transactional
+  public int updateReminder(String reminder, String email) {
+    return accountRepository.updateReminder(reminder, email);
   }
 
   @Override

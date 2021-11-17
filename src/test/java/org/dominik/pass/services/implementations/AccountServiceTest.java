@@ -24,6 +24,7 @@ import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.dominik.pass.utils.TestUtils.createRegistrationDtoInstance;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -257,5 +258,45 @@ class AccountServiceTest {
     when(accountRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
     assertThrows(NotFoundException.class, () -> accountService.findByPublicId(PUBLIC_ID));
+  }
+
+  @Test
+  @DisplayName("should not update email if account does not exist")
+  void shouldNotUpdateEmailIfAccountNotExist() {
+    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(0);
+
+    int result = accountService.updateEmail("new email", "old email");
+
+    assertEquals(0, result);
+  }
+
+  @Test
+  @DisplayName("should update email if account exists")
+  void shouldUpdateEmailIfAccountExists() {
+    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(1);
+
+    int result = accountService.updateEmail("new email", "old email");
+
+    assertEquals(1, result);
+  }
+
+  @Test
+  @DisplayName("should not update reminder if account does not exist")
+  void shouldNotUpdateReminderIfAccountNotExist() {
+    when(accountRepository.updateReminder(anyString(), anyString())).thenReturn(0);
+
+    int result = accountService.updateReminder("new reminder", "email");
+
+    assertEquals(0, result);
+  }
+
+  @Test
+  @DisplayName("should update reminder if account exists")
+  void shouldUpdateReminderIfAccountExists() {
+    when(accountRepository.updateReminder(anyString(), anyString())).thenReturn(1);
+
+    int result = accountService.updateReminder("new reminder", "email");
+
+    assertEquals(1, result);
   }
 }
