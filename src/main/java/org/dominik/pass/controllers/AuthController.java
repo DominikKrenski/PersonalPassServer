@@ -26,7 +26,11 @@ public class AuthController {
     this.accountService = accountService;
   }
 
-  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(
+      value = "/signup",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
   public AuthDTO signup(@Valid @RequestBody RegistrationDTO dto) {
     AccountDTO accountDTO = accountService.register(dto);
     return AuthDTO
@@ -35,7 +39,11 @@ public class AuthController {
         .build();
   }
 
-  @PostMapping(value = "/salt", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(
+      value = "/salt",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
   public AuthDTO salt(@Valid @RequestBody Data data) {
     AccountDTO accountDTO = accountService.findByEmail(data.getEmail());
     return AuthDTO
