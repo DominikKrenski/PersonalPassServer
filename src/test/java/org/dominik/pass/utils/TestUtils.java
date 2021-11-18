@@ -32,6 +32,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -383,6 +385,15 @@ public final class TestUtils {
     String signature = base64UrlEncode(hmacSHA512(header + "." + payload, key));
 
     return header + "." + payload + "." + signature;
+  }
+
+  public static String convertInstantIntoString(Instant date) {
+    DateTimeFormatter dtf =
+        DateTimeFormatter
+            .ofPattern("dd/MM/yyyy'T'HH:mm:ss.SSS'Z'")
+            .withZone(ZoneId.of("UTC"));
+
+    return dtf.format(date);
   }
 
   @Getter
