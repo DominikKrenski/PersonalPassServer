@@ -26,6 +26,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -78,7 +79,10 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
             .antMatchers("/auth/signup", "/auth/signin", "/auth/salt", "/dummy-url").permitAll()
             .anyRequest().authenticated()
         )
-        .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPoint()))
+        .exceptionHandling(handler -> {
+          handler.authenticationEntryPoint(authEntryPoint());
+          handler.accessDeniedHandler(accessDeniedHandler());
+        })
         .addFilter(createLoginFilter(
             authenticationManager(),
             mapper,
@@ -154,6 +158,20 @@ public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
           .build();
 
       res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      res.getWriter().write(mapper.writeValueAsString(apiError));
+    };
+  }
+
+  private AccessDeniedHandler accessDeniedHandler() {
+    return (req, res, e) -> {
+      ApiError apiError = ApiError
+          .builder()
+          .status(HttpStatus.FORBIDDEN)
+          .message("You are not allowed to access this resource")
+          .timestamp(Instant.now())
+          .build();
+
+      res.setStatus(HttpServletResponse.SC_FORBIDDEN);
       res.getWriter().write(mapper.writeValueAsString(apiError));
     };
   }
