@@ -46,14 +46,21 @@ public class AccountController {
     this.jwtUtils = jwtUtils;
   }
 
-  @GetMapping("/")
+  @GetMapping(
+      value = "/",
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
   @PreAuthorize("hasRole('ROLE_USER')")
   public AccountDTO getAccount() {
     AccountDetails accountDetails = securityUtils.getPrincipal();
     return accountService.findByEmail(accountDetails.getUsername());
   }
 
-  @PutMapping("/email")
+  @PutMapping(
+      value = "/email",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(EmailUpdate.class)
   public AuthDTO updateEmail(@Valid @RequestBody AccountUpdate body) {
@@ -70,7 +77,10 @@ public class AccountController {
     return AuthDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 
-  @PutMapping
+  @PutMapping(
+      value = "/reminder",
+      consumes = MediaType.APPLICATION_JSON_VALUE
+  )
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(ReminderUpdate.class)
   public ResponseEntity<Object> updateReminder(@Valid @RequestBody AccountUpdate body) {
