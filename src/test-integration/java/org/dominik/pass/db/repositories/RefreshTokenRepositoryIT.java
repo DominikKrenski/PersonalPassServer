@@ -65,7 +65,7 @@ class RefreshTokenRepositoryIT {
         .findByEmail("dominik.krenski@gmail.com")
         .orElseThrow(() -> new NotFoundException("Account not found"));
 
-    int deleted = tokenRepository.deleteAllAccountTokens(account.getPublicId());
+    int deleted = tokenRepository.deleteAllAccountTokensByPublicId(account.getPublicId());
 
     assertEquals(3, deleted);
   }
@@ -97,5 +97,13 @@ class RefreshTokenRepositoryIT {
 
     assertEquals(1, updatedTokens);
     assertTrue(token.isUsed());
+  }
+
+  @Test
+  @DisplayName("should delete all tokens based on account's email")
+  void shouldDeleteAllTokensBasedOnAccountsEmail() {
+    int deletedTokens = tokenRepository.deleteAllAccountTokensByEmail("dominik.krenski@gmail.com");
+
+    assertEquals(3, deletedTokens);
   }
 }
