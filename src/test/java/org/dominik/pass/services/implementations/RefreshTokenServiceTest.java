@@ -6,8 +6,10 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
+import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,18 +43,17 @@ class RefreshTokenServiceTest {
   private static final Instant CREATED_AT = Instant.now().minusSeconds(4300);
   private static final Instant UPDATED_AT = Instant.now().minusSeconds(3400);
 
+  private static Account account;
+
   @Mock private AccountService accountService;
   @Mock private RefreshTokenRepository tokenRepository;
   @Mock private EntityManager em;
 
   @InjectMocks private RefreshTokenServiceImpl tokenService;
 
-  @Test
-  @DisplayName("should save token")
-  void shouldSaveToken() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-    ReflectionTestUtils.setField(tokenService, "em", em);
-
-    Account account = createAccountInstance(
+  @BeforeAll
+  static void setUp() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    account = createAccountInstance(
         ID,
         PUBLIC_ID,
         EMAIL,
@@ -68,18 +69,24 @@ class RefreshTokenServiceTest {
         UPDATED_AT,
         (short) 3
     );
+  }
+
+  @Test
+  @DisplayName("should save token")
+  void shouldSaveToken() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    ReflectionTestUtils.setField(tokenService, "em", em);
 
     AccountDTO accountDTO = AccountDTO.fromAccount(account);
 
     when(accountService.findByEmail(any(String.class))).thenReturn(accountDTO);
     when(em.merge(any(Account.class))).thenReturn(account);
-    when(tokenRepository.deleteAllAccountTokens(any(UUID.class))).thenReturn(2);
+    when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(2);
 
     tokenService.login("refresh_token", "dominik.krenski@gmail.com");
 
     verify(accountService).findByEmail(EMAIL);
     verify(em).merge(isA(Account.class));
-    verify(tokenRepository).deleteAllAccountTokens(isA(UUID.class));
+    verify(tokenRepository).deleteAllAccountTokensByPublicId(isA(UUID.class));
     verify(tokenRepository).save(isA(RefreshToken.class));
   }
 
@@ -94,7 +101,7 @@ class RefreshTokenServiceTest {
   @Test
   @DisplayName("should return number of deleted entries")
   void shouldReturnNumberOfDeletedEntries() {
-    when(tokenRepository.deleteAllAccountTokens(any(UUID.class))).thenReturn(1);
+    when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(1);
 
     int deleted = tokenService.deleteAllAccountTokens(PUBLIC_ID.toString());
 
@@ -106,23 +113,6 @@ class RefreshTokenServiceTest {
   @DisplayName("should return dto instance if RefreshToken with token field exists")
   void shouldReturnDtoInstanceIfRefreshTokenWithTokenFieldExists() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     ReflectionTestUtils.setField(tokenService, "em", em);
-
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        ROLE,
-        true,
-        true,
-        true,
-        false,
-        CREATED_AT,
-        UPDATED_AT,
-        (short) 3
-    );
 
     RefreshToken refreshToken = createRefreshTokenInstance(ID, "refresh_token", false, account, CREATED_AT, UPDATED_AT, (short) 0);
 
@@ -149,23 +139,6 @@ class RefreshTokenServiceTest {
   @DisplayName("should save new refresh token")
   void shouldSaveNewRefreshToken() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     ReflectionTestUtils.setField(tokenService, "em", em);
-
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        ROLE,
-        true,
-        true,
-        true,
-        false,
-        CREATED_AT,
-        UPDATED_AT,
-        (short) 3
-    );
 
     RefreshToken refreshToken = createRefreshTokenInstance(ID, "refresh_token", false, account, CREATED_AT, UPDATED_AT, (short) 1);
 
@@ -196,5 +169,62 @@ class RefreshTokenServiceTest {
     verify(accountService).findByPublicId(any(UUID.class));
     verify(em, never()).merge(any(Account.class));
     verify(tokenRepository, never()).save(any(RefreshToken.class));
+  }
+
+  @Test
+  @DisplayName("should throw InternalException if email was not updated")
+  void shouldThrowInternalExceptionIfEmailWasNotUpdated() {
+    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(1);
+    when(accountService.updateEmail(anyString(), anyString())).thenReturn(0);
+
+    assertThrows(
+        InternalException.class,
+        () -> tokenService.saveRefreshTokenAfterEmailUpdate("old", "new", "token")
+    );
+
+    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
+    verify(accountService).updateEmail(anyString(), anyString());
+    verify(accountService, never()).findByEmail(anyString());
+    verify(em, never()).merge(any(Account.class));
+    verify(tokenRepository, never()).save(any(RefreshToken.class));
+  }
+
+  @Test
+  @DisplayName("should throw NotFound if account with given email does not exist")
+  void shouldThrowNotFoundIfAccountWithGivenEmailDoesNotExist() {
+    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(0);
+    when(accountService.updateEmail(anyString(), anyString())).thenReturn(1);
+    when(accountService.findByEmail(anyString())).thenThrow(new NotFoundException("Account does not exist"));
+
+    assertThrows(
+        NotFoundException.class,
+        () -> tokenService.saveRefreshTokenAfterEmailUpdate("old", "new", "token")
+    );
+
+    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
+    verify(accountService).updateEmail(anyString(), anyString());
+    verify(accountService).findByEmail(anyString());
+    verify(em, never()).merge(any(Account.class));
+    verify(tokenRepository, never()).save(any(RefreshToken.class));
+  }
+
+  @Test
+  @DisplayName("should save refresh token after email update")
+  void shouldSaveRefreshTokenAfterEmailToken() {
+    ReflectionTestUtils.setField(tokenService, "em", em);
+
+    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(3);
+    when(accountService.updateEmail(anyString(), anyString())).thenReturn(1);
+    when(accountService.findByEmail(anyString())).thenReturn(AccountDTO.fromAccount(account));
+    when(em.merge(any(Account.class))).thenReturn(account);
+    when(tokenRepository.save(any(RefreshToken.class))).thenReturn(new RefreshToken("token", account));
+
+    tokenService.saveRefreshTokenAfterEmailUpdate("new", "old", "token");
+
+    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
+    verify(accountService).updateEmail(anyString(), anyString());
+    verify(accountService).findByEmail(anyString());
+    verify(em).merge(any(Account.class));
+    verify(tokenRepository).save(any(RefreshToken.class));
   }
 }

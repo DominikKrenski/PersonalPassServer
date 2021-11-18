@@ -6,6 +6,7 @@ import org.dominik.pass.data.dto.RefreshTokenDTO;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
+import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
@@ -41,7 +42,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     Account account = em.merge(Account.fromDTO(accountDTO));
 
     // delete all existing refresh tokens
-    tokenRepository.deleteAllAccountTokens(account.getPublicId());
+    tokenRepository.deleteAllAccountTokensByPublicId(account.getPublicId());
 
     // save new refresh token in database
     tokenRepository.save(new RefreshToken(refreshToken, account));
@@ -72,6 +73,29 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Transactional
   @Override
   public int deleteAllAccountTokens(@NonNull String publicId) {
-    return tokenRepository.deleteAllAccountTokens(UUID.fromString(publicId));
+    return tokenRepository.deleteAllAccountTokensByPublicId(UUID.fromString(publicId));
+  }
+
+  @Transactional
+  @Override
+  public void saveRefreshTokenAfterEmailUpdate(String newEmail, String oldEmail, String refreshToken) {
+    // delete all refresh tokens based on old email
+    tokenRepository.deleteAllAccountTokensByEmail(oldEmail);
+
+    // update account's email
+    int accountUpdated = accountService.updateEmail(newEmail, oldEmail);
+
+    // check if exactly one row has been updated; if not throw InternalException
+    if (accountUpdated != 1)
+      throw new InternalException("Email could not be updated");
+
+    // find Account based on new email
+    AccountDTO accountDTO = accountService.findByEmail(newEmail);
+
+    // convert AccountDTO into Account and make it managed by entity manager
+    Account account = em.merge(Account.fromDTO(accountDTO));
+
+    // save new refresh token in database and return it
+    tokenRepository.save(new RefreshToken(refreshToken, account));
   }
 }

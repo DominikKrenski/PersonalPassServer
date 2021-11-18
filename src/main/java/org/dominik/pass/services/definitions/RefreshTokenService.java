@@ -7,4 +7,5 @@ public interface RefreshTokenService {
   RefreshTokenDTO findByToken(String token);
   int deleteAllAccountTokens(String publicId);
   void saveNewRefreshToken(String oldToken, String newToken, String publicId);
+  void saveRefreshTokenAfterEmailUpdate(String newEmail, String oldEmail, String refreshToken);
 }
