@@ -14,7 +14,11 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
   @Modifying
   @Query("DELETE FROM RefreshToken t WHERE t.account = (SELECT a FROM Account a WHERE a.publicId = :publicId)")
-  int deleteAllAccountTokens(@Param("publicId") UUID publicId);
+  int deleteAllAccountTokensByPublicId(@Param("publicId") UUID publicId);
+
+  @Modifying
+  @Query("DELETE FROM RefreshToken t WHERE t.account = (SELECT a FROM Account a WHERE a.email = :email)")
+  int deleteAllAccountTokensByEmail(@Param("email") String email);
 
   @Modifying
   @Query("UPDATE RefreshToken t SET t.used = true WHERE t.token = :token")
