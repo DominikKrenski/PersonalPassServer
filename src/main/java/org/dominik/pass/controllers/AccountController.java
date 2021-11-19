@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.AuthDTO;
+import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.JwtUtils;
@@ -64,6 +65,10 @@ public class AccountController {
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(EmailUpdate.class)
   public AuthDTO updateEmail(@Valid @RequestBody AccountUpdate body) {
+    // check if new email is not in use already
+    if (accountService.existsByEmail(body.getEmail()))
+      throw new ConflictException("Email is already in use");
+
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
     // generate a new pair of tokens
