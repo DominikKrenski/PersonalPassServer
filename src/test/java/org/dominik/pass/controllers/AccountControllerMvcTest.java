@@ -14,6 +14,7 @@ import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,6 +59,7 @@ class AccountControllerMvcTest {
     private static final String ACCOUNT_URL = "/accounts/";
     private static final String EMAIL_URL = "/accounts/email";
     private static final String REMINDER_URL = "/accounts/reminder";
+    private static final String HINT_URL = "/accounts/hint";
     private static final Long ID = 1L;
     private static final UUID PUBLIC_ID = UUID.randomUUID();
     private static final String EMAIL = "dominik.krenski@gmail.com";
@@ -80,6 +81,7 @@ class AccountControllerMvcTest {
     @Autowired ObjectMapper mapper;
     @Autowired JwtUtils jwtUtils;
     @Autowired SecurityUtils securityUtils;
+    @Autowired EmailService emailService;
     @Autowired AccountService accountService;
     @Autowired RefreshTokenService tokenService;
 
@@ -400,5 +402,75 @@ class AccountControllerMvcTest {
                 assertEquals(" ", map.get("reminder").getRejectedValue());
                 assertTrue(map.get("reminder").getValidationMessages().containsAll(reminderMessages));
             });
+    }
+
+    @Test
+    @DisplayName("should send reminder email")
+    void shouldSendReminderEmail() throws Exception {
+        String data = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(emailService.sendHint(anyString())).thenReturn("email-id");
+
+        mvc
+            .perform(
+                post(HINT_URL)
+                    .content(data)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.emailId").value("email-id"));
+    }
+
+    @Test
+    @DisplayName("should return NotFound if account does not exist")
+    void shouldReturnNotFoundIfAccountNotExists() throws Exception {
+        String data = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(emailService.sendHint(anyString())).thenThrow(new NotFoundException("Account does not exist"));
+
+        mvc
+            .perform(
+                post(HINT_URL)
+                    .content(data)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("Account does not exist"));
+    }
+
+    @Test
+    @DisplayName("should return InternalException if email could not be send")
+    void shouldReturnInternalExceptionIfEmailCouldNotBeSend() throws Exception {
+        String data = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(emailService.sendHint(anyString())).thenThrow(new InternalException("Email problem"));
+
+        mvc
+            .perform(
+                post(HINT_URL)
+                    .content(data)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("Email problem"));
     }
 }

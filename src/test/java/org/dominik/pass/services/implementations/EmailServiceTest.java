@@ -84,6 +84,5 @@ class EmailServiceTest {
     String result = emailService.sendHint("email");
 
     assertEquals("email-id", result);
-
   }
 }
