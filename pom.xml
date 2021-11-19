@@ -22,6 +22,7 @@
 		<sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
 		<jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
 		<jjwt.version>0.11.2</jjwt.version>
+		<sendinblue.version>5.2.0</sendinblue.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -98,6 +99,11 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sendinblue</groupId>
+			<artifactId>sib-api-v3-sdk</artifactId>
+			<version>${sendinblue.version}</version>
 		</dependency>
 	</dependencies>
 
