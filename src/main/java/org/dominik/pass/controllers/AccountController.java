@@ -1,5 +1,6 @@
 package org.dominik.pass.controllers;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
@@ -32,6 +34,7 @@ public class AccountController {
   private final SecurityUtils securityUtils;
   private final AccountService accountService;
   private final RefreshTokenService refreshTokenService;
+  private final EmailService emailService;
   private final JwtUtils jwtUtils;
 
   @Autowired
@@ -39,11 +42,13 @@ public class AccountController {
       SecurityUtils securityUtils,
       AccountService accountService,
       RefreshTokenService refreshTokenService,
+      EmailService emailService,
       JwtUtils jwtUtils
   ) {
     this.securityUtils = securityUtils;
     this.accountService = accountService;
     this.refreshTokenService = refreshTokenService;
+    this.emailService = emailService;
     this.jwtUtils = jwtUtils;
   }
 
@@ -64,7 +69,7 @@ public class AccountController {
   )
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(EmailUpdate.class)
-  public AuthDTO updateEmail(@Valid @RequestBody AccountUpdate body) {
+  public AuthDTO updateEmail(@Valid @RequestBody AccountData body) {
     // check if new email is not in use already
     if (accountService.existsByEmail(body.getEmail()))
       throw new ConflictException("Email is already in use");
@@ -88,7 +93,7 @@ public class AccountController {
   )
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(ReminderUpdate.class)
-  public ResponseEntity<Object> updateReminder(@Valid @RequestBody AccountUpdate body) {
+  public ResponseEntity<Object> updateReminder(@Valid @RequestBody AccountData body) {
     AccountDetails accountDetails = securityUtils.getPrincipal();
     int updated = accountService.updateReminder(body.getReminder(), accountDetails.getUsername());
 
@@ -100,9 +105,25 @@ public class AccountController {
    return ResponseEntity.noContent().build();
   }
 
+  @PostMapping(
+      value = "/hint",
+      consumes = MediaType.APPLICATION_JSON_VALUE
+  )
+  @Validated(EmailUpdate.class)
+  public EmailResponse sendReminderEmail(@Valid @RequestBody AccountData body) {
+    return new EmailResponse(emailService.sendHint(body.getEmail()));
+  }
+
+  @AllArgsConstructor
   @Getter
   @ToString
-  private static final class AccountUpdate {
+  private static final class EmailResponse {
+    private String emailId;
+  }
+
+  @Getter
+  @ToString
+  private static final class AccountData {
     @NotBlank(message = "{email.blank.message}", groups = EmailUpdate.class)
     @Length(message = "{email.length.message}", groups = EmailUpdate.class)
     @EmailAddress(message = "{email.format.message}", groups = EmailUpdate.class)
