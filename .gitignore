@@ -6,6 +6,7 @@ target/
 
 application.yaml
 app-dev.log*
+email-*.yaml
 
 ### STS ###
 .apt_generated
