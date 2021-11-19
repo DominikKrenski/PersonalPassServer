@@ -109,6 +109,7 @@ class AccountControllerMvcTest {
     void shouldReturnInfoAboutAccount() throws Exception {
         when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
         when(accountService.findByEmail(anyString())).thenReturn(AccountDTO.fromAccount(account));
+        when(accountService.existsByEmail(anyString())).thenReturn(false);
 
         mvc
             .perform(
@@ -127,6 +128,7 @@ class AccountControllerMvcTest {
     void shouldReturnNotFoundIfAccountDoesNotExist() throws Exception {
         when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
         when(accountService.findByEmail(anyString())).thenThrow(new NotFoundException("Account does not exist"));
+        when(accountService.existsByEmail(anyString())).thenReturn(false);
 
         mvc
             .perform(
@@ -164,6 +166,7 @@ class AccountControllerMvcTest {
             """;
 
         when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.existsByEmail(anyString())).thenReturn(false);
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
 
@@ -194,6 +197,7 @@ class AccountControllerMvcTest {
             """;
 
         when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.existsByEmail(anyString())).thenReturn(false);
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
 
@@ -224,6 +228,7 @@ class AccountControllerMvcTest {
             """;
 
         when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.existsByEmail(anyString())).thenReturn(false);
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
         when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
         doNothing()
@@ -240,6 +245,30 @@ class AccountControllerMvcTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.accessToken").value("access_token"))
             .andExpect(jsonPath("$.refreshToken").value("refresh_token"));
+    }
+
+    @Test
+    @DisplayName("should return Conflict if email is already in use")
+    void shouldReturnConflictIfEmailIsAlreadyInUse() throws Exception {
+        String body = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(accountService.existsByEmail(anyString())).thenReturn(true);
+
+        mvc
+            .perform(
+                put(EMAIL_URL)
+                    .content(body)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("Email is already in use"));
     }
 
     @Test
