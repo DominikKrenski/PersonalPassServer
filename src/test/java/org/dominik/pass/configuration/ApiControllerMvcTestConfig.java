@@ -3,6 +3,7 @@ package org.dominik.pass.configuration;
 import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,4 +19,5 @@ public class ApiControllerMvcTestConfig {
   @MockBean RefreshTokenService tokenService;
   @MockBean JwtUtils jwtUtils;
   @MockBean SecurityUtils securityUtils;
+  @MockBean EmailService emailService;
 }
