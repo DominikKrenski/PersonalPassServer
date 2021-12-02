@@ -36,20 +36,4 @@ class AccountRepositoryIT {
 
     assertEquals(1, result);
   }
-
-  @Test
-  @DisplayName("should not update reminder if account does not exist")
-  void shouldNotUpdateReminderIfAccountNonExist() {
-    int result = accountRepository.updateReminder("new dummy message", "dominik.krenski@yahoo.com");
-
-    assertEquals(0, result);
-  }
-
-  @Test
-  @DisplayName("should update reminder")
-  void shouldUpdateReminder() {
-    int result = accountRepository.updateReminder("new dummy reminder", "dominik.krenski@gmail.com");
-
-    assertEquals(1, result);
-  }
 }
