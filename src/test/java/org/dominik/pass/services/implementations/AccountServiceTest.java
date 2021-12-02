@@ -253,7 +253,7 @@ class AccountServiceTest {
   }
 
   @Test
-  @DisplayName("should throw NotFoundException if account with given publid id does not exist")
+  @DisplayName("should throw NotFoundException if account with given public id does not exist")
   void shouldThrowNotFoundIfAccountWithGivenPublicIdDoesNotExist() {
     when(accountRepository.findByPublicId(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -280,23 +280,4 @@ class AccountServiceTest {
     assertEquals(1, result);
   }
 
-  @Test
-  @DisplayName("should not update reminder if account does not exist")
-  void shouldNotUpdateReminderIfAccountNotExist() {
-    when(accountRepository.updateReminder(anyString(), anyString())).thenReturn(0);
-
-    int result = accountService.updateReminder("new reminder", "email");
-
-    assertEquals(0, result);
-  }
-
-  @Test
-  @DisplayName("should update reminder if account exists")
-  void shouldUpdateReminderIfAccountExists() {
-    when(accountRepository.updateReminder(anyString(), anyString())).thenReturn(1);
-
-    int result = accountService.updateReminder("new reminder", "email");
-
-    assertEquals(1, result);
-  }
 }
