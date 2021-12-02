@@ -5,20 +5,16 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
-import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.security.AccountDetails;
-import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.EmailService;
-import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,23 +29,17 @@ import javax.validation.constraints.NotBlank;
 public class AccountController {
   private final SecurityUtils securityUtils;
   private final AccountService accountService;
-  private final RefreshTokenService refreshTokenService;
   private final EmailService emailService;
-  private final JwtUtils jwtUtils;
 
   @Autowired
   public AccountController(
       SecurityUtils securityUtils,
       AccountService accountService,
-      RefreshTokenService refreshTokenService,
-      EmailService emailService,
-      JwtUtils jwtUtils
+      EmailService emailService
   ) {
     this.securityUtils = securityUtils;
     this.accountService = accountService;
-    this.refreshTokenService = refreshTokenService;
     this.emailService = emailService;
-    this.jwtUtils = jwtUtils;
   }
 
   @GetMapping(
@@ -69,40 +59,22 @@ public class AccountController {
   )
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(EmailUpdate.class)
-  public AuthDTO updateEmail(@Valid @RequestBody AccountData body) {
-    // check if new email is not in use already
+  public AccountDTO updateEmail(@Valid @RequestBody AccountData body) {
+    // check if new email is not already in use
     if (accountService.existsByEmail(body.getEmail()))
       throw new ConflictException("Email is already in use");
 
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
-    // generate a new pair of tokens
-    String accessToken = jwtUtils.createToken(accountDetails.getPublicId().toString(), JwtUtils.TokenType.ACCESS_TOKEN);
-    String refreshToken = jwtUtils.createToken(accountDetails.getPublicId().toString(), JwtUtils.TokenType.REFRESH_TOKEN);
+    // update email
+    int updatedRows = accountService.updateEmail(body.getEmail(), accountDetails.getUsername());
 
-    // save new refresh token in database
-    refreshTokenService.saveRefreshTokenAfterEmailUpdate(body.getEmail(), accountDetails.getUsername(), refreshToken);
+    // check if exactly one row has been updated; if not throw InternalException
+    if (updatedRows != 1)
+      throw new InternalException("Email could not be updated");
 
-    // create new AuthDTO instance
-    return AuthDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build();
-  }
-
-  @PutMapping(
-      value = "/reminder",
-      consumes = MediaType.APPLICATION_JSON_VALUE
-  )
-  @PreAuthorize("hasRole('ROLE_USER')")
-  @Validated(ReminderUpdate.class)
-  public ResponseEntity<Object> updateReminder(@Valid @RequestBody AccountData body) {
-    AccountDetails accountDetails = securityUtils.getPrincipal();
-    int updated = accountService.updateReminder(body.getReminder(), accountDetails.getUsername());
-
-    log.debug("UPDATED ROWS: " + updated);
-
-   if (updated != 1)
-     throw new InternalException("Reminder cannot be updated");
-
-   return ResponseEntity.noContent().build();
+    // return updated account
+    return  accountService.findByEmail(body.getEmail());
   }
 
   @PostMapping(
