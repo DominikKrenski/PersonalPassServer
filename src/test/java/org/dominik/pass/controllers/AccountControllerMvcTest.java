@@ -39,7 +39,6 @@ import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -159,97 +158,6 @@ class AccountControllerMvcTest {
     }
 
     @Test
-    @DisplayName("should return InternalException if email was not updated")
-    void shouldReturnInternalExceptionIfEmailWasNotUpdated() throws Exception {
-        String body = """
-            {
-              "email": "dominik.krenski@gmail.com"
-            }
-            """;
-
-        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
-        when(accountService.existsByEmail(anyString())).thenReturn(false);
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
-
-        doThrow(new InternalException("Email could not be updated"))
-            .when(tokenService)
-            .saveRefreshTokenAfterEmailUpdate(anyString(), anyString(), anyString());
-
-        mvc
-            .perform(
-                put(EMAIL_URL)
-                    .content(body)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
-            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-            .andExpect(jsonPath("$.message").value("Email could not be updated"));
-    }
-
-    @Test
-    @DisplayName("should return NotFound if account with given email does not exist")
-    void shouldReturnNotFoundIfAccountWithGivenEmailDoesNotExist() throws Exception {
-        String body = """
-            {
-              "email": "dominik.krenski@gmail.com"
-            }
-            """;
-
-        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
-        when(accountService.existsByEmail(anyString())).thenReturn(false);
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
-
-        doThrow(new NotFoundException("Account does not exist"))
-            .when(tokenService)
-            .saveRefreshTokenAfterEmailUpdate(anyString(), anyString(), anyString());
-
-        mvc
-            .perform(
-                put(EMAIL_URL)
-                    .content(body)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-            .andExpect(jsonPath("$.message").value("Account does not exist"));
-    }
-
-    @Test
-    @DisplayName("should save refresh token after email update")
-    void shouldSaveRefreshTokenAfterEmailUpdate() throws Exception {
-        String body = """
-            {
-              "email": "dominik.krenski@gmail.com"
-            }
-            """;
-
-        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
-        when(accountService.existsByEmail(anyString())).thenReturn(false);
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.ACCESS_TOKEN))).thenReturn("access_token");
-        when(jwtUtils.createToken(anyString(), eq(JwtUtils.TokenType.REFRESH_TOKEN))).thenReturn("refresh_token");
-        doNothing()
-            .when(tokenService)
-            .saveRefreshTokenAfterEmailUpdate(anyString(), anyString(), anyString());
-
-        mvc
-            .perform(
-                put(EMAIL_URL)
-                    .content(body)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.accessToken").value("access_token"))
-            .andExpect(jsonPath("$.refreshToken").value("refresh_token"));
-    }
-
-    @Test
     @DisplayName("should return Conflict if email is already in use")
     void shouldReturnConflictIfEmailIsAlreadyInUse() throws Exception {
         String body = """
@@ -313,94 +221,6 @@ class AccountControllerMvcTest {
                 assertEquals("email", map.get("email").getField());
                 assertEquals("", map.get("email").getRejectedValue());
                 assertTrue(map.get("email").getValidationMessages().containsAll(emailMessages));
-            });
-    }
-
-    @Test
-    @DisplayName("should return InternalException if reminder could not be updated")
-    void shouldReturnInternalExceptionIfReminderCouldNotBeUpdated() throws Exception {
-        String data = """
-            {
-              "reminder": "new reminder"
-            }
-            """;
-
-        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
-        when(accountService.updateReminder(anyString(), anyString())).thenReturn(0);
-
-        mvc
-            .perform(
-                put(REMINDER_URL)
-                    .content(data)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
-            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-            .andExpect(jsonPath("$.message").value("Reminder cannot be updated"));
-    }
-
-    @Test
-    @DisplayName("should return NoContent if reminder has been updated")
-    void shouldReturnNoContentIfReminderHasBeenUpdated() throws Exception {
-        String data = """
-            {
-              "reminder": "new reminder"
-            }
-            """;
-
-        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
-        when(accountService.updateReminder(anyString(), anyString())).thenReturn(1);
-
-        mvc
-            .perform(
-                put(REMINDER_URL)
-                    .content(data)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("should return UnprocessableEntity if reminder is not valid")
-    void shouldReturnUnprocessableEntityIfReminderIsNotValid() throws Exception {
-        List<String> reminderMessages = new LinkedList<>(
-            List.of(props.getProperty("reminder.blank.message"))
-        );
-
-        String data = """
-            {
-              "reminder": " "
-            }
-            """;
-
-        mvc
-            .perform(
-                put(REMINDER_URL)
-                    .content(data)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isUnprocessableEntity())
-            .andDo(res -> {
-                String body = res.getResponse().getContentAsString();
-
-                ReadContext ctx = JsonPath.parse(body);
-
-                String errors = getSubErrorsString(body);
-
-                Map<String, TestValidationError> map = convertErrorListToMap(
-                    mapper.readValue(errors, new TypeReference<>(){})
-                );
-
-                assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-                assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-                assertEquals("Validation Error", ctx.read("$.message"));
-                assertEquals("reminder", map.get("reminder").getField());
-                assertEquals(" ", map.get("reminder").getRejectedValue());
-                assertTrue(map.get("reminder").getValidationMessages().containsAll(reminderMessages));
             });
     }
 
