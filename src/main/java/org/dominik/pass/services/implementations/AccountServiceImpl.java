@@ -64,12 +64,6 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  @Transactional
-  public int updateReminder(String reminder, String email) {
-    return accountRepository.updateReminder(reminder, email);
-  }
-
-  @Override
   public boolean existsByEmail(@NonNull String email) {
     return accountRepository.existsByEmail(email);
   }
