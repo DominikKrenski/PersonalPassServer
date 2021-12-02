@@ -6,7 +6,6 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
-import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.BeforeAll;
@@ -169,62 +168,5 @@ class RefreshTokenServiceTest {
     verify(accountService).findByPublicId(any(UUID.class));
     verify(em, never()).merge(any(Account.class));
     verify(tokenRepository, never()).save(any(RefreshToken.class));
-  }
-
-  @Test
-  @DisplayName("should throw InternalException if email was not updated")
-  void shouldThrowInternalExceptionIfEmailWasNotUpdated() {
-    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(1);
-    when(accountService.updateEmail(anyString(), anyString())).thenReturn(0);
-
-    assertThrows(
-        InternalException.class,
-        () -> tokenService.saveRefreshTokenAfterEmailUpdate("old", "new", "token")
-    );
-
-    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
-    verify(accountService).updateEmail(anyString(), anyString());
-    verify(accountService, never()).findByEmail(anyString());
-    verify(em, never()).merge(any(Account.class));
-    verify(tokenRepository, never()).save(any(RefreshToken.class));
-  }
-
-  @Test
-  @DisplayName("should throw NotFound if account with given email does not exist")
-  void shouldThrowNotFoundIfAccountWithGivenEmailDoesNotExist() {
-    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(0);
-    when(accountService.updateEmail(anyString(), anyString())).thenReturn(1);
-    when(accountService.findByEmail(anyString())).thenThrow(new NotFoundException("Account does not exist"));
-
-    assertThrows(
-        NotFoundException.class,
-        () -> tokenService.saveRefreshTokenAfterEmailUpdate("old", "new", "token")
-    );
-
-    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
-    verify(accountService).updateEmail(anyString(), anyString());
-    verify(accountService).findByEmail(anyString());
-    verify(em, never()).merge(any(Account.class));
-    verify(tokenRepository, never()).save(any(RefreshToken.class));
-  }
-
-  @Test
-  @DisplayName("should save refresh token after email update")
-  void shouldSaveRefreshTokenAfterEmailToken() {
-    ReflectionTestUtils.setField(tokenService, "em", em);
-
-    when(tokenRepository.deleteAllAccountTokensByEmail(anyString())).thenReturn(3);
-    when(accountService.updateEmail(anyString(), anyString())).thenReturn(1);
-    when(accountService.findByEmail(anyString())).thenReturn(AccountDTO.fromAccount(account));
-    when(em.merge(any(Account.class))).thenReturn(account);
-    when(tokenRepository.save(any(RefreshToken.class))).thenReturn(new RefreshToken("token", account));
-
-    tokenService.saveRefreshTokenAfterEmailUpdate("new", "old", "token");
-
-    verify(tokenRepository).deleteAllAccountTokensByEmail(anyString());
-    verify(accountService).updateEmail(anyString(), anyString());
-    verify(accountService).findByEmail(anyString());
-    verify(em).merge(any(Account.class));
-    verify(tokenRepository).save(any(RefreshToken.class));
   }
 }
