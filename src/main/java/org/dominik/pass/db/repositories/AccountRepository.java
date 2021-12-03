@@ -15,6 +15,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   Optional<Account> findByPublicId(UUID publicId);
 
   @Modifying
-  @Query("UPDATE Account a SET a.email = :newEmail WHERE a.email = :oldEmail")
+  @Query("UPDATE Account a SET a.email = :newEmail, a.updatedAt = current_timestamp WHERE a.email = :oldEmail")
   int updateEmail(@Param("newEmail") String newEmail, @Param("oldEmail") String oldEmail);
 }
