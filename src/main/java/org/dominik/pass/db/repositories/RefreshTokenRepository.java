@@ -21,7 +21,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
   int deleteAllAccountTokensByEmail(@Param("email") String email);
 
   @Modifying
-  @Query("UPDATE RefreshToken t SET t.used = true WHERE t.token = :token")
+  @Query("UPDATE RefreshToken t SET t.used = true, t.updatedAt = current_timestamp WHERE t.token = :token")
   int markTokenAsUsed(@Param("token") String token);
 
   Optional<RefreshToken> findByToken(String token);
