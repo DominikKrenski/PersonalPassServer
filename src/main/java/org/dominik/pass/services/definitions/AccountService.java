@@ -9,6 +9,6 @@ public interface AccountService {
   AccountDTO register(RegistrationDTO dto);
   AccountDTO findByEmail(String email);
   AccountDTO findByPublicId(UUID publicId);
-  int updateEmail(String newEmail, String oldEmail);
+  AccountDTO updateEmail(String newEmail, String oldEmail);
   boolean existsByEmail(String email);
 }
