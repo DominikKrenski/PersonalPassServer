@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.dominik.pass.data.dto.AccountDTO;
-import org.dominik.pass.db.repositories.RefreshTokenRepository;
 import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.dominik.pass.utils.TestUtils.*;
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -63,7 +62,6 @@ class AccountControllerBootTestIT {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper mapper;
   @Autowired AccountService accountService;
-  @Autowired RefreshTokenRepository tokenRepository;
   @Autowired EntityManager em;
 
   @BeforeAll
@@ -152,6 +150,30 @@ class AccountControllerBootTestIT {
         .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
         .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
         .andExpect(jsonPath("$.message").value("Email is already in use"));
+  }
+
+  @Test
+  @DisplayName("should return account info with updated email")
+  void shouldReturnAccountInfoWithUpdatedAccount() throws Exception {
+    String data = """
+        {
+          "email": "dominik.krenski@yahoo.com"
+        }
+        """;
+
+    mvc
+        .perform(
+            put(EMAIL_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .content(data)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.email").value("dominik.krenski@yahoo.com"))
+        .andExpect(jsonPath("$.reminder").value(accountDTO.getReminder()))
+        .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(accountDTO.getCreatedAt())))
+        .andExpect(jsonPath("$.updatedAt", is(convertInstantIntoString(accountDTO.getUpdatedAt()))));
   }
 
   @Test

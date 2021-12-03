@@ -6,6 +6,7 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.repositories.AccountRepository;
 import org.dominik.pass.errors.exceptions.ConflictException;
+import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.persistence.EntityManager;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.Optional;
@@ -23,8 +26,8 @@ import java.util.UUID;
 import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.dominik.pass.utils.TestUtils.createRegistrationDtoInstance;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +45,7 @@ class AccountServiceTest {
 
   @Mock AccountRepository accountRepository;
   @Mock PasswordEncoder passwordEncoder;
+  @Mock EntityManager em;
   @InjectMocks AccountServiceImpl accountService;
 
   @Test
@@ -261,23 +265,61 @@ class AccountServiceTest {
   }
 
   @Test
-  @DisplayName("should not update email if account does not exist")
-  void shouldNotUpdateEmailIfAccountNotExist() {
-    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(0);
+  @DisplayName("should throw Conflict if email is already in use")
+  void shouldThrowConflictIfEmailIsAlreadyInUse() {
+    when(accountRepository.existsByEmail(anyString())).thenReturn(true);
 
-    int result = accountService.updateEmail("new email", "old email");
-
-    assertEquals(0, result);
+    assertThrows(ConflictException.class, () -> accountService.updateEmail("new", "old"));
   }
 
   @Test
-  @DisplayName("should update email if account exists")
-  void shouldUpdateEmailIfAccountExists() {
-    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(1);
+  @DisplayName("should throw InternalException if account has not been updated")
+  void shouldThrowInternalExceptionIfAccountNotUpdated() {
+    when(accountRepository.existsByEmail(anyString())).thenReturn(false);
+    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(0);
 
-    int result = accountService.updateEmail("new email", "old email");
-
-    assertEquals(1, result);
+    assertThrows(InternalException.class, () -> accountService.updateEmail("new", "old"));
   }
 
+  @Test
+  @DisplayName("should return updated account")
+  void shouldReturnUpdatedAccount() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    ReflectionTestUtils.setField(accountService, "em", em);
+
+    Account account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        PASSWORD,
+        SALT,
+        REMINDER,
+        ROLE,
+        true,
+        true,
+        false,
+        false,
+        CREATED_AT,
+        UPDATED_AT,
+        VERSION
+    );
+
+    when(accountRepository.existsByEmail(anyString())).thenReturn(false);
+    when(accountRepository.updateEmail("new", "old")).thenReturn(1);
+    when(accountRepository.findByEmail(anyString())).thenReturn(Optional.of(account));
+    doNothing().when(em).clear();
+
+    assertNotNull(accountService.updateEmail("new", "old"));
+  }
+
+  @Test
+  @DisplayName("should throw NotFound if account with new email could not be found")
+  void shouldThrowNotFoundIfAccountWithNewEmailNotExist() {
+    ReflectionTestUtils.setField(accountService, "em", em);
+
+    when(accountRepository.existsByEmail(anyString())).thenReturn(false);
+    when(accountRepository.updateEmail(anyString(), anyString())).thenReturn(1);
+    when(accountRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> accountService.updateEmail("new", "old"));
+  }
 }

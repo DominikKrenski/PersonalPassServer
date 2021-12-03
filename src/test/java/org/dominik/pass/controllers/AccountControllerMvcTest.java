@@ -8,6 +8,7 @@ import org.dominik.pass.configuration.ApiControllerMvcTestConfig;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
+import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.security.AccountDetails;
@@ -57,7 +58,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AccountControllerMvcTest {
     private static final String ACCOUNT_URL = "/accounts/";
     private static final String EMAIL_URL = "/accounts/email";
-    private static final String REMINDER_URL = "/accounts/reminder";
     private static final String HINT_URL = "/accounts/hint";
     private static final Long ID = 1L;
     private static final UUID PUBLIC_ID = UUID.randomUUID();
@@ -166,7 +166,8 @@ class AccountControllerMvcTest {
             }
             """;
 
-        when(accountService.existsByEmail(anyString())).thenReturn(true);
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.updateEmail(anyString(), anyString())).thenThrow(new ConflictException("Email is already in use"));
 
         mvc
             .perform(
@@ -179,6 +180,82 @@ class AccountControllerMvcTest {
             .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
             .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
             .andExpect(jsonPath("$.message").value("Email is already in use"));
+    }
+
+    @Test
+    @DisplayName("should return InternalException if email could not be updated")
+    void shouldReturnInternalExceptionIfEmailNotUpdated() throws Exception {
+        String body = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.updateEmail(anyString(), anyString())).thenThrow(new InternalException("Email could not be updated"));
+
+        mvc
+            .perform(
+                put(EMAIL_URL)
+                    .content(body)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("Email could not be updated"));
+    }
+
+   @Test
+    @DisplayName("should return NotFound if updated account could not be found")
+    void shouldReturnNotFoundIfUpdatedAccountNotFound() throws Exception {
+        String body = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.updateEmail(anyString(), anyString())).thenThrow(new NotFoundException("Account does not exist"));
+
+        mvc
+            .perform(
+                put(EMAIL_URL)
+                    .content(body)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("Account does not exist"));
+    }
+
+   @Test
+    @DisplayName("should return updated account info")
+    void shouldReturnUpdatedAccountInfo() throws Exception {
+        String body = """
+            {
+              "email": "dominik.krenski@gmail.com"
+            }
+            """;
+
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(accountService.updateEmail(anyString(), anyString())).thenReturn(AccountDTO.fromAccount(account));
+
+        mvc
+            .perform(
+                put(EMAIL_URL)
+                    .content(body)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value(account.getEmail()))
+            .andExpect(jsonPath("$.reminder").value(account.getReminder()))
+            .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(account.getCreatedAt())))
+            .andExpect(jsonPath("$.updatedAt").value(convertInstantIntoString(account.getUpdatedAt())));
     }
 
     @Test
