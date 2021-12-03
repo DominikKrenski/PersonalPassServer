@@ -60,21 +60,9 @@ public class AccountController {
   @PreAuthorize("hasRole('ROLE_USER')")
   @Validated(EmailUpdate.class)
   public AccountDTO updateEmail(@Valid @RequestBody AccountData body) {
-    // check if new email is not already in use
-    if (accountService.existsByEmail(body.getEmail()))
-      throw new ConflictException("Email is already in use");
-
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
-    // update email
-    int updatedRows = accountService.updateEmail(body.getEmail(), accountDetails.getUsername());
-
-    // check if exactly one row has been updated; if not throw InternalException
-    if (updatedRows != 1)
-      throw new InternalException("Email could not be updated");
-
-    // return updated account
-    return  accountService.findByEmail(body.getEmail());
+    return accountService.updateEmail(body.getEmail(), accountDetails.getUsername());
   }
 
   @PostMapping(
