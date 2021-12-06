@@ -32,7 +32,9 @@ public class EmailClient {
 
     Properties params = new Properties();
     params.setProperty("email", email);
-    params.setProperty("reminder", reminder);
+
+    if (reminder != null)
+      params.setProperty("reminder", reminder);
 
     TransactionalEmailsApi transactionalApi = new TransactionalEmailsApi();
     SendSmtpEmail smtpEmail = new SendSmtpEmail();
