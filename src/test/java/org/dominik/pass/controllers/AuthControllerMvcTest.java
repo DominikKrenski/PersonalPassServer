@@ -13,19 +13,26 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
+import org.dominik.pass.security.AccountDetails;
+import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.postgresql.util.PSQLException;
+import org.postgresql.util.ServerErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -37,7 +44,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.main.banner-mode=off"
     }
 )
+@WithMockUser
 @Import(ApiControllerMvcTestConfig.class)
 @ActiveProfiles("test")
 class AuthControllerMvcTest {
@@ -57,22 +67,43 @@ class AuthControllerMvcTest {
   private static final String REMINDER = "dummy reminder";
   private static final Long ID = 1L;
   private static final UUID PUBLIC_ID = UUID.randomUUID();
+  private static final Role ROLE = Role.ROLE_USER;
   private static final Instant CREATED_AT = Instant.now();
   private static final Instant UPDATED_AT = CREATED_AT.plusSeconds(1000);
   private static final short VERSION = 1;
   private static final String URL = "/auth/signup";
   private static final String SALT_URL = "/auth/salt";
+  private static final String SIGNOUT = "/auth/signout";
   private static final String TIMESTAMP_PATTERN="\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
 
   private static Properties props;
+  private static Account account;
 
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper mapper;
+  @Autowired SecurityUtils securityUtils;
   @Autowired AccountService accountService;
+  @Autowired RefreshTokenService tokenService;
 
   @BeforeAll
-  static void setUp() {
+  static void setUp() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     props = readPropertiesFile("ValidationMessages.properties");
+    account = createAccountInstance(
+        ID,
+        PUBLIC_ID,
+        EMAIL,
+        PASSWORD,
+        SALT,
+        REMINDER,
+        ROLE,
+        true,
+        true,
+        true,
+        true,
+        CREATED_AT,
+        UPDATED_AT,
+        VERSION
+    );
   }
 
   @Test
@@ -83,23 +114,6 @@ class AuthControllerMvcTest {
         PASSWORD,
         SALT,
         REMINDER
-    );
-
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        Role.ROLE_USER,
-        true,
-        true,
-        false,
-        false,
-        CREATED_AT,
-        UPDATED_AT,
-        VERSION
     );
 
     AccountDTO accountDTO = AccountDTO.fromAccount(account);
@@ -198,23 +212,6 @@ class AuthControllerMvcTest {
   void shouldReturnSalt() throws Exception {
     Data data = new Data(EMAIL);
 
-    Account account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        Role.ROLE_USER,
-        true,
-        true,
-        true,
-        true,
-        CREATED_AT,
-        UPDATED_AT,
-        VERSION
-    );
-
     when(accountService.findByEmail(anyString())).thenReturn(AccountDTO.fromAccount(account));
 
     mvc
@@ -281,7 +278,20 @@ class AuthControllerMvcTest {
         .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
         .andExpect(jsonPath("$.message").value("Account does not exist"))
         .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
 
+  @Test
+  @DisplayName("should logout successfully")
+  void shouldLogoutSuccessfully() throws Exception {
+    when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+    when(tokenService.deleteAllAccountTokens(anyString())).thenReturn(0);
+
+    mvc
+        .perform(
+            get(SIGNOUT)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk());
   }
 
   @AllArgsConstructor
