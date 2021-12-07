@@ -85,4 +85,31 @@ class EmailServiceTest {
 
     assertEquals("email-id", result);
   }
+
+  @Test
+  @DisplayName("should throw NullException if email is null")
+  void shouldThrowNullExceptionIfEmailIsNull() {
+    assertThrows(NullPointerException.class, () -> emailService.sendTestEmail(null));
+  }
+
+  @Test
+  @DisplayName("should throw InternalException if test email could not be send")
+  void shouldThrowInternalExceptionIfTestEmailCouldNotBeSend() throws ApiException {
+    when(emailClient.sendTestEmail(anyString())).thenThrow(new ApiException("Email not sent"));
+
+    assertThrows(InternalException.class, () -> emailService.sendTestEmail("dominik.krenski@gmail.com"));
+  }
+
+  @Test
+  @DisplayName("should send test email")
+  void shouldSendTestEmail() throws ApiException {
+    CreateSmtpEmail smtpEmail = new CreateSmtpEmail();
+    smtpEmail.setMessageId("email-id");
+
+    when(emailClient.sendTestEmail(anyString())).thenReturn(smtpEmail);
+
+    String result = emailService.sendTestEmail("dominik.krenski@gmail.com");
+
+    assertEquals("email-id", result);
+  }
 }
