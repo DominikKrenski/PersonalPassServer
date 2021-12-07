@@ -6,7 +6,7 @@ target/
 
 application.yaml
 app-dev.log*
-email-*.yaml
+!email-integration.yaml
 
 ### STS ###
 .apt_generated
