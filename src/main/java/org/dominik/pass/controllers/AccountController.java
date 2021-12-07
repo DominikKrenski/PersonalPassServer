@@ -67,11 +67,23 @@ public class AccountController {
 
   @PostMapping(
       value = "/hint",
-      consumes = MediaType.APPLICATION_JSON_VALUE
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
   )
   @Validated(EmailUpdate.class)
   public EmailResponse sendReminderEmail(@Valid @RequestBody AccountData body) {
     return new EmailResponse(emailService.sendHint(body.getEmail()));
+  }
+
+  @GetMapping(
+      value = "/test-email",
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @PreAuthorize("hasRole('ROLE_USER')")
+  public EmailResponse sendTestEmail() {
+    AccountDetails accountDetails = securityUtils.getPrincipal();
+
+    return new EmailResponse(emailService.sendTestEmail(accountDetails.getUsername()));
   }
 
   @AllArgsConstructor
