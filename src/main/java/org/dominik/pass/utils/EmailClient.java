@@ -54,7 +54,7 @@ public class EmailClient {
 
     TransactionalEmailsApi transactionalApi = new TransactionalEmailsApi();
     SendSmtpEmail smtpEmail = new SendSmtpEmail();
-    smtpEmail.setTemplateId(2L);
+    smtpEmail.setTemplateId(4L);
     smtpEmail.to(List.of(to));
     smtpEmail.params(params);
 
