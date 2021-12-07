@@ -5,11 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.data.dto.RegistrationDTO;
+import org.dominik.pass.security.AccountDetails;
+import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,10 +25,18 @@ import javax.validation.constraints.NotBlank;
 @RequestMapping(value = "/auth")
 public class AuthController {
   private final AccountService accountService;
+  private final RefreshTokenService tokenService;
+  private final SecurityUtils securityUtils;
 
   @Autowired
-  public AuthController(AccountService accountService) {
+  public AuthController(
+      AccountService accountService,
+      RefreshTokenService tokenService,
+      SecurityUtils securityUtils
+  ) {
     this.accountService = accountService;
+    this.tokenService = tokenService;
+    this.securityUtils = securityUtils;
   }
 
   @PostMapping(
@@ -50,6 +63,19 @@ public class AuthController {
         .builder()
         .salt(accountDTO.getSalt())
         .build();
+  }
+
+  @GetMapping(
+      value = "/signout"
+  )
+  @PreAuthorize("hasRole('ROLE_USER')")
+  public ResponseEntity<Object> signout() {
+    AccountDetails accountDetails = securityUtils.getPrincipal();
+    int deletedRows = tokenService.deleteAllAccountTokens(accountDetails.getPublicId().toString());
+
+    log.debug("DELETED REFRESH TOKENS: " + deletedRows);
+
+    return ResponseEntity.ok().build();
   }
 
   @Getter
