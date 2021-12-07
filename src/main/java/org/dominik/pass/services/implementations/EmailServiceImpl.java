@@ -38,4 +38,15 @@ public class EmailServiceImpl implements EmailService {
       throw new InternalException("There is a problem with sending email");
     }
   }
+
+  @Override
+  public String sendTestEmail(@NonNull String email) {
+    try {
+      CreateSmtpEmail result = emailClient.sendTestEmail(email);
+      return result.getMessageId();
+    } catch (ApiException ex) {
+      log.error("SENT TEST EMAIL ERROR: " + Arrays.toString(ex.getStackTrace()));
+      throw new InternalException("There is a problem with sending email");
+    }
+  }
 }
