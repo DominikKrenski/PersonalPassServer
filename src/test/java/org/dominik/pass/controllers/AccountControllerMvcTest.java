@@ -12,7 +12,6 @@ import org.dominik.pass.errors.exceptions.ConflictException;
 import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.security.AccountDetails;
-import org.dominik.pass.security.utils.JwtUtils;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.EmailService;
@@ -79,7 +78,6 @@ class AccountControllerMvcTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
-    @Autowired JwtUtils jwtUtils;
     @Autowired SecurityUtils securityUtils;
     @Autowired EmailService emailService;
     @Autowired AccountService accountService;
