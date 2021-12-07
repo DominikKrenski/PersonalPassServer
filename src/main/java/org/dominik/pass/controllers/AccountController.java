@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
-import org.dominik.pass.errors.exceptions.ConflictException;
-import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
