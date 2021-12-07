@@ -59,6 +59,7 @@ class AccountControllerMvcTest {
     private static final String ACCOUNT_URL = "/accounts/";
     private static final String EMAIL_URL = "/accounts/email";
     private static final String HINT_URL = "/accounts/hint";
+    private static final String TEST_URL = "/accounts/test-email";
     private static final Long ID = 1L;
     private static final UUID PUBLIC_ID = UUID.randomUUID();
     private static final String EMAIL = "dominik.krenski@gmail.com";
@@ -369,5 +370,37 @@ class AccountControllerMvcTest {
             .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
             .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
             .andExpect(jsonPath("$.message").value("Email problem"));
+    }
+
+    @Test
+    @DisplayName("should return InternalException if test email could not be send")
+    void shouldReturnInternalExceptionIfTestEmailCouldNotBeSend() throws Exception {
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(emailService.sendTestEmail(anyString())).thenThrow(new InternalException("There is a problem"));
+
+        mvc
+            .perform(
+                get(TEST_URL)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+            .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+            .andExpect(jsonPath("$.message").value("There is a problem"));
+    }
+
+    @Test
+    @DisplayName("should send test email successfully")
+    void shouldSendTestEmailSuccessfully() throws Exception {
+        when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+        when(emailService.sendTestEmail(anyString())).thenReturn("message-id");
+
+        mvc
+            .perform(
+                get(TEST_URL)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.emailId").value("message-id"));
     }
 }

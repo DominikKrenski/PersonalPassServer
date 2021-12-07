@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.dominik.pass.data.dto.AccountDTO;
+import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.EmailService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,7 +24,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -31,13 +33,14 @@ import java.util.regex.Pattern;
 import static org.dominik.pass.utils.TestUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
         "spring.profiles.active=integration"
     }
@@ -50,6 +53,8 @@ class AccountControllerBootTestIT {
   private static final String AUTH_HEADER = "Authorization";
   private static final String ACCOUNT_URL = "/accounts/";
   private static final String EMAIL_URL = "/accounts/email";
+  private static final String HINT_URL = "/accounts/hint";
+  private static final String TEST_URL = "/accounts/test-email";
   private static final String ISSUER = "personal-pass.dev";
   private static final String AUDIENCE = "access";
   private static final String KEY = "gUkXn2r5u8x/A?D(G+KbPeShVmYq3s6v9y$B&E)H@McQfTjWnZr4u7w!z%C*F-Ja";
@@ -62,7 +67,7 @@ class AccountControllerBootTestIT {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper mapper;
   @Autowired AccountService accountService;
-  @Autowired EntityManager em;
+  @MockBean EmailService emailService;
 
   @BeforeAll
   static void setUp() {
@@ -218,5 +223,85 @@ class AccountControllerBootTestIT {
           assertEquals("  ", map.get("email").getRejectedValue());
           assertTrue(map.get("email").getValidationMessages().containsAll(emailMessages));
         });
+  }
+
+  @Test
+  @DisplayName("should return InternalException if reminder email could not be send")
+  void shouldReturnInternalExceptionIfReminderEmailCouldNotBeSend() throws Exception {
+    String data = """
+        {
+          "email": "dominik.krenski@gmail.com"
+        }
+        """;
+
+    when(emailService.sendHint(anyString())).thenThrow(new InternalException("Hint could not be send"));
+
+    mvc
+        .perform(
+            post(HINT_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .content(data)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+        .andExpect(jsonPath("$.message").value("Hint could not be send"));
+  }
+
+  @Test
+  @DisplayName("should return email id if hint email has been sent")
+  void shouldReturnEmailIdIfHintEmailHasBeenSent() throws Exception {
+    String data = """
+        {
+          "email": "dominik.krenski@gmail.com"
+        }
+        """;
+
+    when(emailService.sendHint(anyString())).thenReturn("email-id");
+
+    mvc
+        .perform(
+            post(HINT_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .content(data)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.emailId").value("email-id"));
+  }
+
+  @Test
+  @DisplayName("should return InternalException if test email could not be send")
+  void shouldReturnInternalExceptionIfTestEmailCouldNotBeSend() throws Exception {
+    when(emailService.sendTestEmail(anyString())).thenThrow(new InternalException("Test email not sent"));
+
+    mvc
+        .perform(
+            get(TEST_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+        .andExpect(jsonPath("$.message").value("Test email not sent"));
+  }
+
+  @Test
+  @DisplayName("should send test email")
+  void shouldSendTestEmail() throws Exception {
+    when(emailService.sendTestEmail(anyString())).thenReturn("email-id");
+
+    mvc
+        .perform(
+            get(TEST_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.emailId").value("email-id"));
   }
 }
