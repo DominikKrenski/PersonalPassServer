@@ -44,4 +44,20 @@ public class EmailClient {
 
     return transactionalApi.sendTransacEmail(smtpEmail);
   }
+
+  public CreateSmtpEmail sendTestEmail(@NonNull String email) throws ApiException {
+    SendSmtpEmailTo to = new SendSmtpEmailTo();
+    to.email(email);
+
+    Properties params = new Properties();
+    params.setProperty("email", email);
+
+    TransactionalEmailsApi transactionalApi = new TransactionalEmailsApi();
+    SendSmtpEmail smtpEmail = new SendSmtpEmail();
+    smtpEmail.setTemplateId(2L);
+    smtpEmail.to(List.of(to));
+    smtpEmail.params(params);
+
+    return transactionalApi.sendTransacEmail(smtpEmail);
+  }
 }
