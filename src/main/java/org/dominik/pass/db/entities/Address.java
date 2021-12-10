@@ -31,7 +31,7 @@ public final class Address extends BaseEntity implements Serializable {
   @Column(name = "public_id", updatable = false, columnDefinition = "UUID NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4()")
   private UUID publicId;
 
-  @Column(name = "address", columnDefinition = "TEXT NOT NULL UNIQUE")
+  @Column(name = "address", columnDefinition = "TEXT NOT NULL")
   private String address;
 
   @ManyToOne(

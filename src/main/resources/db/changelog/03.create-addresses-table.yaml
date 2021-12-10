@@ -33,8 +33,6 @@ databaseChangeLog:
                   type: TEXT
                   constraints:
                     nullable: false
-                    unique: true
-                    uniqueConstraintName: addresses_unq
               - column:
                   name: account_id
                   type: BIGINT
