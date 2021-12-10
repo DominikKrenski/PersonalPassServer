@@ -35,9 +35,12 @@ class RefreshTokenRepositoryIT {
   private static final Role ROLE = Role.ROLE_ADMIN;
 
 
-  @Autowired private TestEntityManager em;
-  @Autowired RefreshTokenRepository tokenRepository;
-  @Autowired AccountRepository accountRepository;
+  @Autowired
+  private TestEntityManager em;
+  @Autowired
+  RefreshTokenRepository tokenRepository;
+  @Autowired
+  AccountRepository accountRepository;
 
   @Test
   @DisplayName("should save refresh token")
