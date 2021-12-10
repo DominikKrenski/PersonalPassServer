@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "addresses")
@@ -27,6 +28,9 @@ public final class Address extends BaseEntity implements Serializable {
   @Column(name = "id", nullable = false, updatable = false)
   private Long id;
 
+  @Column(name = "public_id", updatable = false, columnDefinition = "UUID NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4()")
+  private UUID publicId;
+
   @Column(name = "address", columnDefinition = "TEXT NOT NULL UNIQUE")
   private String address;
 
@@ -46,6 +50,7 @@ public final class Address extends BaseEntity implements Serializable {
   private Account account;
 
   public Address(@NonNull String address, @NonNull Account account) {
+    this.publicId = UUID.randomUUID();
     this.address = address;
     this.account = account;
   }

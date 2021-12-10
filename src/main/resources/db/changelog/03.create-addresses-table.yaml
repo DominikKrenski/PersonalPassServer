@@ -21,6 +21,14 @@ databaseChangeLog:
                     primaryKey: true
                     primaryKeyName: addresses_pk
               - column:
+                  name: public_id
+                  type: UUID
+                  defaultValueComputed: extensions.uuid_generate_v4()
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: addresses_public_id_unq
+              - column:
                   name: address
                   type: TEXT
                   constraints:

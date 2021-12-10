@@ -122,6 +122,7 @@ public final class TestUtils {
 
   public static Address createAddressInstance(
       Long id,
+      UUID publicId,
       String entry,
       Account account,
       Instant createdAt,
@@ -174,6 +175,7 @@ public final class TestUtils {
       try {
         switch (fieldname) {
           case "id" -> field.set(address, id);
+          case "publicId" -> field.set(address, publicId);
           case "address" -> field.set(address, entry);
           case "account" -> field.set(address, account);
         }

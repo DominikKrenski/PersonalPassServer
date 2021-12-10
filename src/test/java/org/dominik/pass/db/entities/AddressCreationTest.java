@@ -46,6 +46,7 @@ class AddressCreationTest {
     Address address = new Address("entry", account);
 
     assertNull(address.getId());
+    assertNotNull(address.getPublicId());
     assertEquals("entry", address.getAddress());
     assertNotNull(address.getAccount());
     assertNull(address.getCreatedAt());
