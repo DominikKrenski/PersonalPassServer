@@ -17,12 +17,12 @@ import java.util.UUID;
     "version"
 })
 public final class AddressDTO {
-  private final Long id;
-  @EqualsAndHashCode.Include private final UUID publicId;
-  private final String address;
+  @NonNull private final Long id;
+  @NonNull@EqualsAndHashCode.Include private final UUID publicId;
+  @NonNull private final String address;
   private final AccountDTO account;
-  private final Instant createdAt;
-  private final Instant updatedAt;
+  @NonNull private final Instant createdAt;
+  @NonNull private final Instant updatedAt;
   private final short version;
 
   public static AddressDTO fromAddressLazy(@NonNull Address address) {
