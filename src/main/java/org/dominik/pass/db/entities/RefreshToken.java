@@ -41,7 +41,7 @@ public final class RefreshToken extends BaseEntity implements Serializable {
       name = "account_id",
       nullable = false,
       foreignKey = @ForeignKey(
-          name = "refresh_tokens_accounts_pk",
+          name = "refresh_tokens_accounts_fk",
           foreignKeyDefinition = "ON DELETE CASCADE ON UPDATE CASCADE"
       )
   )
