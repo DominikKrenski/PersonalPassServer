@@ -5,3 +5,6 @@ databaseChangeLog:
   - include:
       file: 02.create-refresh-tokens-table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 03.create-addresses-table.yaml
+      relativeToChangelogFile: true
