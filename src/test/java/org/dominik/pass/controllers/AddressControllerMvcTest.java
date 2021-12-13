@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import com.sun.nio.sctp.PeerAddressChangeNotification;
 import org.dominik.pass.configuration.ApiControllerMvcTestConfig;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.AddressDTO;
@@ -41,7 +40,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -303,7 +301,7 @@ class AddressControllerMvcTest {
 
   @Test
   @DisplayName("should return NotFound if address with given public id does not exist")
-  void shouldReturnNotFoundIfAddressWithPubliIdDoesNotExist() throws Exception {
+  void shouldReturnNotFoundIfAddressWithPublicIdDoesNotExist() throws Exception {
     when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
     when(addressService.getAddress(any(UUID.class))).thenThrow(new NotFoundException("Address does not exist"));
 
