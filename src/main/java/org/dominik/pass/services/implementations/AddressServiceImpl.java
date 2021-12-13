@@ -11,6 +11,7 @@ import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public final class AddressServiceImpl implements AddressService {
+public class AddressServiceImpl implements AddressService {
   private final AddressRepository addressRepository;
   private final AccountService accountService;
 
@@ -32,8 +33,9 @@ public final class AddressServiceImpl implements AddressService {
   }
 
   @Override
-  public AddressDTO save(String address, String accountPublicId) {
-    AccountDTO accountDTO = accountService.findByPublicId(UUID.fromString(accountPublicId));
+  @Transactional
+  public AddressDTO save(String address, UUID accountPublicId) {
+    AccountDTO accountDTO = accountService.findByPublicId(accountPublicId);
     Account account = em.merge(Account.fromDTO(accountDTO));
     Address newAddress = new Address(address, account);
 
@@ -59,12 +61,20 @@ public final class AddressServiceImpl implements AddressService {
   }
 
   @Override
-  public int updateAddress(@NonNull String address, @NonNull UUID publicId) {
-    return addressRepository.updateAddress(address, publicId);
+  @Transactional
+  public void updateAddress(@NonNull String address, @NonNull UUID publicId) {
+    int updated = addressRepository.updateAddress(address, publicId);
+
+    if (updated != 1)
+      throw new NotFoundException("Address with given id does not exist");
   }
 
   @Override
-  public int deleteAddress(@NonNull UUID publicId) {
-    return addressRepository.deleteAddress(publicId);
+  @Transactional
+  public void deleteAddress(@NonNull UUID publicId) {
+    int deleted = addressRepository.deleteAddress(publicId);
+
+    if (deleted != 1)
+      throw new NotFoundException("Address with given id does not exist");
   }
 }

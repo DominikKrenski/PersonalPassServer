@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AddressService {
-  AddressDTO save(String address, String accountPublicId);
+  AddressDTO save(String address, UUID accountPublicId);
   List<AddressDTO> getAllUserAddresses(UUID accountPublicId);
   AddressDTO getAddress(UUID publicId);
-  int updateAddress(String address, UUID publicId);
-  int deleteAddress(UUID publicId);
+  void updateAddress(String address, UUID publicId);
+  void deleteAddress(UUID publicId);
 }
