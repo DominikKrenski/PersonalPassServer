@@ -15,7 +15,6 @@ import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.EmailService;
-import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,7 +80,6 @@ class AccountControllerMvcTest {
     @Autowired SecurityUtils securityUtils;
     @Autowired EmailService emailService;
     @Autowired AccountService accountService;
-    @Autowired RefreshTokenService tokenService;
 
     @BeforeAll
     static void setUp() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
