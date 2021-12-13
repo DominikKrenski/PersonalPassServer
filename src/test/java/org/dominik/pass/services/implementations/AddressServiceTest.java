@@ -30,6 +30,7 @@ import static org.dominik.pass.utils.TestUtils.createAddressInstance;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +99,7 @@ class AddressServiceTest {
     when(em.merge(any(Account.class))).thenReturn(account);
     when(addressRepository.save(any(Address.class))).thenReturn(address);
 
-    AddressDTO dto = addressService.save("new address", ADDRESS_PUBLIC_ID.toString());
+    AddressDTO dto = addressService.save("new address", ADDRESS_PUBLIC_ID);
 
     assertEquals(ADDRESS_ID, dto.getId());
     assertEquals(ADDRESS_PUBLIC_ID.toString(), dto.getPublicId().toString());
@@ -166,9 +167,9 @@ class AddressServiceTest {
   void shouldUpdateAddress() {
     when(addressRepository.updateAddress(anyString(), any(UUID.class))).thenReturn(1);
 
-    int updated = addressService.updateAddress("address", UUID.randomUUID());
+    addressService.updateAddress("address", UUID.randomUUID());
 
-    assertEquals(1, updated);
+    verify(addressRepository).updateAddress(anyString(), any(UUID.class));
   }
 
   @Test
@@ -176,9 +177,7 @@ class AddressServiceTest {
   void shouldNotUpdateAddress() {
     when(addressRepository.updateAddress(anyString(), any(UUID.class))).thenReturn(0);
 
-    int updated = addressService.updateAddress("address", UUID.randomUUID());
-
-    assertEquals(0, updated);
+    assertThrows(NotFoundException.class, () -> addressService.updateAddress("address", UUID.randomUUID()));
   }
 
   @Test
@@ -186,9 +185,9 @@ class AddressServiceTest {
   void shouldDeleteAddress() {
     when(addressRepository.deleteAddress(any(UUID.class))).thenReturn(1);
 
-    int deleted = addressService.deleteAddress(UUID.randomUUID());
+    addressService.deleteAddress(UUID.randomUUID());
 
-    assertEquals(1, deleted);
+    verify(addressRepository).deleteAddress(any(UUID.class));
   }
 
   @Test
@@ -196,8 +195,6 @@ class AddressServiceTest {
   void shouldNotDeleteAddress() {
     when(addressRepository.deleteAddress(any(UUID.class))).thenReturn(0);
 
-    int deleted = addressService.deleteAddress(UUID.randomUUID());
-
-    assertEquals(0, deleted);
+    assertThrows(NotFoundException.class, () -> addressService.deleteAddress(UUID.randomUUID()));
   }
 }
