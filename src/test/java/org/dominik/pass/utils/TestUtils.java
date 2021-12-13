@@ -1,6 +1,7 @@
 package org.dominik.pass.utils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -470,6 +471,15 @@ public final class TestUtils {
     private String field;
     @JsonInclude private Object rejectedValue;
     private List<String> validationMessages;
+  }
+
+  @Getter
+  @ToString
+  public static final class TestAddressDTO {
+    private UUID publicId;
+    private String address;
+    private String createdAt;
+    private String updatedAt;
   }
 
   @Getter
