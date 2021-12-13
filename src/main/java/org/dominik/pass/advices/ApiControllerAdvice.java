@@ -5,6 +5,7 @@ import org.dominik.pass.errors.api.ApiError;
 import org.dominik.pass.errors.api.ValidationError;
 import org.dominik.pass.errors.exceptions.BaseException;
 import org.hibernate.validator.internal.engine.path.PathImpl;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,20 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
         .build();
 
     return new ResponseEntity<>(apiError, HttpStatus.UNPROCESSABLE_ENTITY);
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    log.error("HANDLE TYPE MISMATCH: " + Arrays.toString(ex.getStackTrace()));
+
+    ApiError apiError = ApiError
+        .builder()
+        .status(HttpStatus.BAD_REQUEST)
+        .timestamp(Instant.now())
+        .message("Bad Path Variable")
+        .build();
+
+    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
   @Override
