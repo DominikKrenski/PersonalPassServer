@@ -34,7 +34,7 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional
-  public AddressDTO save(String address, UUID accountPublicId) {
+  public AddressDTO save(@NonNull String address, @NonNull UUID accountPublicId) {
     AccountDTO accountDTO = accountService.findByPublicId(accountPublicId);
     Account account = em.merge(Account.fromDTO(accountDTO));
     Address newAddress = new Address(address, account);
