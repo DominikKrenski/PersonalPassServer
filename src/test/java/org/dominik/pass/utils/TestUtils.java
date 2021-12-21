@@ -552,6 +552,15 @@ public final class TestUtils {
 
   @Getter
   @ToString
+  public static final class TestSiteDTO {
+    private UUID publicId;
+    private String site;
+    private String createdAt;
+    private String updatedAt;
+  }
+
+  @Getter
+  @ToString
   public static final class JwtHeader {
     private final String alg = "HS512";
   }
