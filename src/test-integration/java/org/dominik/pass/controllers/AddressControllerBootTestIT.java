@@ -112,8 +112,8 @@ class AddressControllerBootTestIT {
 
     List<String> messages = new LinkedList<>(
         List.of(
-            props.getProperty("address.blank.message"),
-            props.getProperty("address.pattern.message")
+            props.getProperty("data.blank.message"),
+            props.getProperty("data.pattern.message")
         )
     );
 
@@ -145,7 +145,7 @@ class AddressControllerBootTestIT {
   }
 
   @Test
-  @DisplayName("should return UnprocessableEntity if address if not formatted properly")
+  @DisplayName("should return UnprocessableEntity if address is not formatted properly")
   void shouldReturnUnprocessableEntityIfAddressIsNotFormattedProperly() throws Exception {
     String data = """
         {
@@ -176,7 +176,7 @@ class AddressControllerBootTestIT {
           assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
           assertEquals("data", map.get("data").getField());
           assertEquals("50d00dbe0817df9d676a8a2.af3453c9", map.get("data").getRejectedValue());
-          assertTrue(map.get("data").getValidationMessages().contains(props.getProperty("address.pattern.message")));
+          assertTrue(map.get("data").getValidationMessages().contains(props.getProperty("data.pattern.message")));
         });
   }
 
@@ -255,7 +255,7 @@ class AddressControllerBootTestIT {
           assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
           assertEquals("data", map.get("data").getField());
           assertEquals("50d00dbe0817df9d676a8ag.af3453c9", map.get("data").getRejectedValue());
-          assertTrue(map.get("data").getValidationMessages().contains(props.getProperty("address.pattern.message")));
+          assertTrue(map.get("data").getValidationMessages().contains(props.getProperty("data.pattern.message")));
         });
   }
 
