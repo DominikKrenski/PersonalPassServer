@@ -1,9 +1,8 @@
 package org.dominik.pass.controllers;
 
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AddressDTO;
+import org.dominik.pass.data.dto.EncryptedDataDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AddressService;
@@ -14,8 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +54,7 @@ public class AddressController {
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   @PreAuthorize("hasRole('ROLE_USER')")
-  public AddressDTO createAddress(@Valid @RequestBody AddressData addressData) {
+  public AddressDTO createAddress(@Valid @RequestBody EncryptedDataDTO addressData) {
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
     return addressService.save(addressData.getData(), accountDetails.getPublicId());
@@ -70,7 +67,7 @@ public class AddressController {
   )
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasRole('ROLE_USER')")
-  public void updatedAddress(@Valid @RequestBody AddressData addressData, @PathVariable UUID id) {
+  public void updatedAddress(@Valid @RequestBody EncryptedDataDTO addressData, @PathVariable UUID id) {
     addressService.updateAddress(addressData.getData(), id);
   }
 
@@ -79,13 +76,5 @@ public class AddressController {
   @PreAuthorize("hasRole('ROLE_USER')")
   public void deleteAddress(@PathVariable UUID id) {
     addressService.deleteAddress(id);
-  }
-
-  @Getter
-  @ToString
-  private static final class AddressData {
-    @NotBlank(message = "{address.blank.message}")
-    @Pattern(regexp = "^[a-fA-F0-9]{24}\\.[a-fA-F0-9]+$", message = "{address.pattern.message}")
-    private String data;
   }
 }
