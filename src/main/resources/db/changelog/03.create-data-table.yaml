@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-data-table.yaml
+      author: Dominik Kreński
+      context: dev,integration
+      changes:
+        - createSequence:
+            dataType: BIGINT
+            incrementBy: 1
+            sequenceName: data_id_seq
+            startValue: 1
+        - createTable:
+            tableName: data
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  defaultValueComputed: nextval('data_id_seq')
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: data_pk
+              - column:
+                  name: public_id
+                  type: UUID
+                  defaultValueComputed: extensions.uuid_generate_v4()
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: data_public_id_unq
+              - column:
+                  name: entry
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: account_id
+            baseTableName: data
+            constraintName: data_accounts_fk
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: accounts
+            validate: true
