@@ -16,11 +16,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.dominik.pass.data.dto.RegistrationDTO;
+import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
-import org.dominik.pass.db.entities.Address;
+//import org.dominik.pass.db.entities.Address;
+import org.dominik.pass.db.entities.Data;
 import org.dominik.pass.db.entities.RefreshToken;
-import org.dominik.pass.db.entities.Site;
+//import org.dominik.pass.db.entities.Site;
 import org.dominik.pass.utils.serializers.ApiInstantSerializer;
 
 import javax.crypto.Mac;
@@ -122,138 +124,61 @@ public final class TestUtils {
     return account;
   }
 
-  public static Site createSiteInstance(
+  public static Data createDataInstance(
       Long id,
       UUID publicId,
       String entry,
+      DataType type,
       Account account,
       Instant createdAt,
       Instant updatedAt,
       short version
   ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-    Class<?> clazz = Site.class;
+    Class<?> clazz = Data.class;
     Class<?> superClazz = clazz.getSuperclass();
 
-    // get class default constructor
     Constructor<?> constructor = clazz.getDeclaredConstructor();
-
-    // set constructor accessible
     constructor.setAccessible(true);
 
-    // create Site instance
-    Site site = (Site) constructor.newInstance();
+    Data data = (Data) constructor.newInstance();
 
-    // get all class fields
     List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
-
-    // set all fields accessible
-    fields.forEach(field -> field.setAccessible(true));
-
-    // get all super class fields
     List<Field> superFields = Arrays.asList(superClazz.getDeclaredFields());
 
-    // set all super class fields accessible
+    fields.forEach(field -> field.setAccessible(true));
     superFields.forEach(field -> field.setAccessible(true));
 
-    // set values of super class fields
     superFields.forEach(field -> {
       String fieldname = field.getName();
 
       try {
         switch (fieldname) {
-          case "createdAt" -> field.set(site, createdAt);
-          case "updatedAt" -> field.set(site, updatedAt);
-          case "version" -> field.set(site, version);
+          case "createdAt" -> field.set(data, createdAt);
+          case "updatedAt" -> field.set(data, updatedAt);
+          case "version" -> field.set(data, version);
         }
       } catch (IllegalAccessException ex) {
         ex.printStackTrace();
       }
     });
 
-    // set values of class fields
     fields.forEach(field -> {
       String fieldname = field.getName();
 
       try {
         switch (fieldname) {
-          case "id" -> field.set(site, id);
-          case "publicId" -> field.set(site, publicId);
-          case "site" -> field.set(site, entry);
-          case "account" -> field.set(site, account);
+          case "id" -> field.set(data, id);
+          case "publicId" -> field.set(data, publicId);
+          case "entry" -> field.set(data, entry);
+          case "type" -> field.set(data, type);
+          case "account" -> field.set(data, account);
         }
       } catch (IllegalAccessException ex) {
         ex.printStackTrace();
       }
     });
 
-    return site;
-  }
-
-  public static Address createAddressInstance(
-      Long id,
-      UUID publicId,
-      String entry,
-      Account account,
-      Instant createdAt,
-      Instant updatedAt,
-      short version
-  ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-    Class<?> clazz = Address.class;
-    Class<?> superClazz = clazz.getSuperclass();
-
-    // get class default constructor
-    Constructor<?> constructor = clazz.getDeclaredConstructor();
-
-    // set constructor accessible
-    constructor.setAccessible(true);
-
-    // create Address instance
-    Address address = (Address) constructor.newInstance();
-
-    // get all class fields
-    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
-
-    // set all fields accessible
-    fields.forEach(field -> field.setAccessible(true));
-
-    // get all super class fields
-    List<Field> superFields = Arrays.asList(superClazz.getDeclaredFields());
-
-    // set all super class fields accessible
-    superFields.forEach(field -> field.setAccessible(true));
-
-    // set values of super class fields
-    superFields.forEach(field -> {
-      String fieldname = field.getName();
-
-      try {
-        switch (fieldname) {
-          case "createdAt" -> field.set(address, createdAt);
-          case "updatedAt" -> field.set(address, updatedAt);
-          case "version" -> field.set(address, version);
-        }
-      } catch (IllegalAccessException ex) {
-        ex.printStackTrace();
-      }
-    });
-
-    // set values of class fields
-    fields.forEach(field -> {
-      String fieldname = field.getName();
-
-      try {
-        switch (fieldname) {
-          case "id" -> field.set(address, id);
-          case "publicId" -> field.set(address, publicId);
-          case "address" -> field.set(address, entry);
-          case "account" -> field.set(address, account);
-        }
-      } catch (IllegalAccessException ex) {
-        ex.printStackTrace();
-      }
-    });
-
-    return address;
+    return data;
   }
 
   public static RefreshToken createRefreshTokenInstance(
