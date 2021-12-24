@@ -99,19 +99,19 @@ VALUES
 ),
 (
   'd088d359-c608-4d76-bf2d-60e0ec0f8fb7',
-  'entry_12',
+  'entry_13',
   'SITE',
   (SELECT id FROM integration.accounts WHERE email = 'dorciad@interia.pl')
 ),
 (
   'c87b861c-eff2-4d59-aa0c-232c5d7ee181',
-  'entry_13',
+  'entry_14',
   'NOTE',
   (SELECT id FROM integration.accounts WHERE email = 'dorciad@interia.pl')
 ),
 (
   'f4ed5604-667e-4395-9461-59b9a356b431',
-  'entry_13',
+  'entry_15',
   'NOTE',
   (SELECT id FROM integration.accounts WHERE email = 'dorciad@interia.pl')
 )
