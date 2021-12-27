@@ -728,18 +728,10 @@ public final class TestUtils {
 
   @Getter
   @ToString
-  public static final class TestAddressDTO {
+  public static final class TestDataDTO {
     private UUID publicId;
-    private String address;
-    private String createdAt;
-    private String updatedAt;
-  }
-
-  @Getter
-  @ToString
-  public static final class TestSiteDTO {
-    private UUID publicId;
-    private String site;
+    private DataType type;
+    private String entry;
     private String createdAt;
     private String updatedAt;
   }
