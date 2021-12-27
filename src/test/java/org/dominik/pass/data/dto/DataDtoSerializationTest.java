@@ -75,7 +75,7 @@ class DataDtoSerializationTest {
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.id"));
     assertEquals(DATA_PUBLIC_ID.toString(), ctx.read("$.publicId"));
     assertEquals(ENTRY, ctx.read("$.entry"));
-    assertThrows(PathNotFoundException.class, () -> ctx.read("$.type"));
+    assertEquals(DataType.ADDRESS.toString(), ctx.read("$.type"));
     assertEquals(convertInstantIntoString(DATA_CREATED_AT), ctx.read("$.createdAt"));
     assertEquals(convertInstantIntoString(DATA_UPDATED_AT), ctx.read("$.updatedAt"));
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.version"));
@@ -93,7 +93,7 @@ class DataDtoSerializationTest {
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.id"));
     assertEquals(DATA_PUBLIC_ID.toString(), ctx.read("$.publicId"));
     assertEquals(ENTRY, ctx.read("$.entry"));
-    assertThrows(PathNotFoundException.class, () -> ctx.read("$.type"));
+    assertEquals(DataType.PASSWORD.toString(), ctx.read("$.type"));
     assertEquals(convertInstantIntoString(DATA_CREATED_AT), ctx.read("$.createdAt"));
     assertEquals(convertInstantIntoString(DATA_UPDATED_AT), ctx.read("$.updatedAt"));
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.version"));
@@ -111,7 +111,7 @@ class DataDtoSerializationTest {
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.id"));
     assertEquals(DATA_PUBLIC_ID.toString(), ctx.read("$.publicId"));
     assertEquals(ENTRY, ctx.read("$.entry"));
-    assertThrows(PathNotFoundException.class, () -> ctx.read("$.type"));
+    assertEquals(DataType.SITE.toString(), ctx.read("$.type"));
     assertEquals(convertInstantIntoString(DATA_CREATED_AT), ctx.read("$.createdAt"));
     assertEquals(convertInstantIntoString(DATA_UPDATED_AT), ctx.read("$.updatedAt"));
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.version"));
@@ -129,7 +129,7 @@ class DataDtoSerializationTest {
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.id"));
     assertEquals(DATA_PUBLIC_ID.toString(), ctx.read("$.publicId"));
     assertEquals(ENTRY, ctx.read("$.entry"));
-    assertThrows(PathNotFoundException.class, () -> ctx.read("$.type"));
+    assertEquals(DataType.NOTE.toString(), ctx.read("$.type"));
     assertEquals(convertInstantIntoString(DATA_CREATED_AT), ctx.read("$.createdAt"));
     assertEquals(convertInstantIntoString(DATA_UPDATED_AT), ctx.read("$.updatedAt"));
     assertThrows(PathNotFoundException.class, () -> ctx.read("$.version"));

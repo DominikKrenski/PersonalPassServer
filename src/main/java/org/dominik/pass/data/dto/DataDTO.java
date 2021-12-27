@@ -14,7 +14,6 @@ import java.util.UUID;
 @ToString
 @JsonIgnoreProperties({
     "id",
-    "type",
     "account",
     "version"
 })
