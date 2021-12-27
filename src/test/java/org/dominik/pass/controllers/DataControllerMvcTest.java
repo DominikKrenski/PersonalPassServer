@@ -52,8 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(ApiControllerMvcTestConfig.class)
 @ActiveProfiles("test")
 class DataControllerMvcTest {
-  private static String DATA_URL = "/data";
-  private static String ENTRY = "50d00dbe0817df9d676a8a2d.af3453c8abcdef345670948432984975834791";
+  private static final String DATA_URL = "/data";
   private static final String TIMESTAMP_PATTERN = "\\d{2}/\\d{2}/\\d{4}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z";
   private static Properties props;
   private static List<Account> accounts;
@@ -222,7 +221,7 @@ class DataControllerMvcTest {
           assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
           assertEquals("entry", map.get("entry").getField());
           assertEquals("  ", map.get("entry").getRejectedValue());
-          //assertTrue(map.get("entry").getValidationMessages().containsAll(messages));
+          assertTrue(map.get("entry").getValidationMessages().containsAll(messages));
         });
   }
 
@@ -333,7 +332,7 @@ class DataControllerMvcTest {
 
     mvc
         .perform(
-            put(DATA_URL + "/" + accounts.get(0).getPublicId())
+            put(DATA_URL + "/" + data.get(0).getPublicId())
                 .content(input)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -483,7 +482,7 @@ class DataControllerMvcTest {
 
     mvc
         .perform(
-            delete(DATA_URL + "/" + UUID.randomUUID())
+            delete(DATA_URL)
                 .accept(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isNoContent());
