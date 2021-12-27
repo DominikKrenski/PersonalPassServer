@@ -11,6 +11,7 @@ import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -18,6 +19,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class DataServiceImpl implements DataService {
   private final DataRepository dataRepository;
   private final AccountService accountService;
