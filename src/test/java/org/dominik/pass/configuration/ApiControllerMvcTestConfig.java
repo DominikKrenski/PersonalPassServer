@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class ApiControllerMvcTestConfig {
 
   @MockBean UserDetailsService detailsService;
+  @MockBean DataService dataService;
   @MockBean AccountService accountService;
   @MockBean RefreshTokenService tokenService;
   @MockBean JwtUtils jwtUtils;
