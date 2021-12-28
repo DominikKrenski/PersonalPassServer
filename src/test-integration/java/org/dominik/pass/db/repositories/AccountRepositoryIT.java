@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @Import(DataJpaTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Sql("classpath:sql/02.auth-controller-test.sql")
+@Sql("classpath:sql/03.sample-data.sql")
 @ActiveProfiles("integration")
 class AccountRepositoryIT {
 
@@ -24,7 +26,7 @@ class AccountRepositoryIT {
   @Test
   @DisplayName("should not update email if account does not exist")
   void shouldNotUpdateEmailIfAccountNotExist() {
-    int result = accountRepository.updateEmail("dorciad@interia.pl", "dominik@yahoo.com");
+    int result = accountRepository.updateEmail("krenska.dorota@gmail.com", "dominik.krenski@poczta.interia.pl");
 
     assertEquals(0, result);
   }
@@ -32,7 +34,23 @@ class AccountRepositoryIT {
   @Test
   @DisplayName("should update email")
   void shouldUpdateEmail() {
-    int result = accountRepository.updateEmail("dominik.krenski@yahoo.com", "dominik.krenski@gmail.com");
+    int result = accountRepository.updateEmail("dominik.krenski@poczta.interia.pl", "dominik.krenski@gmail.com");
+
+    assertEquals(1, result);
+  }
+
+  @Test
+  @DisplayName("should not delete account if one does not exist")
+  void shouldNotDeleteAccountIfOneDoesNotExist() {
+    int result = accountRepository.deleteAccount(UUID.randomUUID());
+
+    assertEquals(0, result);
+  }
+
+  @Test
+  @DisplayName("should delete account")
+  void shouldDeleteAccount() {
+    int result = accountRepository.deleteAccount(UUID.fromString("cee0fa30-d170-4d9c-af8a-93ab159e9532"));
 
     assertEquals(1, result);
   }

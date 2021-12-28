@@ -17,4 +17,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   @Modifying
   @Query("UPDATE Account a SET a.email = :newEmail, a.updatedAt = current_timestamp WHERE a.email = :oldEmail")
   int updateEmail(@Param("newEmail") String newEmail, @Param("oldEmail") String oldEmail);
+
+  @Modifying
+  @Query("DELETE Account a WHERE a.publicId = :publicId")
+  int deleteAccount(@Param("publicId") UUID publicId);
 }
