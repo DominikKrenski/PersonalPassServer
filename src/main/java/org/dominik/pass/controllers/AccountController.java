@@ -8,7 +8,6 @@ import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
-import org.dominik.pass.services.definitions.DataService;
 import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
