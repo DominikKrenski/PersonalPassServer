@@ -14,6 +14,4 @@ public interface DataService {
   void deleteAllUserData(UUID accountPublicId);
   void deleteData(UUID publicId);
   void updateData(String entry, UUID publicId);
-
-
 }
