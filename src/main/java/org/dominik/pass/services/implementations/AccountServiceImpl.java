@@ -84,4 +84,13 @@ public class AccountServiceImpl implements AccountService {
   public boolean existsByEmail(@NonNull String email) {
     return accountRepository.existsByEmail(email);
   }
+
+  @Override
+  @Transactional
+  public void deleteAccount(@NonNull UUID publicId) {
+    int deleted = accountRepository.deleteAccount(publicId);
+
+    if (deleted != 1)
+      throw new NotFoundException("Account with given id does not exist");
+  }
 }

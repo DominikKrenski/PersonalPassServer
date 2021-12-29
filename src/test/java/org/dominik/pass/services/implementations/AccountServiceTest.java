@@ -27,8 +27,7 @@ import static org.dominik.pass.utils.TestUtils.createAccountInstance;
 import static org.dominik.pass.utils.TestUtils.createRegistrationDtoInstance;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -321,5 +320,23 @@ class AccountServiceTest {
     when(accountRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
     assertThrows(NotFoundException.class, () -> accountService.updateEmail("new", "old"));
+  }
+
+  @Test
+  @DisplayName("should throw NotFound if account to be deleted with given public id does not exist")
+  void shouldThrowNotFoundIfAccounToBeDeletedtWithGivenPublicIdDoesNotExist() {
+    when(accountRepository.deleteAccount(any(UUID.class))).thenReturn(0);
+
+    assertThrows(NotFoundException.class, () -> accountService.deleteAccount(UUID.randomUUID()));
+  }
+
+  @Test
+  @DisplayName("should delete account")
+  void shouldDeleteAccount() {
+    when(accountRepository.deleteAccount(any(UUID.class))).thenReturn(1);
+
+    accountService.deleteAccount(UUID.randomUUID());
+
+    verify(accountRepository).deleteAccount(any(UUID.class));
   }
 }

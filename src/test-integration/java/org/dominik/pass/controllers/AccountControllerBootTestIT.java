@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.dominik.pass.data.dto.AccountDTO;
+import org.dominik.pass.data.dto.DataDTO;
 import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.DataService;
 import org.dominik.pass.services.definitions.EmailService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc
 @Transactional
-@Sql("classpath:/sql/01.token-repository-test.sql")
+@Sql("classpath:/sql/03.sample-data.sql")
 @ActiveProfiles("integration")
 class AccountControllerBootTestIT {
   private static final String AUTH_HEADER = "Authorization";
@@ -67,6 +69,7 @@ class AccountControllerBootTestIT {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper mapper;
   @Autowired AccountService accountService;
+  @Autowired DataService dataService;
   @MockBean EmailService emailService;
 
   @BeforeAll
@@ -303,5 +306,37 @@ class AccountControllerBootTestIT {
         )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.emailId").value("email-id"));
+  }
+
+  @Test
+  @DisplayName("should return Forbidden if account to be deleted does not exist")
+  void shouldReturnForbiddenIfAccountToBeDeletedDoesNotExist() throws Exception {
+    accessToken = generateJwtToken(ISSUER, UUID.randomUUID().toString(), Instant.now().getEpochSecond(), AUDIENCE, Instant.now().plusSeconds(1000).getEpochSecond(), KEY);
+    mvc
+        .perform(
+            delete(ACCOUNT_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.status").value(HttpStatus.FORBIDDEN.getReasonPhrase()))
+        .andExpect(jsonPath("$.message").value("Account does not exist"))
+        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should delete account")
+  void shouldDeleteAccount() throws Exception {
+    mvc
+        .perform(
+            delete(ACCOUNT_URL)
+                .header(AUTH_HEADER, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isNoContent())
+        .andDo(res -> {
+          List<DataDTO> data = dataService.findAllUserData(accountDTO.getPublicId());
+          assertEquals(0, data.size());
+        });
   }
 }
