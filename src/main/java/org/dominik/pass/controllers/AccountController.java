@@ -8,10 +8,12 @@ import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.DataService;
 import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -82,6 +84,18 @@ public class AccountController {
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
     return new EmailResponse(emailService.sendTestEmail(accountDetails.getUsername()));
+  }
+
+  @DeleteMapping(
+      value = {"", "/"},
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasRole('ROLE_USER')")
+  public void deleteAccount() {
+    AccountDetails accountDetails = securityUtils.getPrincipal();
+
+    accountService.deleteAccount(accountDetails.getPublicId());
   }
 
   @AllArgsConstructor
