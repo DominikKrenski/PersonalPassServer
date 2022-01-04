@@ -57,6 +57,7 @@ class AccountControllerBootTestIT {
   private static final String EMAIL_URL = "/accounts/email";
   private static final String HINT_URL = "/accounts/hint";
   private static final String TEST_URL = "/accounts/test-email";
+  private static final String SALT_URL = "/accounts/salt";
   private static final String ISSUER = "personal-pass.dev";
   private static final String AUDIENCE = "access";
   private static final String KEY = "gUkXn2r5u8x/A?D(G+KbPeShVmYq3s6v9y$B&E)H@McQfTjWnZr4u7w!z%C*F-Ja";
@@ -338,5 +339,18 @@ class AccountControllerBootTestIT {
           List<DataDTO> data = dataService.findAllUserData(accountDTO.getPublicId());
           assertEquals(0, data.size());
         });
+  }
+
+  @Test
+  @DisplayName("should return salt for given account")
+  void shouldReturnSaltForGivenAccount() throws Exception {
+    mvc
+      .perform(
+        get(SALT_URL)
+          .header(AUTH_HEADER, "Bearer " + accessToken)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.salt").value(accountDTO.getSalt()));
   }
 }

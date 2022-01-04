@@ -44,11 +44,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
-    value = AccountController.class,
-    excludeAutoConfiguration = {UserDetailsServiceAutoConfiguration.class},
-    properties = {
-        "spring.main.banner-mode=off"
-    }
+  value = AccountController.class,
+  excludeAutoConfiguration = {UserDetailsServiceAutoConfiguration.class},
+  properties = {
+    "spring.main.banner-mode=off"
+  }
 )
 @WithMockUser
 @Import(ApiControllerMvcTestConfig.class)
@@ -90,20 +90,20 @@ class AccountControllerMvcTest {
   static void setUp() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     props = readPropertiesFile("ValidationMessages.properties");
     account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        ROLE,
-        true,
-        true,
-        true,
-        true,
-        CREATED_AT,
-        UPDATED_AT,
-        VERSION
+      ID,
+      PUBLIC_ID,
+      EMAIL,
+      PASSWORD,
+      SALT,
+      REMINDER,
+      ROLE,
+      true,
+      true,
+      true,
+      true,
+      CREATED_AT,
+      UPDATED_AT,
+      VERSION
     );
   }
 
@@ -115,15 +115,15 @@ class AccountControllerMvcTest {
     when(accountService.existsByEmail(anyString())).thenReturn(false);
 
     mvc
-        .perform(
-            get(ACCOUNT_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.email").value(EMAIL))
-        .andExpect(jsonPath("$.reminder").value(REMINDER))
-        .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(CREATED_AT)))
-        .andExpect(jsonPath("$.updatedAt").value(convertInstantIntoString(UPDATED_AT)));
+      .perform(
+        get(ACCOUNT_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.email").value(EMAIL))
+      .andExpect(jsonPath("$.reminder").value(REMINDER))
+      .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(CREATED_AT)))
+      .andExpect(jsonPath("$.updatedAt").value(convertInstantIntoString(UPDATED_AT)));
   }
 
   @Test
@@ -134,14 +134,14 @@ class AccountControllerMvcTest {
     when(accountService.existsByEmail(anyString())).thenReturn(false);
 
     mvc
-        .perform(
-            get(ACCOUNT_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Account does not exist"));
+      .perform(
+        get(ACCOUNT_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Account does not exist"));
   }
 
   @Test
@@ -149,229 +149,229 @@ class AccountControllerMvcTest {
   @DisplayName("should throw Forbidden if user has role ADMIN")
   void shouldThrowForbiddenIfUserHasRoleAdmin() throws Exception {
     mvc
-        .perform(
-            get(ACCOUNT_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.status").value(HttpStatus.FORBIDDEN.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("You are not allowed to access this resource"));
+      .perform(
+        get(ACCOUNT_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isForbidden())
+      .andExpect(jsonPath("$.status").value(HttpStatus.FORBIDDEN.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("You are not allowed to access this resource"));
   }
 
   @Test
   @DisplayName("should return Conflict if email is already in use")
   void shouldReturnConflictIfEmailIsAlreadyInUse() throws Exception {
     String body = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
     when(accountService.updateEmail(anyString(), anyString())).thenThrow(new ConflictException("Email is already in use"));
 
     mvc
-        .perform(
-            put(EMAIL_URL)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isConflict())
-        .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Email is already in use"));
+      .perform(
+        put(EMAIL_URL)
+          .content(body)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isConflict())
+      .andExpect(jsonPath("$.status").value(HttpStatus.CONFLICT.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Email is already in use"));
   }
 
   @Test
   @DisplayName("should return InternalException if email could not be updated")
   void shouldReturnInternalExceptionIfEmailNotUpdated() throws Exception {
     String body = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
     when(accountService.updateEmail(anyString(), anyString())).thenThrow(new InternalException("Email could not be updated"));
 
     mvc
-        .perform(
-            put(EMAIL_URL)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Email could not be updated"));
+      .perform(
+        put(EMAIL_URL)
+          .content(body)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Email could not be updated"));
   }
 
   @Test
   @DisplayName("should return NotFound if updated account could not be found")
   void shouldReturnNotFoundIfUpdatedAccountNotFound() throws Exception {
     String body = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
     when(accountService.updateEmail(anyString(), anyString())).thenThrow(new NotFoundException("Account does not exist"));
 
     mvc
-        .perform(
-            put(EMAIL_URL)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Account does not exist"));
+      .perform(
+        put(EMAIL_URL)
+          .content(body)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Account does not exist"));
   }
 
   @Test
   @DisplayName("should return updated account info")
   void shouldReturnUpdatedAccountInfo() throws Exception {
     String body = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
     when(accountService.updateEmail(anyString(), anyString())).thenReturn(AccountDTO.fromAccount(account));
 
     mvc
-        .perform(
-            put(EMAIL_URL)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.email").value(account.getEmail()))
-        .andExpect(jsonPath("$.reminder").value(account.getReminder()))
-        .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(account.getCreatedAt())))
-        .andExpect(jsonPath("$.updatedAt").value(convertInstantIntoString(account.getUpdatedAt())));
+      .perform(
+        put(EMAIL_URL)
+          .content(body)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.email").value(account.getEmail()))
+      .andExpect(jsonPath("$.reminder").value(account.getReminder()))
+      .andExpect(jsonPath("$.createdAt").value(convertInstantIntoString(account.getCreatedAt())))
+      .andExpect(jsonPath("$.updatedAt").value(convertInstantIntoString(account.getUpdatedAt())));
   }
 
   @Test
   @DisplayName("should return UnprocessableEntity if email is not valid")
   void shouldReturnUnprocessableEntityIfEmailIsNotValid() throws Exception {
     List<String> emailMessages = new LinkedList<>(
-        List.of(
-            props.getProperty("email.blank.message"),
-            props.getProperty("email.format.message"))
+      List.of(
+        props.getProperty("email.blank.message"),
+        props.getProperty("email.format.message"))
     );
 
     String data = """
-        {
-          "email": ""
-        }
-        """;
+      {
+        "email": ""
+      }
+      """;
 
     mvc
-        .perform(
-            put(EMAIL_URL)
-                .content(data)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isUnprocessableEntity())
-        .andDo(res -> {
-          String body = res.getResponse().getContentAsString();
+      .perform(
+        put(EMAIL_URL)
+          .content(data)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isUnprocessableEntity())
+      .andDo(res -> {
+        String body = res.getResponse().getContentAsString();
 
-          ReadContext ctx = JsonPath.parse(body);
+        ReadContext ctx = JsonPath.parse(body);
 
-          String errors = getSubErrorsString(body);
+        String errors = getSubErrorsString(body);
 
-          Map<String, TestValidationError> map = convertErrorListToMap(
-              mapper.readValue(errors, new TypeReference<>() {
-              })
-          );
+        Map<String, TestValidationError> map = convertErrorListToMap(
+          mapper.readValue(errors, new TypeReference<>() {
+          })
+        );
 
-          assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-          assertEquals("Validation Error", ctx.read("$.message"));
-          assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-          assertEquals("email", map.get("email").getField());
-          assertEquals("", map.get("email").getRejectedValue());
-          assertTrue(map.get("email").getValidationMessages().containsAll(emailMessages));
-        });
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
+        assertEquals("Validation Error", ctx.read("$.message"));
+        assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
+        assertEquals("email", map.get("email").getField());
+        assertEquals("", map.get("email").getRejectedValue());
+        assertTrue(map.get("email").getValidationMessages().containsAll(emailMessages));
+      });
   }
 
   @Test
   @DisplayName("should send reminder email")
   void shouldSendReminderEmail() throws Exception {
     String data = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(emailService.sendHint(anyString())).thenReturn("email-id");
 
     mvc
-        .perform(
-            post(HINT_URL)
-                .content(data)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.emailId").value("email-id"));
+      .perform(
+        post(HINT_URL)
+          .content(data)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.emailId").value("email-id"));
   }
 
   @Test
   @DisplayName("should return NotFound if account does not exist")
   void shouldReturnNotFoundIfAccountNotExists() throws Exception {
     String data = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(emailService.sendHint(anyString())).thenThrow(new NotFoundException("Account does not exist"));
 
     mvc
-        .perform(
-            post(HINT_URL)
-                .content(data)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Account does not exist"));
+      .perform(
+        post(HINT_URL)
+          .content(data)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Account does not exist"));
   }
 
   @Test
   @DisplayName("should return InternalException if email could not be send")
   void shouldReturnInternalExceptionIfEmailCouldNotBeSend() throws Exception {
     String data = """
-        {
-          "email": "dominik.krenski@gmail.com"
-        }
-        """;
+      {
+        "email": "dominik.krenski@gmail.com"
+      }
+      """;
 
     when(emailService.sendHint(anyString())).thenThrow(new InternalException("Email problem"));
 
     mvc
-        .perform(
-            post(HINT_URL)
-                .content(data)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("Email problem"));
+      .perform(
+        post(HINT_URL)
+          .content(data)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("Email problem"));
   }
 
   @Test
@@ -381,14 +381,14 @@ class AccountControllerMvcTest {
     when(emailService.sendTestEmail(anyString())).thenThrow(new InternalException("There is a problem"));
 
     mvc
-        .perform(
-            get(TEST_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-        .andExpect(jsonPath("$.message").value("There is a problem"));
+      .perform(
+        get(TEST_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
+      .andExpect(jsonPath("$.message").value("There is a problem"));
   }
 
   @Test
@@ -398,12 +398,12 @@ class AccountControllerMvcTest {
     when(emailService.sendTestEmail(anyString())).thenReturn("message-id");
 
     mvc
-        .perform(
-            get(TEST_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.emailId").value("message-id"));
+      .perform(
+        get(TEST_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.emailId").value("message-id"));
   }
 
   @Test
@@ -413,14 +413,14 @@ class AccountControllerMvcTest {
     doThrow(new NotFoundException("Account does not exist")).when(accountService).deleteAccount(any(UUID.class));
 
     mvc
-        .perform(
-            delete(ACCOUNT_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-        .andExpect(jsonPath("$.message").value("Account does not exist"))
-        .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+      .perform(
+        delete(ACCOUNT_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+      .andExpect(jsonPath("$.message").value("Account does not exist"))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
   }
 
   @Test
@@ -430,10 +430,41 @@ class AccountControllerMvcTest {
     doNothing().when(accountService).deleteAccount(any(UUID.class));
 
     mvc
-        .perform(
-            delete(ACCOUNT_URL)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-        .andExpect(status().isNoContent());
+      .perform(
+        delete(ACCOUNT_URL)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("should return NotFound if salt for given account does not exist")
+  void shouldReturnNotFoundIfSaltForGivenAccountDoesNotExist() throws Exception {
+    when(securityUtils.getPrincipal()).thenThrow(new NotFoundException("Account does not exist"));
+
+    mvc
+      .perform(
+        get(ACCOUNT_URL + "/salt")
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
+      .andExpect(jsonPath("$.message").value("Account does not exist"))
+      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)));
+  }
+
+  @Test
+  @DisplayName("should return salt for given account")
+  void shouldReturnSaltForGivenAccount() throws Exception {
+    when(securityUtils.getPrincipal()).thenReturn(AccountDetails.fromDTO(AccountDTO.fromAccount(account)));
+    when(accountService.findByPublicId(any(UUID.class))).thenReturn(AccountDTO.fromAccount(account));
+
+    mvc
+      .perform(
+        get(ACCOUNT_URL + "/salt")
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.salt").value(account.getSalt()));
   }
 }

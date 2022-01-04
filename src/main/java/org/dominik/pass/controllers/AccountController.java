@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
+import org.dominik.pass.data.dto.AuthDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
@@ -95,6 +96,17 @@ public class AccountController {
     AccountDetails accountDetails = securityUtils.getPrincipal();
 
     accountService.deleteAccount(accountDetails.getPublicId());
+  }
+
+  @GetMapping(
+      value="/salt",
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @PreAuthorize("hasRole('ROLE_USER')")
+  public AuthDTO getSalt() {
+    AccountDetails accountDetails = securityUtils.getPrincipal();
+    AccountDTO accountDTO = accountService.findByPublicId(accountDetails.getPublicId());
+    return AuthDTO.builder().salt(accountDTO.getSalt()).build();
   }
 
   @AllArgsConstructor
