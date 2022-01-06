@@ -56,8 +56,8 @@ spring:
       accept-single-value-as-array: false
       unwrap-single-value-arrays: false
       unwrap-root-value: false
-      accept-empty-string-as-null-object: false
-      accept-empty-array-as-null-object: false
+      accept-empty-string-as-null-object: true
+      accept-empty-array-as-null-object: true
       accept-float-as-int: false
       read-enums-using-to-string: false
       read-unknown-enum-values-as-null: false
