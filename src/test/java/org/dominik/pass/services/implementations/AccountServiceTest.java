@@ -339,4 +339,22 @@ class AccountServiceTest {
 
     verify(accountRepository).deleteAccount(any(UUID.class));
   }
+
+  @Test
+  @DisplayName("should update password")
+  void shouldUpdatePassword() {
+    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString())).thenReturn(1);
+
+    accountService.updatePassword(UUID.randomUUID(), "new_password", "new_salt");
+
+    verify(accountRepository).updatePassword(any(UUID.class), anyString(), anyString());
+  }
+
+  @Test
+  @DisplayName("should not update password")
+  void shouldNotUpdatePassword() {
+    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString())).thenReturn(0);
+
+    assertThrows(NotFoundException.class, () -> accountService.updatePassword(UUID.randomUUID(), "pass", "salt"));
+  }
 }
