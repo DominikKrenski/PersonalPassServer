@@ -38,6 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -513,6 +514,12 @@ public final class TestUtils {
             .withZone(ZoneId.of("UTC"));
 
     return dtf.format(date);
+  }
+
+  public static Instant convertStringToInstant(String timestamp) {
+    var dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
+    TemporalAccessor accessor = dtf.parse(timestamp);
+    return Instant.from(accessor);
   }
 
   public static List<Account> prepareAccountList() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
