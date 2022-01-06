@@ -3,6 +3,8 @@ package org.dominik.pass.services.implementations;
 import lombok.NonNull;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.DataDTO;
+import org.dominik.pass.data.dto.UpdateDataDTO;
+import org.dominik.pass.data.dto.UpdatePasswordDTO;
 import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.Data;
@@ -93,5 +95,18 @@ public class DataServiceImpl implements DataService {
 
     if (updated != 1)
       throw new NotFoundException("Data with given id does not exist");
+  }
+
+  @Override
+  @Transactional
+  public void updateAllData(@NonNull UUID accountPublicId, @NonNull UpdatePasswordDTO passwordDTO) {
+    accountService.updatePassword(accountPublicId, passwordDTO.getPassword(), passwordDTO.getSalt());
+
+    List<UpdateDataDTO> data = passwordDTO.getData();
+
+    if (data == null)
+      return;
+
+    data.forEach(item -> updateData(item.getEntry(), item.getPublicId()));
   }
 }

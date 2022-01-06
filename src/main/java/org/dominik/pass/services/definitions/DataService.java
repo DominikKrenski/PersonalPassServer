@@ -1,6 +1,7 @@
 package org.dominik.pass.services.definitions;
 
 import org.dominik.pass.data.dto.DataDTO;
+import org.dominik.pass.data.dto.UpdatePasswordDTO;
 import org.dominik.pass.data.enums.DataType;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface DataService {
   void deleteAllUserData(UUID accountPublicId);
   void deleteData(UUID publicId);
   void updateData(String entry, UUID publicId);
+  void updateAllData(UUID accountPublicId, UpdatePasswordDTO passwordDTO);
 }
