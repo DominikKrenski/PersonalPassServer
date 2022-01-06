@@ -54,4 +54,28 @@ class AccountRepositoryIT {
 
     assertEquals(1, result);
   }
+
+  @Test
+  @DisplayName("should update password")
+  void shouldUpdatePassword() {
+    int updated = accountRepository.updatePassword(
+      UUID.fromString("e455b70f-50c5-4a96-9386-58f6ab9ba24b"),
+      "new password",
+      "new salt"
+      );
+
+    assertEquals(1, updated);
+  }
+
+  @Test
+  @DisplayName("should not update password if account does not exist")
+  void shouldNotUpdatePasswordIfAccountDoesNotExist() {
+    int updated = accountRepository.updatePassword(
+      UUID.randomUUID(),
+      "new password",
+      "new salt"
+    );
+
+    assertEquals(0, updated);
+  }
 }
