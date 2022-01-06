@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.dominik.pass.data.dto.RegistrationDTO;
+import org.dominik.pass.data.dto.UpdateDataDTO;
+import org.dominik.pass.data.dto.UpdatePasswordDTO;
 import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
@@ -41,6 +43,64 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class TestUtils {
+  public static UpdateDataDTO createUpdateDataDtoInstance(UUID publicId, String entry, DataType type, Instant createdAt, Instant updatedAt) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = UpdateDataDTO.class;
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+    constructor.setAccessible(true);
+
+    UpdateDataDTO dto = (UpdateDataDTO) constructor.newInstance();
+
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+    fields.forEach(field -> field.setAccessible(true));
+
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "publicId" -> field.set(dto, publicId);
+          case "entry" -> field.set(dto, entry);
+          case "type" -> field.set(dto, type);
+          case "createdAt" -> field.set(dto, createdAt);
+          case "updatedAt" -> field.set(dto, updatedAt);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return dto;
+  }
+
+  public static UpdatePasswordDTO createUpdatePasswordDtoInstance(String password, String salt) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = UpdatePasswordDTO.class;
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+    constructor.setAccessible(true);
+
+    UpdatePasswordDTO dto = (UpdatePasswordDTO) constructor.newInstance();
+
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+    fields.forEach(field -> field.setAccessible(true));
+
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch(fieldname) {
+          case "password" -> field.set(dto, password);
+          case "salt" -> field.set(dto, salt);
+          case "data" -> field.set(dto, new ArrayList<>());
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return dto;
+  }
+
   public static Account createAccountInstance(
       Long id,
       UUID publicId,
