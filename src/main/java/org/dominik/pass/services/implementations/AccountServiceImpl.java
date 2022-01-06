@@ -97,7 +97,7 @@ public class AccountServiceImpl implements AccountService {
   @Override
   @Transactional
   public void updatePassword(@NonNull UUID publicId, @NonNull String password, @NonNull String salt) {
-    int updated = accountRepository.updatePassword(publicId, password, salt);
+    int updated = accountRepository.updatePassword(publicId, passwordEncoder.encode(password), salt);
 
     if (updated != 1)
       throw new NotFoundException("Account with with given id does not exist");
