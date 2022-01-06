@@ -6,9 +6,11 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
 import org.dominik.pass.data.dto.AuthDTO;
+import org.dominik.pass.data.dto.UpdatePasswordDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.DataService;
 import org.dominik.pass.services.definitions.EmailService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
@@ -29,16 +31,19 @@ import javax.validation.constraints.NotBlank;
 public class AccountController {
   private final SecurityUtils securityUtils;
   private final AccountService accountService;
+  private final DataService dataService;
   private final EmailService emailService;
 
   @Autowired
   public AccountController(
       SecurityUtils securityUtils,
       AccountService accountService,
+      DataService dataService,
       EmailService emailService
   ) {
     this.securityUtils = securityUtils;
     this.accountService = accountService;
+    this.dataService = dataService;
     this.emailService = emailService;
   }
 
@@ -107,6 +112,18 @@ public class AccountController {
     AccountDetails accountDetails = securityUtils.getPrincipal();
     AccountDTO accountDTO = accountService.findByPublicId(accountDetails.getPublicId());
     return AuthDTO.builder().salt(accountDTO.getSalt()).build();
+  }
+
+  @PutMapping(
+    consumes = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasRole('ROLE_USER')")
+  public void updatePassword(@RequestBody @Valid UpdatePasswordDTO passwordDTO) {
+    AccountDetails accountDetails = securityUtils.getPrincipal();
+    log.debug(passwordDTO.toString());
+
+    dataService.updateAllData(accountDetails.getPublicId(), passwordDTO);
   }
 
   @AllArgsConstructor
