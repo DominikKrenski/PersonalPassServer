@@ -12,5 +12,5 @@ public interface AccountService {
   AccountDTO updateEmail(String newEmail, String oldEmail);
   boolean existsByEmail(String email);
   void deleteAccount(UUID publicId);
-  void updatePassword(UUID publicId, String password, String salt);
+  void updatePassword(UUID publicId, String password, String salt, String reminder);
 }

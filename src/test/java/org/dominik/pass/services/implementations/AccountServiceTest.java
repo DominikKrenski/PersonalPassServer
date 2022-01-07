@@ -343,20 +343,20 @@ class AccountServiceTest {
   @Test
   @DisplayName("should update password")
   void shouldUpdatePassword() {
-    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString())).thenReturn(1);
+    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString(), anyString())).thenReturn(1);
     when(passwordEncoder.encode(anyString())).thenReturn("encoded");
 
-    accountService.updatePassword(UUID.randomUUID(), "new_password", "new_salt");
+    accountService.updatePassword(UUID.randomUUID(), "new_password", "new_salt", "new reminder");
 
-    verify(accountRepository).updatePassword(any(UUID.class), anyString(), anyString());
+    verify(accountRepository).updatePassword(any(UUID.class), anyString(), anyString(), anyString());
   }
 
   @Test
   @DisplayName("should not update password")
   void shouldNotUpdatePassword() {
-    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString())).thenReturn(0);
+    when(accountRepository.updatePassword(any(UUID.class), anyString(), anyString(), anyString())).thenReturn(0);
     when(passwordEncoder.encode(anyString())).thenReturn("encoded");
 
-    assertThrows(NotFoundException.class, () -> accountService.updatePassword(UUID.randomUUID(), "pass", "salt"));
+    assertThrows(NotFoundException.class, () -> accountService.updatePassword(UUID.randomUUID(), "pass", "salt", "rmdr"));
   }
 }
