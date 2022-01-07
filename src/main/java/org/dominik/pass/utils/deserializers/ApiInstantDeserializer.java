@@ -1,7 +1,6 @@
 package org.dominik.pass.utils.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
@@ -23,7 +22,7 @@ public final class ApiInstantDeserializer extends StdDeserializer<Instant> {
   }
 
   @Override
-  public Instant deserialize(JsonParser parser, DeserializationContext ctx) throws IOException, JsonProcessingException {
+  public Instant deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
     String timestamp = parser.getText();
 
     TemporalAccessor temporalAccessor = dtf.parse(timestamp);

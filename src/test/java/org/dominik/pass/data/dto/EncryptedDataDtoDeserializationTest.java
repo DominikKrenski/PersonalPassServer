@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class EncryptedDataDtoDeserializationTest {
-  private static String ENTRY = "50d00dbe0817df9d676a8a2d.af3453c8abcdef345670948432984975834791";
+  private static final String ENTRY = "50d00dbe0817df9d676a8a2d.af3453c8abcdef345670948432984975834791";
   private static ObjectMapper mapper;
 
   @BeforeAll
