@@ -18,7 +18,7 @@ public final class UpdateDataDTO {
   @NotNull(message="{public_id.null.message}")
   private UUID publicId;
 
-  @NotBlank(message = "data.blank.message")
+  @NotBlank(message = "{data.blank.message}")
   @Pattern(
     regexp = "^[a-fA-F0-9]{24}\\.[a-fA-F0-9]+$",
     message = "{data.pattern.message}"
@@ -28,11 +28,11 @@ public final class UpdateDataDTO {
   @NotNull(message = "{data.null.message}")
   private DataType type;
 
-  @JsonDeserialize(using = ApiInstantDeserializer.class)
   @NotNull(message = "{timestamp.null.message}")
+  @JsonDeserialize(using = ApiInstantDeserializer.class)
   private Instant createdAt;
 
-  @JsonDeserialize(using = ApiInstantDeserializer.class)
   @NotNull(message = "{timestamp.null.message}")
+  @JsonDeserialize(using = ApiInstantDeserializer.class)
   private Instant updatedAt;
 }
