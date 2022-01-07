@@ -438,7 +438,7 @@ class DataServiceTest {
 
     updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
 
-    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString(), any());
     when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(3L);
     when(dataRepository.updateData(anyString(), any(UUID.class))).thenReturn(1);
 
@@ -471,7 +471,7 @@ class DataServiceTest {
       "new salt"
     );
 
-    doThrow(new NotFoundException("msg")).when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    doThrow(new NotFoundException("msg")).when(accountService).updatePassword(any(UUID.class), anyString(), anyString(),any());
     assertThrows(NotFoundException.class, () -> dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO));
     verify(dataRepository, never()).updateData(anyString(), any(UUID.class));
   }
@@ -510,7 +510,7 @@ class DataServiceTest {
 
     updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
 
-    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString(), any());
     when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(4L);
 
     assertThrows(DataNumberException.class, () -> dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO));
@@ -550,7 +550,7 @@ class DataServiceTest {
 
     updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
 
-    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString(), any());
     when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(3L);
     when(dataRepository.updateData(anyString(), any(UUID.class)))
       .thenReturn(1)
@@ -568,7 +568,7 @@ class DataServiceTest {
       "new salt"
     );
 
-    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString(), any());
 
     dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO);
 

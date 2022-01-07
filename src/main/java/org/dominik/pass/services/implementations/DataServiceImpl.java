@@ -106,7 +106,7 @@ public class DataServiceImpl implements DataService {
   @Override
   @Transactional
   public void updateAllData(@NonNull UUID accountPublicId, @NonNull UpdatePasswordDTO passwordDTO) {
-    accountService.updatePassword(accountPublicId, passwordDTO.getPassword(), passwordDTO.getSalt());
+    accountService.updatePassword(accountPublicId, passwordDTO.getPassword(), passwordDTO.getSalt(), passwordDTO.getReminder());
 
     List<UpdateDataDTO> data = passwordDTO.getData();
 
