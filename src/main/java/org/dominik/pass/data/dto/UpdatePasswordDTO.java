@@ -25,6 +25,9 @@ public final class UpdatePasswordDTO {
   @Hex(message = "{salt.hex.message}")
   private String salt;
 
+  @Length(max = 255, message = "{reminder.length.message}")
+  private String reminder;
+
   @Valid
   private List<UpdateDataDTO> data;
 }

@@ -65,4 +65,37 @@ class UpdatePasswordDtoDeserializationTest {
 
     assertNull(item.getData());
   }
+
+  @Test
+  @DisplayName("should deserialize object with reminder")
+  void shouldDeserializeObjectWithReminder() throws JsonProcessingException {
+    String json = """
+      {
+        "password": "pass",
+        "salt": "slt",
+        "reminder": "rmdr"
+      }
+      """;
+
+    var item = mapper.readValue(json, UpdatePasswordDTO.class);
+
+    assertEquals("pass", item.getPassword());
+    assertEquals("slt", item.getSalt());
+    assertEquals("rmdr", item.getReminder());
+  }
+
+  @Test
+  @DisplayName("should deserialize object without reminder")
+  void shouldDeserializeObjectWithoutReminder() throws JsonProcessingException {
+    String json = """
+      {
+        "password": "pass",
+        "salt": "slt"
+      }
+      """;
+
+    var item = mapper.readValue(json, UpdatePasswordDTO.class);
+
+    assertNull(item.getReminder());
+  }
 }
