@@ -110,7 +110,7 @@ public class DataServiceImpl implements DataService {
 
     List<UpdateDataDTO> data = passwordDTO.getData();
 
-    if (data == null)
+    if (data == null || data.size() == 0)
       return;
 
     long dataCount = countAllDataBelongingToUser(accountPublicId);
