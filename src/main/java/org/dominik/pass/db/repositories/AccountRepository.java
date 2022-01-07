@@ -19,11 +19,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   int updateEmail(@Param("newEmail") String newEmail, @Param("oldEmail") String oldEmail);
 
   @Modifying
-  @Query("UPDATE Account a SET a.password = :password, a.salt = :salt, a.updatedAt = current_timestamp WHERE a.publicId = :publicId")
+  @Query("UPDATE Account a SET a.password = :password, a.salt = :salt, a.reminder = :reminder, a.updatedAt = current_timestamp WHERE a.publicId = :publicId")
   int updatePassword(
     @Param("publicId") UUID publicId,
     @Param("password") String password,
-    @Param("salt") String salt
+    @Param("salt") String salt,
+    @Param("reminder") String reminder
     );
 
   @Modifying

@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataJpaTest
 @Import(DataJpaTestConfiguration.class)
@@ -61,7 +62,8 @@ class AccountRepositoryIT {
     int updated = accountRepository.updatePassword(
       UUID.fromString("e455b70f-50c5-4a96-9386-58f6ab9ba24b"),
       "new password",
-      "new salt"
+      "new salt",
+      "new reminder"
       );
 
     assertEquals(1, updated);
@@ -73,7 +75,8 @@ class AccountRepositoryIT {
     int updated = accountRepository.updatePassword(
       UUID.randomUUID(),
       "new password",
-      "new salt"
+      "new salt",
+      "new reminder"
     );
 
     assertEquals(0, updated);
