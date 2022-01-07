@@ -26,6 +26,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -69,6 +70,8 @@ class AccountControllerBootTestIT {
 
   @Autowired
   MockMvc mvc;
+  @Autowired
+  EntityManager em;
   @Autowired
   ObjectMapper mapper;
   @Autowired
@@ -1172,127 +1175,14 @@ class AccountControllerBootTestIT {
       });
   }
 
-  /*
   @Test
-  @DisplayName("should return NotFound if one of the data could not be updated")
-  void shouldReturnNotFoundIfOneOfTheDataCouldNotBeUpdated() throws Exception {
+  @DisplayName("should update password with reminder")
+  void shouldUpdatePassworWithReminder() throws Exception {
     String data = """
       {
         "password": "6fc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f56",
         "salt": "2ccf26f9ce73bacf6b8bec8c51e93457",
-        "data": [
-          {
-            "publicId": "84ab5b68-2fa4-44eb-bd49-c5ab44eac6cd",
-            "entry": "2849eca061b3b17b3ad0b095.09462cb2d42e13694fa5a3179f0a5c8e74dffaa4f3f7ffd7782643fcbe1d9f3056530da982b412aea37f94f34d71e3fdadc1a735b3b0adb906105e0f84ef73339c6bc829748474d41f491ebc7967f768cb65bc6f5b8a9cc92f43c3689d59f55afbe9a67c302f442454c4f694b36b8135cd4573f56996765ae1577fe02a8a14eb7f93eaf2b1d26efbde59a55cbdd78022566a2d44fd8d29c46dc023baa999087d1c995ddc4a1b156b74349f88b26101119f51df67da71ed6f55c37b129da046ff925aaa7df9f9bd712e62fad469e1f00aa37825395640eb6565bca85f11d2ad66b6fef5b4536acb4339005d53256060f31e627c544913b2b72e686777eea0e29863a9848df078b69fb23d8759bbed3bb8295ee03bd96c958e9cad8d1ea02614e3a625d1e83f78f453c06fdddb3c95a8225dcdcfab0934500f5a4dccd350870dfa41f8",
-            "type": "ADDRESS",
-            "createdAt": "04/01/2022T16:00:36.405Z",
-            "updatedAt": "04/01/2022T16:00:36.405Z"
-          },
-          {
-            "publicId": "ec28a035-a31b-461d-9fcd-70c9982c1a22",
-            "entry": "de1720d2b2fe4b8fb912a88f.3271c37c4b02ba21ee3325f3c037d745100aa1239543d4e11d83353adc9e7dc6953abc9fb66dbb9671132a41a5ccc402635ea7512abafa8a749be1d8fb49d685b10191c43cd60cccdd307f231267ba8766abe283e7826d347358667db6e6bb8ed7964fe9138411fcb32268b62797fbdccff7e4c695ff1e2ae65b6abde41800828c1d8eabbaa4493acf45b3cf1419af917c9029a29e8e740eb2136b32b635079e33e63934cac5de0eada757295e55e7da707ab8bde10f436e589f1be16ab4e4c84cc05fe93e21c180335f20ef4c9b83009dfd4770ab9e90e175145b8c90adbaf87d7ac1ccee5165daa5a52eef511182070fc04b6e0ad6e98a58b12e5d7964dda6253941a265d0a1442c",
-            "type": "ADDRESS",
-            "createdAt": "12/12/2021T13:48:22.345Z",
-            "updatedAt": "12/12/2021T13:48:22.345Z"
-          },
-          {
-            "publicId": "9f569e10-64e1-4493-99e0-6a988a232e6b",
-            "entry": "fa08fb639096dbe4c7ee66f9.0ea202ed3ed7ba34a8f33b0609d15e1c32fd561761b8edb19d4f72410f180fb4cbc1d5988bf6a8a3a50195e4e95aeffb0665009b4cdce68479674447cb0aac18ecf1f31f9234b7fc713f22f9aa530c536150c9f97188f55a69b45c5fad1de39d0ed6bede501b3a8e9a496238a4380cd4ecf89eb0add513bac6f067a49b1919973d8fbc12a3c3e7200840d53a86428bbe68ec7af43933fdbb921613bb71a01f",
-            "type": "PASSWORD",
-            "createdAt": "01/10/2021T15:28:56.444Z",
-            "updatedAt": "01/10/2021T15:28:56.444Z"
-          },
-          {
-            "publicId": "05618eec-dc25-4c24-b908-4fce6cb04ad4",
-            "entry": "185d054504ae6f3c9d5673e7.fedd5f2e980f2cf60ccdaf137d7f6908665d73edee3fd0c56c13bfd9df4da35850f2a329304d6ce4bdc8c4fd43609cc04313816fb1c0a79345b6f1ad9ea6f1fd41c3b3dd45631d",
-            "type": "SITE",
-            "createdAt": "12/12/2021T13:48:22.345Z",
-            "updatedAt": "12/12/2021T13:48:22.345Z"
-          },
-          {
-            "publicId": "67f9c86f-36eb-4fab-94ac-f68d113ad9d7",
-            "entry": "247dc6ece51a1607bb861602.262468cfc68e373fa32a6a1a8684828f7642118baac452f5ab3efc1081523adf1cd77b9008f7f23b0476e5a8801e468ba58fb516b027b293516ac11c38bab024d0cb666fa5b5e556e60f05744513ae",
-            "type": "NOTE",
-            "createdAt": "04/01/2022T16:00:36.405Z",
-            "updatedAt": "04/01/2022T16:00:36.405Z"
-          },
-          {
-            "publicId": "f39d088c-bc70-4a48-b489-61d2a13c9868",
-            "entry": "185d054504ae6f3c9d5673e7.fedd5f2e980f2cf60ccdaf137d7f6908665d73edee3fd0c56c13bfd9df4da35850f2a329304d6ce4bdc8c4fd43609cc04313816fb1c0a79345b6f1ad9ea6f1fd41c3b3dd45631d",
-            "type": "SITE",
-            "createdAt": "04/01/2022T16:00:36.405Z",
-            "updatedAt": "04/01/2022T16:00:36.405Z"
-          }
-        ]
-      }
-      """;
-
-    mvc
-      .perform(
-        put(ACCOUNT_URL)
-          .header(AUTH_HEADER, "Bearer " + accessToken)
-          .content(data)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isNotFound())
-      .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.getReasonPhrase()))
-      .andExpect(jsonPath("$.timestamp", matchesPattern(TIMESTAMP_PATTERN)))
-      .andExpect(jsonPath("$.message").value("Data with given id does not exist"));
-  }
-
-  @Test
-  @DisplayName("should return UnprocessableEntity if password is 63 characters long")
-  void shouldReturnUnprocessableEntityIfPasswordIs63CharactersLong() throws Exception {
-    String data = """
-      {
-        "password": "6fc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f5",
-        "salt": "2ccf26f9ce73bacf6b8bec8c51e93457",
-        "data": []
-      }
-      """;
-
-    List<String> messages = new LinkedList<>(
-      List.of(
-        props.getProperty("password.length.message").replace("{max}", "64"),
-        props.getProperty("password.hex.message")
-      )
-    );
-
-    mvc
-      .perform(
-        put(ACCOUNT_URL)
-          .header(AUTH_HEADER, "Bearer " + accessToken)
-          .content(data)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isUnprocessableEntity())
-      .andDo(res -> {
-        String body = res.getResponse().getContentAsString();
-        ReadContext ctx = JsonPath.parse(body);
-        String errors = getSubErrorsString(body);
-
-        Map<String, TestValidationError> map = convertErrorListToMap(
-          mapper.readValue(errors, new TypeReference<List<TestValidationError>>(){})
-        );
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-        assertEquals("Validation Error", ctx.read("$.message"));
-        assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-        assertEquals("password", map.get("password").getField());
-        assertEquals("6fc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f5", map.get("password").getRejectedValue());
-        assertTrue(map.get("password").getValidationMessages().containsAll(messages));
-      });
-  }
-
-  @Test
-  @DisplayName("should return UnprocessableEntity if password has invalid format")
-  void shouldReturnUnprocessableEntityIfPasswordHasInvalidFormat() throws Exception {
-    String data = """
-      {
-        "password": "26gc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f5",
-        "salt": "2ccf26f9ce73bacf6b8bec8c51e93457",
+        "reminder": "new message for testing purposes",
         "data": []
       }
       """;
@@ -1305,85 +1195,24 @@ class AccountControllerBootTestIT {
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
       )
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isNoContent())
       .andDo(res -> {
-        String body = res.getResponse().getContentAsString();
-        ReadContext ctx = JsonPath.parse(body);
-        String errors = getSubErrorsString(body);
-
-        Map<String, TestValidationError> map = convertErrorListToMap(
-          mapper.readValue(errors, new TypeReference<List<TestValidationError>>(){})
-        );
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-        assertEquals("Validation Error", ctx.read("$.message"));
-        assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-        assertEquals("password", map.get("password").getField());
-        assertEquals("26gc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f5", map.get("password").getRejectedValue());
-        assertTrue(map.get("password").getValidationMessages().contains(props.getProperty("password.hex.message")));
+        em.clear();
+        var account = accountService.findByEmail("dominik.krenski@gmail.com");
+        assertEquals("new message for testing purposes", account.getReminder());
       });
   }
 
   @Test
-  @DisplayName("should return UnprocessableEntity if password is not present")
-  void shouldReturnUnprocessableEntityIfPasswordIsNotPresent() throws Exception {
-    String data = """
-      {
-        "salt": "2ccf26f9ce73bacf6b8bec8c51e93457",
-        "data": []
-      }
-      """;
-
-    mvc
-      .perform(
-        put(ACCOUNT_URL)
-          .header(AUTH_HEADER, "Bearer " + accessToken)
-          .content(data)
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(status().isUnprocessableEntity())
-      .andDo(res -> {
-        String body = res.getResponse().getContentAsString();
-        ReadContext ctx = JsonPath.parse(body);
-        String errors = getSubErrorsString(body);
-
-        Map<String, TestValidationError> map = convertErrorListToMap(
-          mapper.readValue(errors, new TypeReference<List<TestValidationError>>(){})
-        );
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-        assertEquals("Validation Error", ctx.read("$.message"));
-        assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-        assertEquals("password", map.get("password").getField());
-        assertNull(map.get("password").getRejectedValue());
-        assertTrue(map.get("password").getValidationMessages().containsAll(
-          List.of(
-            props.getProperty("password.blank.message"),
-            props.getProperty("password.hex.message")
-          )
-        ));
-      });
-  }
-
-  @Test
-  @DisplayName("should return UnprocessableEntity if salt is 31 characters long")
-  void shouldReturnUnprocessableEntityIfSaltIs30CharactersLong() throws Exception {
+  @DisplayName("should update password without reminder")
+  void shouldUpdatePasswordWithoutReminder() throws Exception {
     String data = """
       {
         "password": "6fc2628963977933f9e42914c88c79c136a9a6fb7e896d9131b5f88c3dfe1f56",
-        "salt": "cdf26f9ce73bacf6b8bec8c51e93457",
+        "salt": "2ccf26f9ce73bacf6b8bec8c51e93457",
         "data": []
       }
       """;
-
-    List<String> messages = new LinkedList<>(
-      List.of(
-        props.getProperty("salt.length.message").replace("{max}", "32"),
-        props.getProperty("salt.hex.message")
-      )
-    );
-
     mvc
       .perform(
         put(ACCOUNT_URL)
@@ -1392,23 +1221,11 @@ class AccountControllerBootTestIT {
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
       )
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isNoContent())
       .andDo(res -> {
-        String body = res.getResponse().getContentAsString();
-        ReadContext ctx = JsonPath.parse(body);
-        String errors = getSubErrorsString(body);
-
-        Map<String, TestValidationError> map = convertErrorListToMap(
-          mapper.readValue(errors, new TypeReference<List<TestValidationError>>(){})
-        );
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), ctx.read("$.status"));
-        assertEquals("Validation Error", ctx.read("$.message"));
-        assertTrue(Pattern.matches(TIMESTAMP_PATTERN, ctx.read("$.timestamp")));
-        assertEquals("salt", map.get("salt").getField());
-        assertEquals("cdf26f9ce73bacf6b8bec8c51e93457", map.get("salt").getRejectedValue());
-        assertTrue(map.get("salt").getValidationMessages().containsAll(messages));
+        em.clear();
+        var account = accountService.findByEmail("dominik.krenski@gmail.com");
+        assertNull(account.getReminder());
       });
-  }*/
-
+  }
 }
