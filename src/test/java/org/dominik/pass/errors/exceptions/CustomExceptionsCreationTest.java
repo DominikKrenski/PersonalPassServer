@@ -1,5 +1,6 @@
 package org.dominik.pass.errors.exceptions;
 
+import org.dominik.pass.db.entities.Data;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,18 @@ class CustomExceptionsCreationTest {
     } catch (InternalException ex) {
       assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatus());
       assertEquals("Internal error", ex.getMessage());
+      assertNotNull(ex.getTimestamp());
+    }
+  }
+
+  @Test
+  @DisplayName("should create DataNumberException successfuly")
+  void shouldCreateDataNumberExceptionSuccessfuly() {
+    try {
+      throw new DataNumberException("Data number is invalid");
+    } catch (DataNumberException ex) {
+      assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
+      assertEquals("Data number is invalid", ex.getMessage());
       assertNotNull(ex.getTimestamp());
     }
   }
