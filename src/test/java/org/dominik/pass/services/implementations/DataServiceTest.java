@@ -6,6 +6,7 @@ import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.Data;
 import org.dominik.pass.db.repositories.DataRepository;
+import org.dominik.pass.errors.exceptions.DataNumberException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.junit.jupiter.api.AfterEach;
@@ -438,28 +439,46 @@ class DataServiceTest {
     updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
 
     doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(3L);
     when(dataRepository.updateData(anyString(), any(UUID.class))).thenReturn(1);
 
     dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO);
   }
 
   @Test
+  @DisplayName("should return 7 rows")
+  void shouldDisplay7Rows() {
+    when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(7L);
+    long result = dataService.countAllDataBelongingToUser(UUID.randomUUID());
+
+    assertEquals(7, result);
+  }
+
+  @Test
+  @DisplayName("should return 0 rows")
+  void shouldReturn0Rows() {
+    when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(0L);
+    long result = dataService.countAllDataBelongingToUser(UUID.randomUUID());
+
+    assertEquals(0, result);
+  }
+
+  @Test
   @DisplayName("should throw NotFoundException if account could not be updated")
   void shouldThrowNotFoundExceptionIfAccountCouldNotBeUpdated() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     var updatePasswordDTO = createUpdatePasswordDtoInstance(
-      "new password",
+      "new_password",
       "new salt"
     );
 
-    doThrow(new NotFoundException("Account does not exist")).when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
-
+    doThrow(new NotFoundException("msg")).when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
     assertThrows(NotFoundException.class, () -> dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO));
     verify(dataRepository, never()).updateData(anyString(), any(UUID.class));
   }
 
   @Test
-  @DisplayName("should throw NotFoundException if some data could not be updated")
-  void shouldThrowNotFoundExceptionIfSomeDataCouldNotBeUpdated() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+  @DisplayName("should throw DataNumberException if number of data is invalid")
+  void shouldThrowDataNumberExceptionIfNumberOfDataIsInvalid() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     var data1 = createUpdateDataDtoInstance(
       UUID.fromString("9a998cd6-71b1-442b-b663-16aad7b499f3"),
       "2849eca061b3b17b3ad0b095.09462cb2d42e13694fa5a3179f0a5c8e74dffaa4f3f7ffd7782643fcbe1d9f3056530da982b412aea37f94f34d71e3fdadc1a735b3b0adb906105e0f84ef73339c6bc829748474d41f491ebc7967f768cb65bc6f5b8a9cc92f43c3689d59f55afbe9a67c302f442454c4f694b36b8135cd4573f56996765ae1577fe02a8a14eb7f93eaf2b1d26efbde59a55cbdd78022566a2d44fd8d29c46dc023baa999087d1c995ddc4a1b156b74349f88b26101119f51df67da71ed6f55c37b129da046ff925aaa7df9f9bd712e62fad469e1f00aa37825395640eb6565bca85f11d2ad66b6fef5b4536acb4339005d53256060f31e627c544913b2b72e686777eea0e29863a9848df078b69fb23d8759bbed3bb8295ee03bd96c958e9cad8d1ea02614e3a625d1e83f78f453c06fdddb3c95a8225dcdcfab0934500f5a4dccd350870dfa41f8",
@@ -492,6 +511,47 @@ class DataServiceTest {
     updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
 
     doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(4L);
+
+    assertThrows(DataNumberException.class, () -> dataService.updateAllData(UUID.randomUUID(), updatePasswordDTO));
+  }
+
+  @Test
+  @DisplayName("should throw NotFoundException if some data could not be updated")
+  void shouldThrowNotFoundExceptionIfSomeDataCouldNotBeDeleted() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    var data1 = createUpdateDataDtoInstance(
+      UUID.fromString("9a998cd6-71b1-442b-b663-16aad7b499f3"),
+      "2849eca061b3b17b3ad0b095.09462cb2d42e13694fa5a3179f0a5c8e74dffaa4f3f7ffd7782643fcbe1d9f3056530da982b412aea37f94f34d71e3fdadc1a735b3b0adb906105e0f84ef73339c6bc829748474d41f491ebc7967f768cb65bc6f5b8a9cc92f43c3689d59f55afbe9a67c302f442454c4f694b36b8135cd4573f56996765ae1577fe02a8a14eb7f93eaf2b1d26efbde59a55cbdd78022566a2d44fd8d29c46dc023baa999087d1c995ddc4a1b156b74349f88b26101119f51df67da71ed6f55c37b129da046ff925aaa7df9f9bd712e62fad469e1f00aa37825395640eb6565bca85f11d2ad66b6fef5b4536acb4339005d53256060f31e627c544913b2b72e686777eea0e29863a9848df078b69fb23d8759bbed3bb8295ee03bd96c958e9cad8d1ea02614e3a625d1e83f78f453c06fdddb3c95a8225dcdcfab0934500f5a4dccd350870dfa41f8",
+      DataType.ADDRESS,
+      convertStringToInstant("04/01/2022T16:00:36.405Z"),
+      convertStringToInstant("04/01/2022T16:00:36.405Z")
+    );
+
+    var data2 = createUpdateDataDtoInstance(
+      UUID.fromString("1274bba6-cba9-4ce2-9461-e1b3b7e00cef"),
+      "185d054504ae6f3c9d5673e7.fedd5f2e980f2cf60ccdaf137d7f6908665d73edee3fd0c56c13bfd9df4da35850f2a329304d6ce4bdc8c4fd43609cc04313816fb1c0a79345b6f1ad9ea6f1fd41c3b3dd45631d",
+      DataType.SITE,
+      convertStringToInstant("03/12/2021T10:45:23.123Z"),
+      convertStringToInstant("05/12/2021T15:50:49.745Z")
+    );
+
+    var data3 = createUpdateDataDtoInstance(
+      UUID.fromString("d0471244-2795-4e74-8ab8-8850f38e0935"),
+      "fa08fb639096dbe4c7ee66f9.0ea202ed3ed7ba34a8f33b0609d15e1c32fd561761b8edb19d4f72410f180fb4cbc1d5988bf6a8a3a50195e4e95aeffb0665009b4cdce68479674447cb0aac18ecf1f31f9234b7fc713f22f9aa530c536150c9f97188f55a69b45c5fad1de39d0ed6bede501b3a8e9a496238a4380cd4ecf89eb0add513bac6f067a49b1919973d8fbc12a3c3e7200840d53a86428bbe68ec7af43933fdbb921613bb71a01f",
+      DataType.PASSWORD,
+      convertStringToInstant("01/01/2022T08:13:23.999Z"),
+      convertStringToInstant("01/01/2022T08:13:23.999Z")
+    );
+
+    var updatePasswordDTO = createUpdatePasswordDtoInstance(
+      "new password",
+      "new salt"
+    );
+
+    updatePasswordDTO.getData().addAll(List.of(data1, data2, data3));
+
+    doNothing().when(accountService).updatePassword(any(UUID.class), anyString(), anyString());
+    when(dataRepository.countByAccountPublicId(any(UUID.class))).thenReturn(3L);
     when(dataRepository.updateData(anyString(), any(UUID.class)))
       .thenReturn(1)
       .thenReturn(1)

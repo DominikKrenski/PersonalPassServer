@@ -16,4 +16,5 @@ public interface DataService {
   void deleteData(UUID publicId);
   void updateData(String entry, UUID publicId);
   void updateAllData(UUID accountPublicId, UpdatePasswordDTO passwordDTO);
+  long countAllDataBelongingToUser(UUID accountPublicId);
 }

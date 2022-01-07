@@ -9,6 +9,7 @@ import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.Data;
 import org.dominik.pass.db.repositories.DataRepository;
+import org.dominik.pass.errors.exceptions.DataNumberException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.DataService;
@@ -98,6 +99,11 @@ public class DataServiceImpl implements DataService {
   }
 
   @Override
+  public long countAllDataBelongingToUser(UUID accountPublicId) {
+    return dataRepository.countByAccountPublicId(accountPublicId);
+  }
+
+  @Override
   @Transactional
   public void updateAllData(@NonNull UUID accountPublicId, @NonNull UpdatePasswordDTO passwordDTO) {
     accountService.updatePassword(accountPublicId, passwordDTO.getPassword(), passwordDTO.getSalt());
@@ -106,6 +112,11 @@ public class DataServiceImpl implements DataService {
 
     if (data == null)
       return;
+
+    long dataCount = countAllDataBelongingToUser(accountPublicId);
+
+    if (dataCount != passwordDTO.getData().size())
+      throw new DataNumberException("Invalid data number");
 
     data.forEach(item -> updateData(item.getEntry(), item.getPublicId()));
   }
