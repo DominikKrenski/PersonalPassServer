@@ -24,4 +24,6 @@ public interface DataRepository extends JpaRepository<Data, Long> {
   @Modifying
   @Query("DELETE FROM Data d WHERE d.publicId = :publicId")
   int deleteData(@Param("publicId") UUID publicId);
+
+  long countByAccountPublicId(UUID publicId);
 }

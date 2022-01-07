@@ -254,4 +254,28 @@ class DataRepositoryIT {
 
     assertEquals(8, data.size());
   }
+
+  @Test
+  @DisplayName("should count all data belonging to dominik.krenski@gmail.com")
+  void shouldCountAllDataBelongingToDominikKrenski() {
+    long result = dataRepository.countByAccountPublicId(UUID.fromString("cee0fa30-d170-4d9c-af8a-93ab159e9532"));
+
+    assertEquals(8, result);
+  }
+
+  @Test
+  @DisplayName("should count all data belonging to dorciad")
+  void shouldCountAllDataBelongingToDorciad() {
+    long result = dataRepository.countByAccountPublicId(UUID.fromString("e455b70f-50c5-4a96-9386-58f6ab9ba24b"));
+
+    assertEquals(7, result);
+  }
+
+  @Test
+  @DisplayName("shoulr count all data belonging to dominik")
+  void shouldCountAllDataBelongingToDominik() {
+    long result = dataRepository.countByAccountPublicId(UUID.fromString("f01048b2-622a-49b6-963e-5e8edeec8026"));
+
+    assertEquals(0, result);
+  }
 }
