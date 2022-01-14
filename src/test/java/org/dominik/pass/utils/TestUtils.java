@@ -21,6 +21,7 @@ import org.dominik.pass.data.enums.DataType;
 import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.Data;
+import org.dominik.pass.db.entities.Key;
 import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.utils.serializers.ApiInstantSerializer;
 
@@ -89,7 +90,7 @@ public final class TestUtils {
       String fieldname = field.getName();
 
       try {
-        switch(fieldname) {
+        switch (fieldname) {
           case "password" -> field.set(dto, password);
           case "salt" -> field.set(dto, salt);
           case "data" -> field.set(dto, new ArrayList<>());
@@ -103,20 +104,20 @@ public final class TestUtils {
   }
 
   public static Account createAccountInstance(
-      Long id,
-      UUID publicId,
-      String email,
-      String password,
-      String salt,
-      String reminder,
-      Role role,
-      boolean accountNonExpired,
-      boolean accountNonLocked,
-      boolean credentialsNonExpired,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt,
-      short version) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Long id,
+    UUID publicId,
+    String email,
+    String password,
+    String salt,
+    String reminder,
+    Role role,
+    boolean accountNonExpired,
+    boolean accountNonLocked,
+    boolean credentialsNonExpired,
+    boolean enabled,
+    Instant createdAt,
+    Instant updatedAt,
+    short version) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
     Class<?> clazz = Account.class;
     Class<?> superClazz = clazz.getSuperclass();
 
@@ -182,15 +183,68 @@ public final class TestUtils {
     return account;
   }
 
+  public static Key createKeyInstance(
+    Long id,
+    String key,
+    Account account,
+    Instant createdAt,
+    Instant updatedAt,
+    short version
+  ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Class<?> clazz = Key.class;
+    Class<?> superClazz = clazz.getSuperclass();
+
+    Constructor<?> constructor = clazz.getDeclaredConstructor();
+    constructor.setAccessible(true);
+
+    Key instance = (Key) constructor.newInstance();
+
+    List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+    List<Field> superFields = Arrays.asList(superClazz.getDeclaredFields());
+
+    fields.forEach(field -> field.setAccessible(true));
+    superFields.forEach(field -> field.setAccessible(true));
+
+    superFields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "createdAt" -> field.set(instance, createdAt);
+          case "updatedAt" -> field.set(instance, updatedAt);
+          case "version" -> field.set(instance, version);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    fields.forEach(field -> {
+      String fieldname = field.getName();
+
+      try {
+        switch (fieldname) {
+          case "id" -> field.set(instance, id);
+          case "key" -> field.set(instance, key);
+          case "account" -> field.set(instance, account);
+        }
+      } catch (IllegalAccessException ex) {
+        ex.printStackTrace();
+      }
+    });
+
+    return instance;
+  }
+
   public static Data createDataInstance(
-      Long id,
-      UUID publicId,
-      String entry,
-      DataType type,
-      Account account,
-      Instant createdAt,
-      Instant updatedAt,
-      short version
+    Long id,
+    UUID publicId,
+    String entry,
+    DataType type,
+    Account account,
+    Instant createdAt,
+    Instant updatedAt,
+    short version
   ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
     Class<?> clazz = Data.class;
     Class<?> superClazz = clazz.getSuperclass();
@@ -240,13 +294,13 @@ public final class TestUtils {
   }
 
   public static RefreshToken createRefreshTokenInstance(
-      Long id,
-      String token,
-      boolean used,
-      Account account,
-      Instant createdAt,
-      Instant updatedAt,
-      short version
+    Long id,
+    String token,
+    boolean used,
+    Account account,
+    Instant createdAt,
+    Instant updatedAt,
+    short version
   ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
     Class<?> clazz = RefreshToken.class;
     Class<?> superClazz = clazz.getSuperclass();
@@ -357,7 +411,7 @@ public final class TestUtils {
     return props;
   }
 
-  public static <T>Map<String, List<String>> convertConstraintViolationsIntoMap(Set<ConstraintViolation<T>> violations) {
+  public static <T> Map<String, List<String>> convertConstraintViolationsIntoMap(Set<ConstraintViolation<T>> violations) {
     Map<String, List<String>> map = new HashMap<>();
 
     for (ConstraintViolation<T> violation : violations) {
@@ -509,9 +563,9 @@ public final class TestUtils {
 
   public static String convertInstantIntoString(Instant date) {
     DateTimeFormatter dtf =
-        DateTimeFormatter
-            .ofPattern("dd/MM/yyyy'T'HH:mm:ss.SSS'Z'")
-            .withZone(ZoneId.of("UTC"));
+      DateTimeFormatter
+        .ofPattern("dd/MM/yyyy'T'HH:mm:ss.SSS'Z'")
+        .withZone(ZoneId.of("UTC"));
 
     return dtf.format(date);
   }
@@ -525,60 +579,60 @@ public final class TestUtils {
   public static List<Account> prepareAccountList() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     List<Account> accounts = new LinkedList<>();
     accounts.add(
-        createAccountInstance(
-            1L,
-            UUID.fromString("cee0fa30-d170-4d9c-af8a-93ab159e9532"),
-            "dominik.krenski@gmail.com",
-            "$2a$12$1rCLWvFfj1lcHm2lP1MJ/OyTNFseGh.mVdAGinD1gaOjjftBToa22",
-            "711882a4dc3dcb437eb6151c09025594",
-            "taka sobie prosta wiadomość",
-            Role.ROLE_USER,
-            true,
-            true,
-            true,
-            true,
-            Instant.now().minusSeconds(4000),
-            Instant.now().minusSeconds(3000),
-            (short) 0
-        )
+      createAccountInstance(
+        1L,
+        UUID.fromString("cee0fa30-d170-4d9c-af8a-93ab159e9532"),
+        "dominik.krenski@gmail.com",
+        "$2a$12$1rCLWvFfj1lcHm2lP1MJ/OyTNFseGh.mVdAGinD1gaOjjftBToa22",
+        "711882a4dc3dcb437eb6151c09025594",
+        "taka sobie prosta wiadomość",
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        Instant.now().minusSeconds(4000),
+        Instant.now().minusSeconds(3000),
+        (short) 0
+      )
     );
 
     accounts.add(
-        createAccountInstance(
-            2L,
-            UUID.fromString("e455b70f-50c5-4a96-9386-58f6ab9ba24b"),
-            "dorciad@interia.pl",
-            "$2a$12$1rCLWvFfj1lcHm2lP1MJ/OyTNFseGh.mVdAGinD1gaOzzftBToa22",
-            "711882a4dc3dcb437eb6151c01225594",
-            null,
-            Role.ROLE_USER,
-            true,
-            true,
-            true,
-            true,
-            Instant.now().minusSeconds(1500),
-            Instant.now().minusSeconds(1500),
-            (short) 0
-        )
+      createAccountInstance(
+        2L,
+        UUID.fromString("e455b70f-50c5-4a96-9386-58f6ab9ba24b"),
+        "dorciad@interia.pl",
+        "$2a$12$1rCLWvFfj1lcHm2lP1MJ/OyTNFseGh.mVdAGinD1gaOzzftBToa22",
+        "711882a4dc3dcb437eb6151c01225594",
+        null,
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        Instant.now().minusSeconds(1500),
+        Instant.now().minusSeconds(1500),
+        (short) 0
+      )
     );
 
     accounts.add(
-        createAccountInstance(
-            3L,
-            UUID.fromString("f01048b2-622a-49b6-963e-5e8edeec8026"),
-            "dominik@yahoo.com",
-            "$2a$12$1rCLEvFfj1lcHm2lP1NJ/OyTNFseFh.mVdAGinD1gaOzzftBToa38",
-            "745882a4dc3dcd437ebef51c11225594",
-            "przykładowa przypominajka",
-            Role.ROLE_USER,
-            true,
-            true,
-            true,
-            true,
-            Instant.now().minusSeconds(5000),
-            Instant.now().minusSeconds(4000),
-            (short) 0
-        )
+      createAccountInstance(
+        3L,
+        UUID.fromString("f01048b2-622a-49b6-963e-5e8edeec8026"),
+        "dominik@yahoo.com",
+        "$2a$12$1rCLEvFfj1lcHm2lP1NJ/OyTNFseFh.mVdAGinD1gaOzzftBToa38",
+        "745882a4dc3dcd437ebef51c11225594",
+        "przykładowa przypominajka",
+        Role.ROLE_USER,
+        true,
+        true,
+        true,
+        true,
+        Instant.now().minusSeconds(5000),
+        Instant.now().minusSeconds(4000),
+        (short) 0
+      )
     );
 
     return accounts;
@@ -588,198 +642,198 @@ public final class TestUtils {
     List<Data> data = new LinkedList<>();
 
     data.add(
-        createDataInstance(
-            1L,
-            UUID.fromString("84ab5b68-2fa4-44eb-bd49-c5ab44eac6cd"),
-            "entry_1",
-            DataType.ADDRESS,
-            accounts.get(0),
-            Instant.now().minusSeconds(1000),
-            Instant.now().minusSeconds(1000),
-            (short) 0
-        )
+      createDataInstance(
+        1L,
+        UUID.fromString("84ab5b68-2fa4-44eb-bd49-c5ab44eac6cd"),
+        "entry_1",
+        DataType.ADDRESS,
+        accounts.get(0),
+        Instant.now().minusSeconds(1000),
+        Instant.now().minusSeconds(1000),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            2L,
-            UUID.fromString("ec28a035-a31b-461d-9fcd-70c9982c1a22"),
-            "entry_2",
-            DataType.ADDRESS,
-            accounts.get(0),
-            Instant.now().minusSeconds(5000),
-            Instant.now().minusSeconds(2000),
-            (short) 0
-        )
+      createDataInstance(
+        2L,
+        UUID.fromString("ec28a035-a31b-461d-9fcd-70c9982c1a22"),
+        "entry_2",
+        DataType.ADDRESS,
+        accounts.get(0),
+        Instant.now().minusSeconds(5000),
+        Instant.now().minusSeconds(2000),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            3L,
-            UUID.fromString("9f569e10-64e1-4493-99e0-6a988a232e6b"),
-            "entry_3",
-            DataType.PASSWORD,
-            accounts.get(0),
-            Instant.now().minusSeconds(3000),
-            Instant.now().minusSeconds(1200),
-            (short) 0
-        )
+      createDataInstance(
+        3L,
+        UUID.fromString("9f569e10-64e1-4493-99e0-6a988a232e6b"),
+        "entry_3",
+        DataType.PASSWORD,
+        accounts.get(0),
+        Instant.now().minusSeconds(3000),
+        Instant.now().minusSeconds(1200),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            4L,
-            UUID.fromString("9bfc99d8-8bf3-45e4-b8ee-4c286408ac29"),
-            "entry_4",
-            DataType.PASSWORD,
-            accounts.get(0),
-            Instant.now().minusSeconds(3400),
-            Instant.now().minusSeconds(400),
-            (short) 0
-        )
+      createDataInstance(
+        4L,
+        UUID.fromString("9bfc99d8-8bf3-45e4-b8ee-4c286408ac29"),
+        "entry_4",
+        DataType.PASSWORD,
+        accounts.get(0),
+        Instant.now().minusSeconds(3400),
+        Instant.now().minusSeconds(400),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            5L,
-            UUID.fromString("05618eec-dc25-4c24-b908-4fce6cb04ad4"),
-            "entry_5",
-            DataType.SITE,
-            accounts.get(0),
-            Instant.now().minusSeconds(2000),
-            Instant.now().minusSeconds(1200),
-            (short) 0
-        )
+      createDataInstance(
+        5L,
+        UUID.fromString("05618eec-dc25-4c24-b908-4fce6cb04ad4"),
+        "entry_5",
+        DataType.SITE,
+        accounts.get(0),
+        Instant.now().minusSeconds(2000),
+        Instant.now().minusSeconds(1200),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            6L,
-            UUID.fromString("3299f2fe-f930-44b6-8b10-c23c2efe5d1f"),
-            "entry_6",
-            DataType.SITE,
-            accounts.get(0),
-            Instant.now().minusSeconds(300),
-            Instant.now().minusSeconds(300),
-            (short) 0
-        )
+      createDataInstance(
+        6L,
+        UUID.fromString("3299f2fe-f930-44b6-8b10-c23c2efe5d1f"),
+        "entry_6",
+        DataType.SITE,
+        accounts.get(0),
+        Instant.now().minusSeconds(300),
+        Instant.now().minusSeconds(300),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            7L,
-            UUID.fromString("67f9c86f-36eb-4fab-94ac-f68d113ad9d7"),
-            "entry_7",
-            DataType.NOTE,
-            accounts.get(0),
-            Instant.now().minusSeconds(3000),
-            Instant.now().minusSeconds(1290),
-            (short) 0
-        )
+      createDataInstance(
+        7L,
+        UUID.fromString("67f9c86f-36eb-4fab-94ac-f68d113ad9d7"),
+        "entry_7",
+        DataType.NOTE,
+        accounts.get(0),
+        Instant.now().minusSeconds(3000),
+        Instant.now().minusSeconds(1290),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            8L,
-            UUID.fromString("67a09bd7-5d26-4532-9758-9be4fa5a58c6"),
-            "entry_8",
-            DataType.NOTE,
-            accounts.get(0),
-            Instant.now().minusSeconds(2300),
-            Instant.now().minusSeconds(1234),
-            (short) 0
-        )
+      createDataInstance(
+        8L,
+        UUID.fromString("67a09bd7-5d26-4532-9758-9be4fa5a58c6"),
+        "entry_8",
+        DataType.NOTE,
+        accounts.get(0),
+        Instant.now().minusSeconds(2300),
+        Instant.now().minusSeconds(1234),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            9L,
-            UUID.fromString("c4abe5cf-b30f-4a0e-8da1-6cdee6cad35a"),
-            "entry_9",
-            DataType.ADDRESS,
-            accounts.get(1),
-            Instant.now().minusSeconds(2100),
-            Instant.now().minusSeconds(1234),
-            (short) 0
-        )
+      createDataInstance(
+        9L,
+        UUID.fromString("c4abe5cf-b30f-4a0e-8da1-6cdee6cad35a"),
+        "entry_9",
+        DataType.ADDRESS,
+        accounts.get(1),
+        Instant.now().minusSeconds(2100),
+        Instant.now().minusSeconds(1234),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            10L,
-            UUID.fromString("13b2b31d-aa13-4cab-82dd-c979f6e8d1fe"),
-            "entry_10",
-            DataType.ADDRESS,
-            accounts.get(1),
-            Instant.now().minusSeconds(2300),
-            Instant.now().minusSeconds(1234),
-            (short) 0
-        )
+      createDataInstance(
+        10L,
+        UUID.fromString("13b2b31d-aa13-4cab-82dd-c979f6e8d1fe"),
+        "entry_10",
+        DataType.ADDRESS,
+        accounts.get(1),
+        Instant.now().minusSeconds(2300),
+        Instant.now().minusSeconds(1234),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            11L,
-            UUID.fromString("f469ec9c-5041-4a1f-b840-69f3ae66c1ac"),
-            "entry_11",
-            DataType.PASSWORD,
-            accounts.get(1),
-            Instant.now().minusSeconds(1234),
-            Instant.now().minusSeconds(1234),
-            (short) 0
-        )
+      createDataInstance(
+        11L,
+        UUID.fromString("f469ec9c-5041-4a1f-b840-69f3ae66c1ac"),
+        "entry_11",
+        DataType.PASSWORD,
+        accounts.get(1),
+        Instant.now().minusSeconds(1234),
+        Instant.now().minusSeconds(1234),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            12L,
-            UUID.fromString("c3a175d3-cb93-4418-a480-eaee21505a49"),
-            "entry_12",
-            DataType.SITE,
-            accounts.get(1),
-            Instant.now().minusSeconds(3000),
-            Instant.now().minusSeconds(2000),
-            (short) 0
-        )
+      createDataInstance(
+        12L,
+        UUID.fromString("c3a175d3-cb93-4418-a480-eaee21505a49"),
+        "entry_12",
+        DataType.SITE,
+        accounts.get(1),
+        Instant.now().minusSeconds(3000),
+        Instant.now().minusSeconds(2000),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            13L,
-            UUID.fromString("d088d359-c608-4d76-bf2d-60e0ec0f8fb7"),
-            "entry_13",
-            DataType.SITE,
-            accounts.get(1),
-            Instant.now().minusSeconds(5000),
-            Instant.now().minusSeconds(4300),
-            (short) 0
-        )
+      createDataInstance(
+        13L,
+        UUID.fromString("d088d359-c608-4d76-bf2d-60e0ec0f8fb7"),
+        "entry_13",
+        DataType.SITE,
+        accounts.get(1),
+        Instant.now().minusSeconds(5000),
+        Instant.now().minusSeconds(4300),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            14L,
-            UUID.fromString("c87b861c-eff2-4d59-aa0c-232c5d7ee181"),
-            "entry_14",
-            DataType.NOTE,
-            accounts.get(1),
-            Instant.now().minusSeconds(2345),
-            Instant.now().minusSeconds(4567),
-            (short) 0
-        )
+      createDataInstance(
+        14L,
+        UUID.fromString("c87b861c-eff2-4d59-aa0c-232c5d7ee181"),
+        "entry_14",
+        DataType.NOTE,
+        accounts.get(1),
+        Instant.now().minusSeconds(2345),
+        Instant.now().minusSeconds(4567),
+        (short) 0
+      )
     );
 
     data.add(
-        createDataInstance(
-            15L,
-            UUID.fromString("f4ed5604-667e-4395-9461-59b9a356b431"),
-            "entry_15",
-            DataType.NOTE,
-            accounts.get(1),
-            Instant.now().minusSeconds(8000),
-            Instant.now().minusSeconds(6000),
-            (short) 0
-        )
+      createDataInstance(
+        15L,
+        UUID.fromString("f4ed5604-667e-4395-9461-59b9a356b431"),
+        "entry_15",
+        DataType.NOTE,
+        accounts.get(1),
+        Instant.now().minusSeconds(8000),
+        Instant.now().minusSeconds(6000),
+        (short) 0
+      )
     );
 
     return data;
@@ -789,7 +843,8 @@ public final class TestUtils {
   @ToString
   public static final class TestValidationError {
     private String field;
-    @JsonInclude private Object rejectedValue;
+    @JsonInclude
+    private Object rejectedValue;
     private List<String> validationMessages;
   }
 
