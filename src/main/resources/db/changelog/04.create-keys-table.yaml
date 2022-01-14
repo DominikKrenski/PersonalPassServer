@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-keys-table
+      author: Dominik Kreński
+      context: dev,integration
+      changes:
+        - createTable:
+            tableName: keys
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: keys_pk
+              - column:
+                  name: key
+                  type: CHAR(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: id
+            baseTableName: keys
+            constraintName: keys_accounts_fk
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: accounts
+            validate: true
