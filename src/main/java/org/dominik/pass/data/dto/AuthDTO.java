@@ -16,6 +16,7 @@ public final class AuthDTO implements Serializable {
   private String salt;
   private String accessToken;
   private String refreshToken;
+  private String key;
 
   public static AuthBuilder builder() {
     return new AuthBuilder();
@@ -24,6 +25,7 @@ public final class AuthDTO implements Serializable {
   public static final class AuthBuilder {
     private UUID publicId;
     private String salt;
+    private String key;
     private String accessToken;
     private String refreshToken;
 
@@ -47,8 +49,13 @@ public final class AuthDTO implements Serializable {
       return this;
     }
 
+    public AuthBuilder key(@NonNull String key) {
+      this.key = key;
+      return this;
+    }
+
     public AuthDTO build() {
-      return new AuthDTO(publicId, salt, accessToken, refreshToken);
+      return new AuthDTO(publicId, salt, accessToken, refreshToken, key);
     }
   }
 }
