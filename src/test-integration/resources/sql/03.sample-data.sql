@@ -114,4 +114,11 @@ VALUES
   'entry_15',
   'NOTE',
   (SELECT id FROM integration.accounts WHERE email = 'dorciad@interia.pl')
+);
+
+INSERT INTO integration.keys(id, key)
+VALUES
+(
+  (SELECT id from integration.accounts WHERE email = 'dominik.krenski@gmail.com'),
+  '7782FE5167E1008F726367335BC98224'
 )
