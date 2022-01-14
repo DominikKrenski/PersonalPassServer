@@ -26,7 +26,7 @@ public class KeyServiceImpl implements KeyService {
   public void deleteAccountKey(@NonNull UUID accountPublicId) {
     int deleted = keyRepository.deleteAccountKey(accountPublicId);
 
-    if (deleted != 1)
+    if (deleted != 0 && deleted != 1)
       throw new InternalException("Key could not be deleted");
   }
 

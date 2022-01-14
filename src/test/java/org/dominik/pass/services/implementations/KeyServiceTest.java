@@ -67,7 +67,7 @@ class KeyServiceTest {
   @Test
   @DisplayName("should throw exception if key does not exist")
   void shouldThrowExceptionIfKeyDoesNotExist() {
-    when(keyRepository.deleteAccountKey(any(UUID.class))).thenReturn(0);
+    when(keyRepository.deleteAccountKey(any(UUID.class))).thenReturn(2);
 
     assertThrows(InternalException.class, () -> keyService.deleteAccountKey(UUID.randomUUID()));
   }
