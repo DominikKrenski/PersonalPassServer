@@ -16,6 +16,7 @@ public class ApiControllerMvcTestConfig {
   @MockBean DataService dataService;
   @MockBean AccountService accountService;
   @MockBean RefreshTokenService tokenService;
+  @MockBean KeyService keyService;
   @MockBean JwtUtils jwtUtils;
   @MockBean SecurityUtils securityUtils;
   @MockBean EmailService emailService;
