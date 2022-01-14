@@ -6,8 +6,10 @@ import org.dominik.pass.data.enums.Role;
 import org.dominik.pass.db.entities.Account;
 import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
+import org.dominik.pass.errors.exceptions.InternalException;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.KeyService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,29 +46,35 @@ class RefreshTokenServiceTest {
 
   private static Account account;
 
-  @Mock private AccountService accountService;
-  @Mock private RefreshTokenRepository tokenRepository;
-  @Mock private EntityManager em;
+  @Mock
+  private AccountService accountService;
+  @Mock
+  private RefreshTokenRepository tokenRepository;
+  @Mock
+  private KeyService keyService;
+  @Mock
+  private EntityManager em;
 
-  @InjectMocks private RefreshTokenServiceImpl tokenService;
+  @InjectMocks
+  private RefreshTokenServiceImpl tokenService;
 
   @BeforeAll
   static void setUp() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     account = createAccountInstance(
-        ID,
-        PUBLIC_ID,
-        EMAIL,
-        PASSWORD,
-        SALT,
-        REMINDER,
-        ROLE,
-        true,
-        true,
-        true,
-        false,
-        CREATED_AT,
-        UPDATED_AT,
-        (short) 3
+      ID,
+      PUBLIC_ID,
+      EMAIL,
+      PASSWORD,
+      SALT,
+      REMINDER,
+      ROLE,
+      true,
+      true,
+      true,
+      false,
+      CREATED_AT,
+      UPDATED_AT,
+      (short) 3
     );
   }
 
@@ -81,7 +89,10 @@ class RefreshTokenServiceTest {
     when(em.merge(any(Account.class))).thenReturn(account);
     when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(2);
 
-    tokenService.login("refresh_token", "dominik.krenski@gmail.com");
+    doNothing().when(keyService).deleteAccountKey(any(UUID.class));
+    doNothing().when(keyService).save(anyString(), any(Account.class));
+
+    tokenService.login("refresh_token", "dominik.krenski@gmail.com", "master key");
 
     verify(accountService).findByEmail(EMAIL);
     verify(em).merge(isA(Account.class));
@@ -94,7 +105,7 @@ class RefreshTokenServiceTest {
   void shouldThrowNotFoundIfAccountWithEmailNotExists() {
     ReflectionTestUtils.setField(tokenService, "em", em);
     when(accountService.findByEmail(any(String.class))).thenThrow(new NotFoundException("Account does not exist"));
-    assertThrows(NotFoundException.class, () -> tokenService.login("refresh_token", EMAIL));
+    assertThrows(NotFoundException.class, () -> tokenService.login("refresh_token", EMAIL, "master key"));
   }
 
   @Test
@@ -168,5 +179,26 @@ class RefreshTokenServiceTest {
     verify(accountService).findByPublicId(any(UUID.class));
     verify(em, never()).merge(any(Account.class));
     verify(tokenRepository, never()).save(any(RefreshToken.class));
+  }
+
+  @Test
+  @DisplayName("should logout user")
+  void shouldLogout() {
+    when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(1);
+    doNothing().when(keyService).deleteAccountKey(any(UUID.class));
+
+    tokenService.logout(UUID.randomUUID().toString());
+
+    verify(tokenRepository).deleteAllAccountTokensByPublicId(any(UUID.class));
+    verify(keyService).deleteAccountKey(any(UUID.class));
+  }
+
+  @Test
+  @DisplayName("should throw InternalException if key could not be updated")
+  void shouldThrowInternalExceptionIfKeyCouldNotBeUpdated() {
+    when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(5);
+    doThrow(new InternalException("Could not delete")).when(keyService).deleteAccountKey(any(UUID.class));
+
+    assertThrows(InternalException.class, () -> tokenService.logout(UUID.randomUUID().toString()));
   }
 }

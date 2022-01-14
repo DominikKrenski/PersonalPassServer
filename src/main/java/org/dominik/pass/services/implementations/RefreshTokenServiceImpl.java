@@ -8,6 +8,7 @@ import org.dominik.pass.db.entities.RefreshToken;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
 import org.dominik.pass.errors.exceptions.NotFoundException;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.KeyService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
   private final AccountService accountService;
+  private final KeyService keyService;
   private final RefreshTokenRepository tokenRepository;
 
   @PersistenceContext private EntityManager em;
@@ -27,21 +29,29 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Autowired
   public RefreshTokenServiceImpl(
       AccountService accountService,
+      KeyService keyService,
       RefreshTokenRepository tokenRepository
   ) {
     this.accountService = accountService;
+    this.keyService = keyService;
     this.tokenRepository = tokenRepository;
   }
 
   @Transactional
   @Override
-  public void login(@NonNull String refreshToken, @NonNull String email) {
+  public void login(@NonNull String refreshToken, @NonNull String email, @NonNull String key) {
     // get account by email
     AccountDTO accountDTO = accountService.findByEmail(email);
     Account account = em.merge(Account.fromDTO(accountDTO));
 
     // delete all existing refresh tokens
     tokenRepository.deleteAllAccountTokensByPublicId(account.getPublicId());
+
+    // delete existing key
+    keyService.deleteAccountKey(accountDTO.getPublicId());
+
+    // save new key in database
+    keyService.save(key, account);
 
     // save new refresh token in database
     tokenRepository.save(new RefreshToken(refreshToken, account));
@@ -73,5 +83,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Override
   public int deleteAllAccountTokens(@NonNull String publicId) {
     return tokenRepository.deleteAllAccountTokensByPublicId(UUID.fromString(publicId));
+  }
+
+  @Override
+  public void logout(@NonNull String publicId) {
+    deleteAllAccountTokens(publicId);
+    keyService.deleteAccountKey(UUID.fromString(publicId));
   }
 }
