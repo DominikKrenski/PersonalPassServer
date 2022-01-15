@@ -85,6 +85,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     return tokenRepository.deleteAllAccountTokensByPublicId(UUID.fromString(publicId));
   }
 
+  @Transactional
   @Override
   public void logout(@NonNull String publicId) {
     deleteAllAccountTokens(publicId);
