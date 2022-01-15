@@ -35,11 +35,11 @@ public class SecurityUtils {
 
   public void prepareForbiddenResponse(HttpServletResponse response, String message) throws IOException {
     ApiError apiError = ApiError
-        .builder()
-        .status(HttpStatus.FORBIDDEN)
-        .timestamp(Instant.now())
-        .message(message)
-        .build();
+      .builder()
+      .status(HttpStatus.FORBIDDEN)
+      .timestamp(Instant.now())
+      .message(message)
+      .build();
 
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     response.getWriter().write(mapper.writeValueAsString(apiError));

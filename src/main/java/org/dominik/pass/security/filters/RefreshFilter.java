@@ -26,10 +26,14 @@ public final class RefreshFilter extends OncePerRequestFilter {
   private static final String HEADER = "Authorization";
   private static final String SCHEME = "Bearer ";
 
-  @NonNull private final ObjectMapper mapper;
-  @NonNull private final JwtUtils jwtUtils;
-  @NonNull private final RefreshTokenService refreshTokenService;
-  @NonNull private final SecurityUtils securityUtils;
+  @NonNull
+  private final ObjectMapper mapper;
+  @NonNull
+  private final JwtUtils jwtUtils;
+  @NonNull
+  private final RefreshTokenService refreshTokenService;
+  @NonNull
+  private final SecurityUtils securityUtils;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -71,7 +75,7 @@ public final class RefreshFilter extends OncePerRequestFilter {
     }
 
     try {
-      String subject =  jwtUtils.readSubject(token, JwtUtils.TokenType.REFRESH_TOKEN);
+      String subject = jwtUtils.readSubject(token, JwtUtils.TokenType.REFRESH_TOKEN);
       RefreshTokenDTO refreshTokenDTO = refreshTokenService.findByToken(token);
 
       if (refreshTokenDTO.isUsed()) {

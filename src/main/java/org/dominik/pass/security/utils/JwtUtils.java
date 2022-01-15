@@ -1,6 +1,9 @@
 package org.dominik.pass.security.utils;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtParserBuilder;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.NonNull;
 import org.dominik.pass.configuration.JwtConfig;
@@ -33,10 +36,10 @@ public final class JwtUtils {
     Instant now = Instant.now();
 
     JwtBuilder builder = Jwts
-        .builder()
-        .setIssuer(jwtConfig.getIssuer())
-        .setSubject(subject)
-        .setIssuedAt(Date.from(now));
+      .builder()
+      .setIssuer(jwtConfig.getIssuer())
+      .setSubject(subject)
+      .setIssuedAt(Date.from(now));
 
     if (tokenType == TokenType.ACCESS_TOKEN) {
       builder.setAudience(jwtConfig.getAccessToken().getAudience());

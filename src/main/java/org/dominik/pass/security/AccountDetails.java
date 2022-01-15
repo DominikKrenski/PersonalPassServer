@@ -23,14 +23,14 @@ public final class AccountDetails implements UserDetails {
   private final List<GrantedAuthority> authorities;
 
   private AccountDetails(
-      @NonNull String username,
-      @NonNull UUID publicId,
-      @NonNull String password,
-      boolean accountNonExpired,
-      boolean accountNonLocked,
-      boolean credentialsNonExpired,
-      boolean enabled,
-      List<GrantedAuthority> authorities
+    @NonNull String username,
+    @NonNull UUID publicId,
+    @NonNull String password,
+    boolean accountNonExpired,
+    boolean accountNonLocked,
+    boolean credentialsNonExpired,
+    boolean enabled,
+    List<GrantedAuthority> authorities
   ) {
     this.username = username;
     this.publicId = publicId;
@@ -83,14 +83,14 @@ public final class AccountDetails implements UserDetails {
 
   public static AccountDetails fromDTO(@NonNull AccountDTO dto) {
     return new AccountDetails(
-        dto.getEmail(),
-        dto.getPublicId(),
-        dto.getPassword(),
-        dto.isAccountNonExpired(),
-        dto.isAccountNonLocked(),
-        dto.isCredentialsNonExpired(),
-        dto.isEnabled(),
-        List.of(new SimpleGrantedAuthority(dto.getRole().toString()))
+      dto.getEmail(),
+      dto.getPublicId(),
+      dto.getPassword(),
+      dto.isAccountNonExpired(),
+      dto.isAccountNonLocked(),
+      dto.isCredentialsNonExpired(),
+      dto.isEnabled(),
+      List.of(new SimpleGrantedAuthority(dto.getRole().toString()))
     );
   }
 }

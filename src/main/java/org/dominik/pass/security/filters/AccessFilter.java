@@ -28,9 +28,12 @@ import java.util.UUID;
 public class AccessFilter extends OncePerRequestFilter {
   private static final String HEADER = "Authorization";
 
-  @NonNull private final AccountService accountService;
-  @NonNull private final JwtUtils jwtUtils;
-  @NonNull private final SecurityUtils securityUtils;
+  @NonNull
+  private final AccountService accountService;
+  @NonNull
+  private final JwtUtils jwtUtils;
+  @NonNull
+  private final SecurityUtils securityUtils;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -65,7 +68,7 @@ public class AccessFilter extends OncePerRequestFilter {
 
       // create Authentication object
       UsernamePasswordAuthenticationToken authToken =
-          new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
+        new UsernamePasswordAuthenticationToken(accountDetails, null, accountDetails.getAuthorities());
 
       // create empty SecurityContext
       SecurityContext context = SecurityContextHolder.createEmptyContext();
