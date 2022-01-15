@@ -8,6 +8,7 @@ import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
+import org.dominik.pass.services.definitions.KeyService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
@@ -26,16 +27,19 @@ import javax.validation.constraints.NotBlank;
 public class AuthController {
   private final AccountService accountService;
   private final RefreshTokenService tokenService;
+  private final KeyService keyService;
   private final SecurityUtils securityUtils;
 
   @Autowired
   public AuthController(
       AccountService accountService,
       RefreshTokenService tokenService,
+      KeyService keyService,
       SecurityUtils securityUtils
   ) {
     this.accountService = accountService;
     this.tokenService = tokenService;
+    this.keyService = keyService;
     this.securityUtils = securityUtils;
   }
 
@@ -71,9 +75,7 @@ public class AuthController {
   @PreAuthorize("hasRole('ROLE_USER')")
   public ResponseEntity<Object> signout() {
     AccountDetails accountDetails = securityUtils.getPrincipal();
-    int deletedRows = tokenService.deleteAllAccountTokens(accountDetails.getPublicId().toString());
-
-    log.debug("DELETED REFRESH TOKENS: " + deletedRows);
+    tokenService.logout(accountDetails.getPublicId().toString());
 
     return ResponseEntity.ok().build();
   }

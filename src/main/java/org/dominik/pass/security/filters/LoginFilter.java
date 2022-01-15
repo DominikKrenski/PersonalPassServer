@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.SecureRandom;
 
 public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authManager;
@@ -28,10 +29,10 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final JwtUtils jwtUtils;
 
   public LoginFilter(
-      AuthenticationManager authManager,
-      ObjectMapper mapper,
-      RefreshTokenService tokenService,
-      JwtUtils jwtUtils
+    AuthenticationManager authManager,
+    ObjectMapper mapper,
+    RefreshTokenService tokenService,
+    JwtUtils jwtUtils
   ) {
     this.authManager = authManager;
     this.mapper = mapper;
@@ -56,7 +57,7 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     return authManager.authenticate(
-        new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getPassword())
+      new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getPassword())
     );
   }
 
@@ -64,21 +65,43 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
     AccountDetails details = (AccountDetails) authResult.getPrincipal();
 
+    // generate token pair
     String accessToken = jwtUtils.createToken(details.getPublicId().toString(), JwtUtils.TokenType.ACCESS_TOKEN);
     String refreshToken = jwtUtils.createToken(details.getPublicId().toString(), JwtUtils.TokenType.REFRESH_TOKEN);
 
+    //generate new secure key for master key encryption/decryption
+    String key = generateSecureKeyHex();
+
     // save new refresh token in database
-    tokenService.login(refreshToken, details.getUsername());
+    tokenService.login(refreshToken, details.getUsername(), key);
 
     AuthDTO authDTO = AuthDTO
-        .builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .build();
+      .builder()
+      .key(key)
+      .accessToken(accessToken)
+      .refreshToken(refreshToken)
+      .build();
 
     String json = mapper.writeValueAsString(authDTO);
 
     response.getWriter().write(json);
+  }
+
+  private String generateSecureKeyHex() {
+    SecureRandom random = new SecureRandom();
+    byte[] bytes = new byte[16];
+    random.nextBytes(bytes);
+
+    return convertByteArrayToHex(bytes);
+  }
+
+  private String convertByteArrayToHex(byte[] arr) {
+    StringBuilder builder = new StringBuilder();
+
+    for (byte i : arr)
+      builder.append(String.format("%02X", i));
+
+    return builder.toString();
   }
 
   @Setter

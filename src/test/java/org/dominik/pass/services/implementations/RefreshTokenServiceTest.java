@@ -97,6 +97,7 @@ class RefreshTokenServiceTest {
     verify(accountService).findByEmail(EMAIL);
     verify(em).merge(isA(Account.class));
     verify(tokenRepository).deleteAllAccountTokensByPublicId(isA(UUID.class));
+    verify(keyService).deleteAccountKey(any(UUID.class));
     verify(tokenRepository).save(isA(RefreshToken.class));
   }
 
@@ -106,6 +107,21 @@ class RefreshTokenServiceTest {
     ReflectionTestUtils.setField(tokenService, "em", em);
     when(accountService.findByEmail(any(String.class))).thenThrow(new NotFoundException("Account does not exist"));
     assertThrows(NotFoundException.class, () -> tokenService.login("refresh_token", EMAIL, "master key"));
+  }
+
+  @Test
+  @DisplayName("should trow InternalException if key could not be deleted")
+  void shouldThrowInternalExceptionIfKeyCouldNotBeDeleted() {
+    ReflectionTestUtils.setField(tokenService, "em", em);
+
+    AccountDTO accountDTO = AccountDTO.fromAccount(account);
+
+    when(accountService.findByEmail(any(String.class))).thenReturn(accountDTO);
+    when(em.merge(any(Account.class))).thenReturn(account);
+    when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(2);
+    doThrow(new InternalException("Not deleted")).when(keyService).deleteAccountKey(any(UUID.class));
+
+    assertThrows(InternalException.class, () -> tokenService.login("refresh", "email", "key"));
   }
 
   @Test
@@ -194,7 +210,7 @@ class RefreshTokenServiceTest {
   }
 
   @Test
-  @DisplayName("should throw InternalException if key could not be updated")
+  @DisplayName("should throw InternalException if key could not be deleted")
   void shouldThrowInternalExceptionIfKeyCouldNotBeUpdated() {
     when(tokenRepository.deleteAllAccountTokensByPublicId(any(UUID.class))).thenReturn(5);
     doThrow(new InternalException("Could not delete")).when(keyService).deleteAccountKey(any(UUID.class));

@@ -2,7 +2,9 @@ package org.dominik.pass.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.dominik.pass.data.dto.AccountDTO;
+import org.dominik.pass.db.entities.Key;
 import org.dominik.pass.db.entities.RefreshToken;
+import org.dominik.pass.db.repositories.KeyRepository;
 import org.dominik.pass.db.repositories.RefreshTokenRepository;
 import org.dominik.pass.services.definitions.AccountService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
@@ -22,9 +24,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static org.dominik.pass.utils.TestUtils.generateJwtToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,6 +55,7 @@ class AuthControllerSignoutBootTestIT {
   @Autowired MockMvc mvc;
   @Autowired AccountService accountService;
   @Autowired RefreshTokenRepository tokenRepository;
+  @Autowired KeyRepository keyRepository;
 
   @BeforeEach
   void beforeEach() throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
@@ -72,6 +77,9 @@ class AuthControllerSignoutBootTestIT {
         .andExpect(status().isOk())
         .andDo(res -> {
           List<RefreshToken> tokens = tokenRepository.findAll();
+          Optional<Key> key = keyRepository.findById(accountService.findByEmail("dominik.krenski@gmail.com").getId());
+
+          assertTrue(key.isEmpty());
           assertEquals(0, tokens.size());
         });
   }
