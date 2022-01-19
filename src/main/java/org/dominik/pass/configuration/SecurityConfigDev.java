@@ -40,7 +40,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Profile(value = {"dev", "test", "integration"})
+@Profile(value = {"dev", "test", "integration", "local"})
 public class SecurityConfigDev extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final UserDetailsService detailsService;
