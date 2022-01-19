@@ -1,0 +1,206 @@
+debug: false
+
+logging:
+  charset:
+    #console: UTF-8
+    file: UTF-8
+  file:
+    name: app-dev.log
+  level:
+    org.dominik.pass: ERROR
+    #org.hibernate.SQL: DEBUG
+    #org.hibernate.type.descriptor.sql: TRACE
+    #org.hibernate.stat: DEBUG
+    #org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
+    #org.springframework.security.web.FilterChainProxy: DEBUG
+    #web: DEBUG
+  logback:
+    rollingpolicy:
+      clean-history-on-start: true
+      max-file-size: 1MB
+      max-history: 2
+
+spring:
+  application:
+    name: PersonalPass
+  main:
+    banner-mode: off
+    log-startup-info: false
+  mandatory-file-encoding: UTF-8
+  messages:
+    always-use-message-format: false
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    use-code-as-default-message: false
+  jackson:
+    date-format: "dd/MM/yyyy'T'HH:mm:ss.SSS'Z'"
+    default-property-inclusion: NON_EMPTY
+    deserialization:
+      use-big-decimal-for-floats: false
+      use-big-integer-for-ints: false
+      use-long-for-ints: false
+      use-java-array-for-json-array: false
+      fail-on-unknown-properties: true
+      fail-on-null-for-primitives: true
+      fail-on-numbers-for-enums: true
+      fail-on-invalid-subtype: true
+      fail-on-reading-dup-tree-key: true
+      fail-on-ignored-properties: true
+      fail-on-unresolved-object-ids: true
+      fail-on-missing-creator-properties: true
+      fail-on-null-creator-properties: true
+      fail-on-missing-external-type-id-property: true
+      fail-on-trailing-tokens: true
+      wrap-exceptions: true
+      accept-single-value-as-array: false
+      unwrap-single-value-arrays: false
+      unwrap-root-value: false
+      accept-empty-string-as-null-object: true
+      accept-empty-array-as-null-object: true
+      accept-float-as-int: false
+      read-enums-using-to-string: false
+      read-unknown-enum-values-as-null: false
+      read-unknown-enum-values-using-default-value: true
+      read-date-timestamps-as-nanoseconds: false
+      adjust-dates-to-context-time-zone: false
+      eager-deserializer-fetch: true
+    locale: pl
+    property-naming-strategy: LOWER_CAMEL_CASE
+    serialization:
+      wrap-root-value: false
+      indent-output: false
+      fail-on-empty-beans: true
+      fail-on-self-references: true
+      wrap-exceptions: true
+      fail-on-unwrapped-type-identifiers: true
+      write-self-references-as-null: false
+      close-closeable: false
+      flush-after-write-value: true
+      write-dates-as-timestamps: false
+      write-date-keys-as-timestamps: false
+      write-dates-with-zone-id: false
+      write-durations-as-timestamps: false
+      write-char-arrays-as-json-arrays: true
+      write-enums-using-to-string: false
+      write-enums-using-index: false
+      write-enum-keys-using-index: false
+      write-single-elem-arrays-unwrapped: false
+      write-date-timestamps-as-nanoseconds: false
+      order-map-entries-by-keys: true
+      eager-serializer-fetch: true
+      use-equality-for-object-id: false
+    time-zone: UTC
+    visibility:
+      creator: PUBLIC_ONLY
+      field: NONE
+      getter: PUBLIC_ONLY
+      setter: PUBLIC_ONLY
+      is-getter: PUBLIC_ONLY
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: default
+        enabled: true
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 30
+        one-indexed-parameters: false
+        page-parameter: p
+        qualifier-delimiter: _
+        size-parameter: s
+      sort:
+        sort-parameter: sort
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    generate-unique-name: false
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-idle: 10
+      maximum-pool-size: 15
+    name: hikari-local-datasource
+    password: PhhxMVloMYIpAMXL
+    url: jdbc:postgresql://172.17.0.1:5432/personal_pass?currentSchema=local
+    username: pass_user
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+      use-new-id-generator-mappings: true
+    open-in-view: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        show_sql: false
+        format_sql: false
+        generate_statistics: true
+        use_sql_comments: true
+  jta:
+    enabled: true
+    transaction-manager-id: local-transaction-manager
+    rollback-on-commit-failure: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    contexts: local
+    default-schema: local
+    enabled: true
+    liquibase-schema: local
+    password: H7BFiLRfW060oiHd
+    url: jdbc:postgresql://172.17.0.1:5432/personal_pass
+    user: pass_owner
+  mvc:
+    converters:
+      preferred-json-mapper: jackson
+    format:
+      date: dd/MM/yyyy
+      date-time: dd/MM/yyyy HH:mm:ss
+      time: HH:mm:ss
+    log-request-details: true
+    log-resolved-exception: true
+    servlet:
+      load-on-startup: -1
+      path: /
+    throw-exception-if-no-handler-found: true
+  servlet:
+    multipart:
+      enabled: false
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  address: 0.0.0.0
+  compression:
+    enabled: true
+  error:
+    include-binding-errros: always
+    include-exception: true
+    include-message: always
+    include-stacktrace: always
+    path: /error
+    whitelabel:
+      enabled: false
+  forward-header-strategy: native
+  http2:
+    enabled: false
+  port: 80
+  servlet:
+    application-display-name: personal-pass
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+  #ssl:
+  #  enabled: true
+  #  key-alias: personal-pass
+  #  key-store: classpath:certs/personal-pass-app.p12
+  #  key-store-password: Dominik1984!
+  #  key-store-type: PKCS12
