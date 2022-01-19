@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: create-refresh-tokens-table
       author: Dominik Kreński
-      context: dev, integration
+      context: dev, integration, local
       changes:
         - createSequence:
             dataType: BIGINT
