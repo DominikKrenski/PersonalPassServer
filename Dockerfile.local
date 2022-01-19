@@ -1,0 +1,16 @@
+FROM openjdk:17-oracle
+
+ARG UID=102
+ARG GUID=102
+ARG JAR_FILE=target/*.jar
+
+RUN groupadd --gid $GUID --system app && \
+    useradd --gid $GUID --system --shell /bin/false --uid $UID app
+
+COPY $JAR_FILE personal-pass.jar
+
+EXPOSE 80
+
+USER $UID
+
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=local", "personal-pass.jar"]
