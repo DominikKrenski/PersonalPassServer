@@ -1,5 +1,9 @@
 package org.dominik.pass.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -47,6 +51,12 @@ public class AccountController {
     this.emailService = emailService;
   }
 
+  @Operation(summary = "Get account")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Get account",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountDTO.class))
+  )
   @GetMapping(
       value = "/",
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -57,6 +67,12 @@ public class AccountController {
     return accountService.findByEmail(accountDetails.getUsername());
   }
 
+  @Operation(summary = "Update account's email address")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Email address has been updated successfully",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountDTO.class))
+  )
   @PutMapping(
       value = "/email",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -70,6 +86,12 @@ public class AccountController {
     return accountService.updateEmail(body.getEmail(), accountDetails.getUsername());
   }
 
+  @Operation(summary = "Send email with password reminder")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Email has been sent",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailResponse.class))
+  )
   @PostMapping(
       value = "/hint",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -80,6 +102,12 @@ public class AccountController {
     return new EmailResponse(emailService.sendHint(body.getEmail()));
   }
 
+  @Operation(summary = "Send test email")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Test email has been sent",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmailResponse.class))
+  )
   @GetMapping(
       value = "/test-email",
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -91,6 +119,11 @@ public class AccountController {
     return new EmailResponse(emailService.sendTestEmail(accountDetails.getUsername()));
   }
 
+  @Operation(summary = "Delete account")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Account has been deleted"
+  )
   @DeleteMapping(
       value = {"", "/"},
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -103,6 +136,12 @@ public class AccountController {
     accountService.deleteAccount(accountDetails.getPublicId());
   }
 
+  @Operation(summary = "Get salt assigned to given account")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Salt has been found",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDTO.class))
+  )
   @GetMapping(
       value="/salt",
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -114,6 +153,11 @@ public class AccountController {
     return AuthDTO.builder().salt(accountDTO.getSalt()).build();
   }
 
+  @Operation(summary = "Update password")
+  @ApiResponse(
+    responseCode = "204",
+    description = "Password and all related data has been updated"
+  )
   @PutMapping(
     consumes = MediaType.APPLICATION_JSON_VALUE
   )
@@ -126,21 +170,44 @@ public class AccountController {
     dataService.updateAllData(accountDetails.getPublicId(), passwordDTO);
   }
 
+  @Schema(
+    description = "Class used to pass successful response from Sendinblue API"
+  )
   @AllArgsConstructor
   @Getter
   @ToString
   private static final class EmailResponse {
+
+    @Schema(
+      description = "Id of the email that has been sent successfully",
+      name = "emailId",
+      required = true
+    )
     private String emailId;
   }
 
+  @Schema(
+    description = "Class used to update email and send email with password reminder"
+  )
   @Getter
   @ToString
   private static final class AccountData {
+
+    @Schema(
+      description = "User's email address",
+      name = "email",
+      maxLength = 360
+    )
     @NotBlank(message = "{email.blank.message}", groups = EmailUpdate.class)
     @Length(message = "{email.length.message}", groups = EmailUpdate.class)
     @EmailAddress(message = "{email.format.message}", groups = EmailUpdate.class)
     private String email;
 
+    @Schema(
+      description = "Password reminder",
+      name = "reminder",
+      maxLength = 255
+    )
     @NotBlank(message = "{reminder.blank.message}", groups = ReminderUpdate.class)
     @Length(max = 255, message = "{reminder.length.message}", groups = ReminderUpdate.class)
     private String reminder;

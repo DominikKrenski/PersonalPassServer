@@ -1,21 +1,62 @@
 package org.dominik.pass.data.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
+@Schema(
+  description = "Class used to pass info about authentication to the client"
+)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @ToString
 public final class AuthDTO implements Serializable {
   @Serial private static final long serialVersionUID = 3L;
 
+  @Schema(
+    description = "Account's public id",
+    name = "publicId",
+    required = true,
+    type = "string($uuid)"
+  )
   private UUID publicId;
+
+  @Schema(
+    description = "Salt used to hash password",
+    name = "salt",
+    required = true,
+    type = "string",
+    minLength = 32,
+    maxLength = 32,
+    pattern = "^[a-fA-F0-9]{2,}$"
+  )
   private String salt;
+
+  @Schema(
+    description = "Access token",
+    name = "accessToken",
+    required = true
+  )
   private String accessToken;
+
+  @Schema(
+    description = "Refresh token",
+    name = "refreshToken",
+    required = true
+  )
   private String refreshToken;
+
+  @Schema(
+    description = "Key used to encrypt master key",
+    name = "key",
+    required = true,
+    minLength = 32,
+    maxLength = 32,
+    pattern = "^[a-fA-F0-9]{2,}$"
+  )
   private String key;
 
   public static AuthBuilder builder() {

@@ -1,5 +1,9 @@
 package org.dominik.pass.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.AccountDTO;
@@ -8,7 +12,6 @@ import org.dominik.pass.data.dto.RegistrationDTO;
 import org.dominik.pass.security.AccountDetails;
 import org.dominik.pass.security.utils.SecurityUtils;
 import org.dominik.pass.services.definitions.AccountService;
-import org.dominik.pass.services.definitions.KeyService;
 import org.dominik.pass.services.definitions.RefreshTokenService;
 import org.dominik.pass.utils.validators.EmailAddress;
 import org.hibernate.validator.constraints.Length;
@@ -27,22 +30,25 @@ import javax.validation.constraints.NotBlank;
 public class AuthController {
   private final AccountService accountService;
   private final RefreshTokenService tokenService;
-  private final KeyService keyService;
   private final SecurityUtils securityUtils;
 
   @Autowired
   public AuthController(
       AccountService accountService,
       RefreshTokenService tokenService,
-      KeyService keyService,
       SecurityUtils securityUtils
   ) {
     this.accountService = accountService;
     this.tokenService = tokenService;
-    this.keyService = keyService;
     this.securityUtils = securityUtils;
   }
 
+  @Operation(summary = "Create a new account")
+  @ApiResponse(
+    responseCode = "200",
+    description = "An account has been created successfully",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDTO.class))
+  )
   @PostMapping(
       value = "/signup",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -56,6 +62,12 @@ public class AuthController {
         .build();
   }
 
+  @Operation(summary = "Send salt assigned to account with given email address")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Salt has been found",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDTO.class))
+  )
   @PostMapping(
       value = "/salt",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -69,6 +81,11 @@ public class AuthController {
         .build();
   }
 
+  @Operation(summary = "Log out user")
+  @ApiResponse(
+    responseCode = "200",
+    description = "User has been log out successfully"
+  )
   @GetMapping(
       value = "/signout"
   )
@@ -80,8 +97,18 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
+  @Schema(
+    description = "Class used to get password salt belonging to user with given email address"
+  )
   @Getter
   private static final class Data {
+
+    @Schema(
+      description = "User's email address",
+      name = "email",
+      required = true,
+      maxLength = 360
+    )
     @NotBlank(message = "{email.blank.message}")
     @Length(max = 360, message = "{email.length.message}")
     @EmailAddress(message = "{email.format.message}")

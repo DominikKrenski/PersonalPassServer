@@ -15,6 +15,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -28,6 +29,7 @@ import java.util.*;
 @Slf4j
 @RestControllerAdvice
 public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
+  @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE METHOD ARGUMENT NOT VALID: " + Arrays.toString(ex.getStackTrace()));
@@ -44,6 +46,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @Override
   protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE TYPE MISMATCH: " + Arrays.toString(ex.getStackTrace()));
@@ -58,6 +61,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @Override
   protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE HTTP MESSAGE NOT READABLE: " + Arrays.toString(ex.getStackTrace()));
@@ -72,6 +76,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
+  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
   @Override
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE METHOD NOT SUPPORTED: " + Arrays.toString(ex.getStackTrace()));
@@ -86,6 +91,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.METHOD_NOT_ALLOWED);
   }
 
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @Override
   protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE HANDLER NOT FOUND: " + Arrays.toString(ex.getStackTrace()));
@@ -99,8 +105,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
-
-
+  @ResponseStatus(value = HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   @Override
   protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     log.error("HANDLE MEDIA TYPE NOT SUPPORTED: " + Arrays.toString(ex.getStackTrace()));
@@ -114,6 +119,7 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(apiError, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
   }
 
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
     log.error("HANDLE CONSTRAINT VIOLATION EXCEPTION: " + Arrays.toString(ex.getStackTrace()));

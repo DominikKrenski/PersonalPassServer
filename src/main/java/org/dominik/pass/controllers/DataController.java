@@ -1,5 +1,10 @@
 package org.dominik.pass.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.dominik.pass.data.dto.DataDTO;
 import org.dominik.pass.data.dto.EncryptedDataDTO;
@@ -36,6 +41,12 @@ public class DataController {
     this.dataService = dataService;
   }
 
+  @Operation(summary = "Save new data")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Data has been saved",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DataDTO.class))
+  )
   @PostMapping(
       value = {"", "/"},
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -50,6 +61,11 @@ public class DataController {
     return dataService.save(encryptedData.getEntry(), encryptedData.getType(), accountDetails.getPublicId());
   }
 
+  @Operation(summary = "Update data with given public id")
+  @ApiResponse(
+    responseCode = "204",
+    description = "Data has been updated"
+  )
   @PutMapping(
       value = "/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE
@@ -63,6 +79,11 @@ public class DataController {
     dataService.updateData(encryptedData.getEntry(), id);
   }
 
+  @Operation(summary = "Delete data with given public id")
+  @ApiResponse(
+    responseCode = "204",
+    description = "Data has been deleted"
+  )
   @DeleteMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasRole('ROLE_USER')")
@@ -71,6 +92,11 @@ public class DataController {
     dataService.deleteData(id);
   }
 
+  @Operation(summary = "Delete all data belonging to user")
+  @ApiResponse(
+    responseCode = "204",
+    description = "All user data has been deleted"
+  )
   @DeleteMapping(value = {"", "/"})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasRole('ROLE_USER')")
@@ -80,6 +106,12 @@ public class DataController {
     dataService.deleteAllUserData(accountDetails.getPublicId());
   }
 
+  @Operation(summary = "Find data by public id")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Data has been found",
+    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DataDTO.class))
+  )
   @GetMapping(
       value = "/{id}",
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -90,6 +122,12 @@ public class DataController {
     return dataService.findData(id);
   }
 
+  @Operation(summary = "Find all user data with given type")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Find all data with given type",
+    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DataDTO.class)))
+  )
   @GetMapping(
       value = "",
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -100,6 +138,12 @@ public class DataController {
     return dataService.findAllUserDataByType(type, accountDetails.getPublicId());
   }
 
+  @Operation(summary = "Get all user data")
+  @ApiResponse(
+    responseCode = "200",
+    description = "Find all user data",
+    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DataDTO.class)))
+  )
   @GetMapping(
       value = "/all",
       produces = MediaType.APPLICATION_JSON_VALUE
