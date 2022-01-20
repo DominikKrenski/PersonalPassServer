@@ -5,12 +5,16 @@ ARG GUID=102
 ARG JAR_FILE=target/*.jar
 
 RUN groupadd --gid $GUID --system app && \
-    useradd --gid $GUID --system --shell /bin/false --uid $UID app
+    useradd --gid $GUID --system --shell /bin/false --uid $UID app && \
+    mkdir -p /application/logs && \
+    chown -R 102:102 application
 
+WORKDIR /application
 COPY $JAR_FILE personal-pass.jar
 
+VOLUME application/logs
 EXPOSE 80
 
 USER $UID
 
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=local", "personal-pass.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=local", "/application/personal-pass.jar"]
