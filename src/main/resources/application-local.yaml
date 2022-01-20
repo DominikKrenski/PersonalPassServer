@@ -5,7 +5,7 @@ logging:
     #console: UTF-8
     file: UTF-8
   file:
-    name: app-dev.log
+    name: logs/app-local.log
   level:
     org.dominik.pass: ERROR
     #org.hibernate.SQL: DEBUG
