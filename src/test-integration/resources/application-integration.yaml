@@ -185,5 +185,5 @@ server:
     enabled: true
     key-alias: personal-pass
     key-store: classpath:certs/personal-pass-app.p12
-    key-store-password: Dominik1984!
+    key-store-password: Dominik1984
     key-store-type: PKCS12
