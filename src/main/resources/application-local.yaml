@@ -2,18 +2,11 @@ debug: false
 
 logging:
   charset:
-    #console: UTF-8
     file: UTF-8
   file:
     name: logs/app-local.log
   level:
     org.dominik.pass: ERROR
-    #org.hibernate.SQL: DEBUG
-    #org.hibernate.type.descriptor.sql: TRACE
-    #org.hibernate.stat: DEBUG
-    #org.hibernate.engine.transaction.internal.TransactionImpl: DEBUG
-    #org.springframework.security.web.FilterChainProxy: DEBUG
-    #web: DEBUG
   logback:
     rollingpolicy:
       clean-history-on-start: true
@@ -198,9 +191,3 @@ server:
     encoding:
       charset: UTF-8
       enabled: true
-  #ssl:
-  #  enabled: true
-  #  key-alias: personal-pass
-  #  key-store: classpath:certs/personal-pass-app.p12
-  #  key-store-password: Dominik1984!
-  #  key-store-type: PKCS12
