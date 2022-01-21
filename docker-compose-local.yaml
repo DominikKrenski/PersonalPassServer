@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: pass-server-local
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - "pass-server:/application/logs"
+
+volumes:
+  pass-server:
