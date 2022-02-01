@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.Locale;
 
 public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authManager;
@@ -45,8 +46,8 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
     if (!request.getMethod().equalsIgnoreCase("POST"))
       throw new AuthenticationServiceException("Authentication method not supported");
 
-    if (!request.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE))
-      throw new AuthenticationServiceException("Content-Type not supported");
+    if (!request.getContentType().toLowerCase(Locale.ROOT).contains(MediaType.APPLICATION_JSON_VALUE.toLowerCase(Locale.ROOT)))
+      throw new AuthenticationServiceException("Content-TYpe not supported");
 
     Credentials creds;
 
