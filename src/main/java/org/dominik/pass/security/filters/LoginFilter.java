@@ -47,7 +47,7 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
       throw new AuthenticationServiceException("Authentication method not supported");
 
     if (!request.getContentType().toLowerCase(Locale.ROOT).contains(MediaType.APPLICATION_JSON_VALUE.toLowerCase(Locale.ROOT)))
-      throw new AuthenticationServiceException("Content-TYpe not supported");
+      throw new AuthenticationServiceException("Content-Type not supported");
 
     Credentials creds;
 
@@ -102,7 +102,7 @@ public final class LoginFilter extends UsernamePasswordAuthenticationFilter {
     for (byte i : arr)
       builder.append(String.format("%02X", i));
 
-    return builder.toString();
+    return builder.toString().toLowerCase(Locale.ROOT);
   }
 
   @Setter
